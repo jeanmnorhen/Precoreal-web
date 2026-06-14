@@ -135,7 +135,7 @@ export function OfertasFeed() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {ofertas.map((oferta, i) => (
             <Link key={oferta.id}
-              href={`/produtos/${oferta.codigoBarras ? `?codigo=${oferta.codigoBarras}` : '#'}`}
+              href={`/busca?busca=${encodeURIComponent(oferta.codigoBarras || oferta.produtoNome)}`}
               className="p-5 rounded-xl transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up group"
               style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)', animationDelay: `${i * 0.05}s` }}>
               <p className="font-bold text-base mb-1 group-hover:text-navy-600 transition-colors">
