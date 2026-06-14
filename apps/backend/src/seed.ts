@@ -55,44 +55,44 @@ async function seed() {
   console.log(`   Lojista: joao@email.com / 123456 (id: ${lojista.id})`);
   console.log(`   Lojista2: supercentro@email.com / 123456 (id: ${lojista2.id})`);
 
-  // ─── LOJAS ───
+  // ─── LOJAS (em Santos, SP — próximas à localização de teste -23.941574, -46.34396) ───
   const [loja1] = await db.insert(schema.lojas).values({
     usuarioProprietarioId: lojista.id,
     nome: 'Mercado do João',
     descricao: 'Mercado de bairro com preços justos e produtos frescos.',
-    enderecoRua: 'Rua Augusta',
-    enderecoNumero: '1500',
-    enderecoBairro: 'Consolação',
-    enderecoCidade: 'São Paulo',
+    enderecoRua: 'Av. Conselheiro Nébias',
+    enderecoNumero: '500',
+    enderecoBairro: 'Centro',
+    enderecoCidade: 'Santos',
     enderecoEstado: 'SP',
-    enderecoCep: '01304001',
-    localizacao: 'SRID=4326;POINT(-46.6488 -23.5632)',
+    enderecoCep: '11015001',
+    localizacao: 'SRID=4326;POINT(-46.3440 -23.9410)',
   }).returning();
 
   const [loja2] = await db.insert(schema.lojas).values({
     usuarioProprietarioId: lojista.id,
     nome: 'Empório do João',
     descricao: 'Empório com produtos gourmet e importados.',
-    enderecoRua: 'Rua Oscar Freire',
-    enderecoNumero: '900',
-    enderecoBairro: 'Jardins',
-    enderecoCidade: 'São Paulo',
+    enderecoRua: 'Av. Ana Costa',
+    enderecoNumero: '200',
+    enderecoBairro: 'Gonzaga',
+    enderecoCidade: 'Santos',
     enderecoEstado: 'SP',
-    enderecoCep: '01426001',
-    localizacao: 'SRID=4326;POINT(-46.6689 -23.5667)',
+    enderecoCep: '11060001',
+    localizacao: 'SRID=4326;POINT(-46.3283 -23.9633)',
   }).returning();
 
   const [loja3] = await db.insert(schema.lojas).values({
     usuarioProprietarioId: lojista2.id,
     nome: 'Super Centro Atacado',
     descricao: 'Atacado e varejo com os menores preços da região.',
-    enderecoRua: 'Av. Paulista',
-    enderecoNumero: '1000',
-    enderecoBairro: 'Bela Vista',
-    enderecoCidade: 'São Paulo',
+    enderecoRua: 'Av. Bartolomeu de Gusmão',
+    enderecoNumero: '100',
+    enderecoBairro: 'Ponta da Praia',
+    enderecoCidade: 'Santos',
     enderecoEstado: 'SP',
-    enderecoCep: '01310100',
-    localizacao: 'SRID=4326;POINT(-46.6520 -23.5630)',
+    enderecoCep: '11030001',
+    localizacao: 'SRID=4326;POINT(-46.3167 -23.9667)',
   }).returning();
 
   console.log('🏪 Lojas criadas:', loja1.nome, '/', loja2.nome, '/', loja3.nome);
@@ -127,16 +127,16 @@ async function seed() {
   // ─── ANÚNCIOS (ofertas) ───
   const now = new Date();
   const anunciosData = [
-    { lojaId: loja1.id, produtoId: createdProdutos[0].id, titulo: 'Leite Integral em Oferta!', descricao: 'Leite Italac 1L por apenas R$ 3,99', raioAlcanceKm: 5, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja1.id, produtoId: createdProdutos[1].id, titulo: 'Arroz Tio João 5kg', descricao: 'Arroz tipo 1 por R$ 21,99', raioAlcanceKm: 5, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja1.id, produtoId: createdProdutos[4].id, titulo: 'Açúcar União 1kg', descricao: 'Açúcar refinado por R$ 2,99', raioAlcanceKm: 3, custoCreditos: 5, dataInicio: now, dataFim: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja2.id, produtoId: createdProdutos[5].id, titulo: 'Café Pilão Seleção 500g', descricao: 'Café torrado moído premium por R$ 18,99', raioAlcanceKm: 8, custoCreditos: 15, dataInicio: now, dataFim: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja2.id, produtoId: createdProdutos[12].id, titulo: 'Coca-Cola 2L Gelada', descricao: 'Refrigerante Coca-Cola 2L por R$ 6,99', raioAlcanceKm: 5, custoCreditos: 8, dataInicio: now, dataFim: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja2.id, produtoId: createdProdutos[8].id, titulo: 'Sabão Omo Progress 800g', descricao: 'Sabão em pó Omo por R$ 15,99', raioAlcanceKm: 5, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja3.id, produtoId: createdProdutos[2].id, titulo: 'Feijão Camil 1kg', descricao: 'Feijão carioca por apenas R$ 6,99', raioAlcanceKm: 10, custoCreditos: 20, dataInicio: now, dataFim: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja3.id, produtoId: createdProdutos[6].id, titulo: 'Macarrão Adria 500g', descricao: 'Espaguete Adria por R$ 3,49', raioAlcanceKm: 8, custoCreditos: 8, dataInicio: now, dataFim: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja3.id, produtoId: createdProdutos[10].id, titulo: 'Papel Higiênico Neve 12 rolos', descricao: 'Papel higiênico folha dupla por R$ 14,99', raioAlcanceKm: 7, custoCreditos: 12, dataInicio: now, dataFim: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000) },
-    { lojaId: loja3.id, produtoId: createdProdutos[13].id, titulo: 'Suco Del Valle 1L', descricao: 'Suco de laranja integral por R$ 5,49', raioAlcanceKm: 5, custoCreditos: 6, dataInicio: now, dataFim: new Date(now.getTime() + 12 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja1.id, produtoId: createdProdutos[0].id, titulo: 'Leite Integral em Oferta!', descricao: 'Leite Italac 1L por apenas R$ 3,99', raioAlcanceKm: 20, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja1.id, produtoId: createdProdutos[1].id, titulo: 'Arroz Tio João 5kg', descricao: 'Arroz tipo 1 por R$ 21,99', raioAlcanceKm: 20, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja1.id, produtoId: createdProdutos[4].id, titulo: 'Açúcar União 1kg', descricao: 'Açúcar refinado por R$ 2,99', raioAlcanceKm: 20, custoCreditos: 5, dataInicio: now, dataFim: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja2.id, produtoId: createdProdutos[5].id, titulo: 'Café Pilão Seleção 500g', descricao: 'Café torrado moído premium por R$ 18,99', raioAlcanceKm: 20, custoCreditos: 15, dataInicio: now, dataFim: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja2.id, produtoId: createdProdutos[12].id, titulo: 'Coca-Cola 2L Gelada', descricao: 'Refrigerante Coca-Cola 2L por R$ 6,99', raioAlcanceKm: 20, custoCreditos: 8, dataInicio: now, dataFim: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja2.id, produtoId: createdProdutos[8].id, titulo: 'Sabão Omo Progress 800g', descricao: 'Sabão em pó Omo por R$ 15,99', raioAlcanceKm: 20, custoCreditos: 10, dataInicio: now, dataFim: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja3.id, produtoId: createdProdutos[2].id, titulo: 'Feijão Camil 1kg', descricao: 'Feijão carioca por apenas R$ 6,99', raioAlcanceKm: 20, custoCreditos: 20, dataInicio: now, dataFim: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja3.id, produtoId: createdProdutos[6].id, titulo: 'Macarrão Adria 500g', descricao: 'Espaguete Adria por R$ 3,49', raioAlcanceKm: 20, custoCreditos: 8, dataInicio: now, dataFim: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja3.id, produtoId: createdProdutos[10].id, titulo: 'Papel Higiênico Neve 12 rolos', descricao: 'Papel higiênico folha dupla por R$ 14,99', raioAlcanceKm: 20, custoCreditos: 12, dataInicio: now, dataFim: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000) },
+    { lojaId: loja3.id, produtoId: createdProdutos[13].id, titulo: 'Suco Del Valle 1L', descricao: 'Suco de laranja integral por R$ 5,49', raioAlcanceKm: 20, custoCreditos: 6, dataInicio: now, dataFim: new Date(now.getTime() + 12 * 24 * 60 * 60 * 1000) },
   ];
 
   for (const a of anunciosData) {
