@@ -13,7 +13,10 @@ import { RedisService } from '../redis/redis.service';
 export class IdempotencyInterceptor implements NestInterceptor {
   constructor(private readonly redisService: RedisService) {}
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<any>> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest();
     const response = httpContext.getResponse();
@@ -38,7 +41,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
       const { status, body } = JSON.parse(cached);
       if (status === 'PENDING') {
         throw new ConflictException(
-          'Requisição em processamento. Aguarde antes de retransmitir.'
+          'Requisição em processamento. Aguarde antes de retransmitir.',
         );
       } else if (status === 'SUCCESS') {
         // Envia imediatamente a resposta em cache
@@ -53,12 +56,12 @@ export class IdempotencyInterceptor implements NestInterceptor {
       JSON.stringify({ status: 'PENDING' }),
       'EX',
       300,
-      'NX'
+      'NX',
     );
 
     if (!lockSet) {
       throw new ConflictException(
-        'Requisição duplicada concorrente. Bloqueio atômico ativado.'
+        'Requisição duplicada concorrente. Bloqueio atômico ativado.',
       );
     }
 
@@ -79,7 +82,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
         // Se a transação der erro, desfaz o bloqueio atômico para permitir nova tentativa
         redis.del(redisKey);
         return throwError(() => err);
-      })
+      }),
     );
   }
 }

@@ -36,11 +36,10 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 
   const { ref } = useZxing({
     paused,
-    onResult(result) {
+    onDecodeResult(result) {
       handleResult(result.getText());
     },
-    onError(error) {
-      // Suprime erros silenciosos de leitura de frames para evitar vazamento de memória
+    onDecodeError(error) {
       console.debug('[BarcodeScanner] Frame error:', error);
     },
   });

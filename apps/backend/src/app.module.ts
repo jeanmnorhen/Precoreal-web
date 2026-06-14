@@ -7,22 +7,35 @@ import { IdempotencyModule } from './idempotency/idempotency.module';
 import { GeoModule } from './geo/geo.module';
 import { StripeModule } from './stripe/stripe.module';
 import { StorageModule } from './storage/storage.module';
+import { AuthModule } from './auth/auth.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { LojasModule } from './lojas/lojas.module';
+import { ProdutosModule } from './produtos/produtos.module';
+import { AnunciosModule } from './anuncios/anuncios.module';
+import { QueuesModule } from './queues/queues.module';
+import { ScannerModule } from './scanner/scanner.module';
+import { LojistaModule } from './lojista/lojista.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
   imports: [
-    // Carrega variáveis de ambiente de .env
     ConfigModule.forRoot({ isGlobal: true }),
-    // Módulos de infraestrutura global
     RedisModule,
     DatabaseModule,
     TenantModule,
     IdempotencyModule,
-    // Módulos de funcionalidade
     GeoModule,
     StripeModule,
     StorageModule,
+    AuthModule,
+    UsuariosModule,
+    LojasModule,
+    ProdutosModule,
+    AnunciosModule,
+    QueuesModule,
+    ScannerModule,
+    LojistaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

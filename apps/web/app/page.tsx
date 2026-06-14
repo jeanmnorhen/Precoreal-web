@@ -1,3 +1,4 @@
+import { Header } from '@/components/header';
 import Link from 'next/link';
 
 const features = [
@@ -33,31 +34,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col min-h-screen">
 
-      {/* ── Header ── */}
-      <header style={{ borderBottom: '1px solid var(--color-border)' }}
-              className="sticky top-0 z-50 backdrop-blur-md"
-              >
-        <div style={{ background: 'rgba(255,255,255,0.82)' }} className="absolute inset-0" />
-        <div className="relative max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="text-2xl font-bold tracking-tight"
-                style={{ color: 'var(--color-primary)' }}>
-            Preço<span style={{ color: 'var(--color-foreground)' }}>Real</span>
-          </span>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium"
-               style={{ color: 'var(--color-foreground-muted)' }}>
-            <Link href="#como-funciona" className="hover:opacity-70 transition-opacity">Como funciona</Link>
-            <Link href="#recursos" className="hover:opacity-70 transition-opacity">Recursos</Link>
-            <Link href="/lojista" className="hover:opacity-70 transition-opacity">Sou lojista</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/scanner"
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
-                  style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
-              📷 Escanear agora
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* ── Hero ── */}
       <section className="relative flex-1 flex items-center justify-center overflow-hidden py-24 px-6">

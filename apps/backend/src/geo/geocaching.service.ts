@@ -19,7 +19,7 @@ export interface NearbyAdResult {
 export class GeocachingService {
   constructor(
     private readonly dbService: DatabaseService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {}
 
   private get db() {
@@ -35,14 +35,17 @@ export class GeocachingService {
    * @param latitude Coordenada latitude do usuário
    * @param longitude Coordenada longitude do usuário
    */
-  async getNearbyAnuncios(latitude: number, longitude: number): Promise<NearbyAdResult[]> {
+  async getNearbyAnuncios(
+    latitude: number,
+    longitude: number,
+  ): Promise<NearbyAdResult[]> {
     // 1. Calcula os 9 Geohashes regionais relevantes (central + 8 vizinhos)
     const regionalHashes = Geohash.get9Neighbors(latitude, longitude);
-    const redisKeys = regionalHashes.map(hash => `anuncios:geohash:${hash}`);
+    const redisKeys = regionalHashes.map((hash) => `anuncios:geohash:${hash}`);
 
     // 2. Realiza consulta rápida (MGET) no Redis para todos os hashes
     const cachedData = await this.redis.mget(...redisKeys);
-    
+
     let cacheHit = true;
     const combinedAds: NearbyAdResult[] = [];
 
@@ -75,7 +78,7 @@ export class GeocachingService {
         codigoBarras: produtos.codigoBarras,
         precoMedio: produtos.precoMedio,
         // Distância exata calculada pelo PostGIS (retorna em metros, dividimos por 1000 para Km)
-        distancia: sql<number>`ST_Distance(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography) / 1000`
+        distancia: sql<number>`ST_Distance(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography) / 1000`,
       })
       .from(anuncios)
       .innerJoin(lojas, eq(anuncios.lojaId, lojas.id))
@@ -84,24 +87,24 @@ export class GeocachingService {
         and(
           eq(anuncios.status, 'ativo'),
           // Verifica se a loja está dentro do raio do anúncio
-          sql`ST_DWithin(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography, ${anuncios.raioAlcanceKm} * 1000)`
-        )
+          sql`ST_DWithin(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography, ${anuncios.raioAlcanceKm} * 1000)`,
+        ),
       );
 
     // Mapeia os resultados para o formato final
-    const formattedAds: NearbyAdResult[] = dbResults.map(ad => ({
+    const formattedAds: NearbyAdResult[] = dbResults.map((ad) => ({
       id: ad.id,
       titulo: ad.titulo,
       distancia: parseFloat(ad.distancia.toFixed(3)), // Precisão de metros
       lojaNome: ad.lojaNome,
       produtoNome: ad.produtoNome,
       codigoBarras: ad.codigoBarras,
-      precoMedio: ad.precoMedio
+      precoMedio: ad.precoMedio,
     }));
 
     // 4. Agrupa os anúncios do banco por Geohash de suas respectivas lojas para caching
     const groupedByHash: Record<string, NearbyAdResult[]> = {};
-    
+
     // Inicializa todos os 9 hashes regionais como vazios para evitar cache stampede
     for (const hash of regionalHashes) {
       groupedByHash[hash] = [];
@@ -109,10 +112,14 @@ export class GeocachingService {
 
     for (let i = 0; i < dbResults.length; i++) {
       const dbAd = dbResults[i];
-      const storeHash = Geohash.encode(dbAd.lojaLatitude, dbAd.lojaLongitude, 5);
-      
+      const storeHash = Geohash.encode(
+        dbAd.lojaLatitude,
+        dbAd.lojaLongitude,
+        5,
+      );
+
       const adResult = formattedAds[i];
-      
+
       if (!groupedByHash[storeHash]) {
         groupedByHash[storeHash] = [];
       }

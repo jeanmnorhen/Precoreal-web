@@ -9,7 +9,8 @@ export class TenantContext {
     // Tenta extrair o ID do inquilino (lojaId) do JWT decodificado (request.user)
     // ou do cabeçalho da requisição (para fins administrativos/testes)
     const rawUser = this.request?.user;
-    this.currentTenantId = rawUser?.lojaId || this.request?.headers?.['x-tenant-id'];
+    this.currentTenantId =
+      rawUser?.lojaId || this.request?.headers?.['x-tenant-id'];
   }
 
   get tenantId(): string {

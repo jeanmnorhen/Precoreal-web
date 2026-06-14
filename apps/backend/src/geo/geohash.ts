@@ -4,10 +4,16 @@ export class Geohash {
   /**
    * Codifica coordenadas latitude/longitude em uma string Geohash
    */
-  public static encode(latitude: number, longitude: number, precision: number = 5): string {
+  public static encode(
+    latitude: number,
+    longitude: number,
+    precision: number = 5,
+  ): string {
     let isEven = true;
-    let latMin = -90, latMax = 90;
-    let lonMin = -180, lonMax = 180;
+    let latMin = -90,
+      latMax = 90;
+    let lonMin = -180,
+      lonMax = 180;
     let geohash = '';
     let bit = 0;
     let ch = 0;
@@ -17,7 +23,7 @@ export class Geohash {
       if (isEven) {
         mid = (lonMin + lonMax) / 2;
         if (longitude > mid) {
-          ch |= (1 << (4 - bit));
+          ch |= 1 << (4 - bit);
           lonMin = mid;
         } else {
           lonMax = mid;
@@ -25,7 +31,7 @@ export class Geohash {
       } else {
         mid = (latMin + latMax) / 2;
         if (latitude > mid) {
-          ch |= (1 << (4 - bit));
+          ch |= 1 << (4 - bit);
           latMin = mid;
         } else {
           latMax = mid;
@@ -58,7 +64,11 @@ export class Geohash {
 
     for (const dLat of offsets) {
       for (const dLon of offsets) {
-        const hash = this.encode(latitude + dLat * latStep, longitude + dLon * lonStep, 5);
+        const hash = this.encode(
+          latitude + dLat * latStep,
+          longitude + dLon * lonStep,
+          5,
+        );
         if (!hashes.includes(hash)) {
           hashes.push(hash);
         }
