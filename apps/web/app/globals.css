@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================
+   PREÇO REAL — Design System
+   Brand: Fresh Green (#16a34a → hsl(142, 76%, 36%))
+   Palette: 11-shade scale (50–950)
+   Tokens: Semantic light + dark mode
+   ============================================ */
+
+@theme {
+  /* --- Shade Scale (hue 142, brand = 500) --- */
+  --color-brand-50:  hsl(142, 76%, 97%);
+  --color-brand-100: hsl(142, 76%, 93%);
+  --color-brand-200: hsl(142, 72%, 83%);
+  --color-brand-300: hsl(142, 68%, 68%);
+  --color-brand-400: hsl(142, 70%, 52%);
+  --color-brand-500: hsl(142, 76%, 42%);
+  --color-brand-600: hsl(142, 76%, 36%);   /* Primary brand action */
+  --color-brand-700: hsl(142, 72%, 28%);
+  --color-brand-800: hsl(142, 70%, 20%);
+  --color-brand-900: hsl(142, 68%, 14%);
+  --color-brand-950: hsl(142, 70%, 7%);
+
+  /* --- Accent: Amber for discounts/savings badges --- */
+  --color-accent-400: hsl(38, 96%, 58%);
+  --color-accent-500: hsl(38, 92%, 50%);
+  --color-accent-600: hsl(32, 95%, 44%);
+
+  /* --- Typography --- */
+  --font-sans: 'Outfit', system-ui, sans-serif;
+
+  /* --- Semantic Light Mode Tokens --- */
+  --color-background:         #ffffff;
+  --color-background-subtle:  hsl(142, 76%, 97%);
+  --color-foreground:         hsl(142, 70%, 7%);
+  --color-foreground-muted:   hsl(142, 20%, 40%);
+  --color-card:               #ffffff;
+  --color-card-foreground:    hsl(142, 70%, 10%);
+  --color-border:             hsl(142, 40%, 88%);
+  --color-input:              hsl(142, 30%, 94%);
+  --color-primary:            hsl(142, 76%, 36%);
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover:      hsl(142, 76%, 28%);
+  --color-muted:              hsl(142, 30%, 95%);
+  --color-muted-foreground:   hsl(142, 20%, 45%);
+  --color-destructive:        hsl(0, 72%, 51%);
+  --color-ring:               hsl(142, 76%, 36%);
+}
+
+/* --- Dark Mode Overrides --- */
+.dark {
+  --color-background:         hsl(142, 70%, 5%);
+  --color-background-subtle:  hsl(142, 68%, 8%);
+  --color-foreground:         hsl(142, 50%, 95%);
+  --color-foreground-muted:   hsl(142, 20%, 65%);
+  --color-card:               hsl(142, 68%, 8%);
+  --color-card-foreground:    hsl(142, 50%, 93%);
+  --color-border:             hsl(142, 30%, 18%);
+  --color-input:              hsl(142, 30%, 12%);
+  --color-primary:            hsl(142, 70%, 48%);
+  --color-primary-foreground: hsl(142, 70%, 5%);
+  --color-primary-hover:      hsl(142, 70%, 55%);
+  --color-muted:              hsl(142, 30%, 12%);
+  --color-muted-foreground:   hsl(142, 20%, 55%);
+  --color-ring:               hsl(142, 70%, 48%);
+}
+
+/* --- Base Styles --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Utility: Glassmorphism card --- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(22, 163, 74, 0.15);
+  border-radius: 1rem;
+}
+
+.dark .glass-card {
+  background: rgba(0, 20, 8, 0.65);
+  border-color: rgba(74, 222, 128, 0.12);
+}
+
+/* --- Utility: Brand gradient --- */
+.gradient-brand {
+  background: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(165, 82%, 32%) 100%);
+}
+
+/* --- Micro-animations --- */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 hsla(142, 76%, 42%, 0.5); }
+  70%  { box-shadow: 0 0 0 10px hsla(142, 76%, 42%, 0); }
+  100% { box-shadow: 0 0 0 0 hsla(142, 76%, 42%, 0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.8s ease-in-out infinite;
+}

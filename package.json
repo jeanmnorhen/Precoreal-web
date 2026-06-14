@@ -1,0 +1,20 @@
+{
+  "name": "precoreal-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Preço Real Monorepo (Next.js, NestJS, Expo)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.4",
+    "typescript": "^5.4.5"
+  }
+}
