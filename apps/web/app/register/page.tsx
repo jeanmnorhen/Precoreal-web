@@ -31,103 +31,81 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-10">
-          <Link href="/" className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>
-            Preço<span style={{ color: 'var(--color-foreground)' }}>Real</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-extrabold tracking-tight no-underline">
+            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold gradient-navy">
+              R$
+            </span>
+            <span style={{ color: 'var(--color-foreground)' }}>
+              Preço<span style={{ color: 'var(--color-primary)' }}>Real</span>
+            </span>
           </Link>
-          <h1 className="text-2xl font-bold mt-6">Criar conta</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
+          <h1 className="text-2xl font-bold mt-8 mb-1">Criar conta</h1>
+          <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
             Junte-se ao Preço Real
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {erro && (
-            <div className="p-4 rounded-xl text-sm font-medium" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--color-destructive)' }}>
+            <div className="p-4 rounded-xl text-sm font-medium"
+                 style={{ background: 'hsl(0,50%,95%)', color: 'var(--color-destructive)' }}>
               {erro}
             </div>
           )}
 
           <div>
-            <label htmlFor="nome" className="block text-sm font-medium mb-1.5">Nome</label>
-            <input
-              id="nome"
-              type="text"
-              required
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors focus:ring-2"
-              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)' } as React.CSSProperties}
-              placeholder="Seu nome"
-            />
+            <label htmlFor="nome" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Nome</label>
+            <input id="nome" type="text" required value={nome} onChange={(e) => setNome(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+              style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)' } as React.CSSProperties}
+              placeholder="Seu nome" />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1.5">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors focus:ring-2"
-              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)' } as React.CSSProperties}
-              placeholder="seu@email.com"
-            />
+            <label htmlFor="email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Email</label>
+            <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+              style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)' } as React.CSSProperties}
+              placeholder="seu@email.com" />
           </div>
 
           <div>
-            <label htmlFor="senha" className="block text-sm font-medium mb-1.5">Senha</label>
-            <input
-              id="senha"
-              type="password"
-              required
-              minLength={6}
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors focus:ring-2"
-              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)' } as React.CSSProperties}
-              placeholder="Mínimo 6 caracteres"
-            />
+            <label htmlFor="senha" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Senha</label>
+            <input id="senha" type="password" required minLength={6} value={senha} onChange={(e) => setSenha(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+              style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)' } as React.CSSProperties}
+              placeholder="Mínimo 6 caracteres" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">Tipo de conta</label>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Tipo de conta</label>
             <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setTipo('consumidor')}
+              <button type="button" onClick={() => setTipo('consumidor')}
                 className="py-3 rounded-xl text-sm font-semibold transition-all"
                 style={{
-                  background: tipo === 'consumidor' ? 'var(--color-primary)' : 'var(--color-input)',
+                  background: tipo === 'consumidor' ? 'var(--color-primary)' : 'var(--color-background)',
                   color: tipo === 'consumidor' ? 'var(--color-primary-foreground)' : 'var(--color-foreground)',
-                  border: tipo === 'consumidor' ? 'none' : '1px solid var(--color-border)',
-                }}
-              >
+                  border: tipo === 'consumidor' ? 'none' : '1.5px solid var(--color-border)',
+                }}>
                 Consumidor
               </button>
-              <button
-                type="button"
-                onClick={() => setTipo('lojista')}
+              <button type="button" onClick={() => setTipo('lojista')}
                 className="py-3 rounded-xl text-sm font-semibold transition-all"
                 style={{
-                  background: tipo === 'lojista' ? 'var(--color-primary)' : 'var(--color-input)',
+                  background: tipo === 'lojista' ? 'var(--color-primary)' : 'var(--color-background)',
                   color: tipo === 'lojista' ? 'var(--color-primary-foreground)' : 'var(--color-foreground)',
-                  border: tipo === 'lojista' ? 'none' : '1px solid var(--color-border)',
-                }}
-              >
+                  border: tipo === 'lojista' ? 'none' : '1.5px solid var(--color-border)',
+                }}>
                 Lojista
               </button>
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={carregando}
-            className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-            style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
-          >
+          <button type="submit" disabled={carregando}
+            className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+            style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
             {carregando ? 'Criando conta...' : 'Criar conta'}
           </button>
         </form>

@@ -1,72 +1,122 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-/* ============================================
-   PREÇO REAL — Design System
-   Brand: Fresh Green (#16a34a → hsl(142, 76%, 36%))
-   Palette: 11-shade scale (50–950)
-   Tokens: Semantic light + dark mode
-   ============================================ */
+/* ═══════════════════════════════════════════
+   PREÇO REAL — Design System v2
+   Inspiração: Arquitetura de Shopping Center
+   ───────────────────────────────────────────
+   60% Base .. Off-white, Greige, Neutros quentes
+   30% Sec .. Madeira, Verde biofílico, Grafite
+   10% Accent . Navy, Terracota, Laranja-queimado
+   ═══════════════════════════════════════════ */
 
 @theme {
-  /* --- Shade Scale (hue 142, brand = 500) --- */
-  --color-brand-50:  hsl(142, 76%, 97%);
-  --color-brand-100: hsl(142, 76%, 93%);
-  --color-brand-200: hsl(142, 72%, 83%);
-  --color-brand-300: hsl(142, 68%, 68%);
-  --color-brand-400: hsl(142, 70%, 52%);
-  --color-brand-500: hsl(142, 76%, 42%);
-  --color-brand-600: hsl(142, 76%, 36%);   /* Primary brand action */
-  --color-brand-700: hsl(142, 72%, 28%);
-  --color-brand-800: hsl(142, 70%, 20%);
-  --color-brand-900: hsl(142, 68%, 14%);
-  --color-brand-950: hsl(142, 70%, 7%);
+  /* ─── Shade Scale: Navy (Primary) ─── */
+  --color-navy-50:  hsl(222, 47%, 95%);
+  --color-navy-100: hsl(222, 45%, 88%);
+  --color-navy-200: hsl(222, 42%, 75%);
+  --color-navy-300: hsl(222, 38%, 58%);
+  --color-navy-400: hsl(222, 40%, 45%);
+  --color-navy-500: hsl(222, 42%, 35%);
+  --color-navy-600: hsl(222, 46%, 28%);
+  --color-navy-700: hsl(222, 48%, 22%);
+  --color-navy-800: hsl(222, 48%, 17%);
+  --color-navy-900: hsl(222, 46%, 12%);
+  --color-navy-950: hsl(222, 48%, 8%);
 
-  /* --- Accent: Amber for discounts/savings badges --- */
-  --color-accent-400: hsl(38, 96%, 58%);
-  --color-accent-500: hsl(38, 92%, 50%);
-  --color-accent-600: hsl(32, 95%, 44%);
+  /* ─── Shade Scale: Terracota (Accent) ─── */
+  --color-terracota-50:  hsl(12, 55%, 95%);
+  --color-terracota-100: hsl(12, 52%, 88%);
+  --color-terracota-200: hsl(12, 50%, 78%);
+  --color-terracota-300: hsl(12, 48%, 65%);
+  --color-terracota-400: hsl(12, 50%, 55%);
+  --color-terracota-500: hsl(12, 52%, 48%);
+  --color-terracota-600: hsl(12, 54%, 42%);
+  --color-terracota-700: hsl(12, 52%, 35%);
+  --color-terracota-800: hsl(12, 50%, 28%);
+  --color-terracota-900: hsl(12, 48%, 20%);
+  --color-terracota-950: hsl(12, 50%, 12%);
 
-  /* --- Typography --- */
+  /* ─── Shade Scale: Verde Biofílico (Savings) ─── */
+  --color-verde-50:  hsl(140, 28%, 95%);
+  --color-verde-100: hsl(140, 26%, 88%);
+  --color-verde-200: hsl(140, 24%, 78%);
+  --color-verde-300: hsl(140, 22%, 65%);
+  --color-verde-400: hsl(140, 24%, 52%);
+  --color-verde-500: hsl(140, 28%, 42%);
+  --color-verde-600: hsl(140, 30%, 35%);
+  --color-verde-700: hsl(140, 28%, 28%);
+  --color-verde-800: hsl(140, 26%, 22%);
+  --color-verde-900: hsl(140, 24%, 16%);
+  --color-verde-950: hsl(140, 28%, 10%);
+
+  /* ─── Warm Wood (Decorative) ─── */
+  --color-wood-100: hsl(32, 25%, 90%);
+  --color-wood-200: hsl(32, 24%, 82%);
+  --color-wood-300: hsl(32, 23%, 72%);
+  --color-wood-400: hsl(32, 24%, 62%);
+  --color-wood-500: hsl(32, 26%, 52%);
+  --color-wood-600: hsl(32, 28%, 42%);
+
+  /* ─── Neutros Quentes (Greige) ─── */
+  --color-greige-50:  hsl(35, 15%, 97%);
+  --color-greige-100: hsl(35, 14%, 94%);
+  --color-greige-200: hsl(35, 12%, 88%);
+  --color-greige-300: hsl(35, 10%, 78%);
+  --color-greige-400: hsl(35, 8%, 62%);
+  --color-greige-500: hsl(35, 6%, 48%);
+  --color-greige-600: hsl(35, 8%, 35%);
+  --color-greige-700: hsl(35, 10%, 25%);
+  --color-greige-800: hsl(35, 12%, 18%);
+  --color-greige-900: hsl(35, 14%, 12%);
+  --color-greige-950: hsl(35, 15%, 8%);
+
+  /* ─── Typography ─── */
   --font-sans: 'Outfit', system-ui, sans-serif;
 
-  /* --- Semantic Light Mode Tokens --- */
-  --color-background:         #ffffff;
-  --color-background-subtle:  hsl(142, 76%, 97%);
-  --color-foreground:         hsl(142, 70%, 7%);
-  --color-foreground-muted:   hsl(142, 20%, 40%);
+  /* ─── Light Mode ─── */
+  --color-background:         var(--color-greige-50);
+  --color-background-subtle:  var(--color-greige-100);
+  --color-foreground:         var(--color-greige-900);
+  --color-foreground-muted:   var(--color-greige-500);
   --color-card:               #ffffff;
-  --color-card-foreground:    hsl(142, 70%, 10%);
-  --color-border:             hsl(142, 40%, 88%);
-  --color-input:              hsl(142, 30%, 94%);
-  --color-primary:            hsl(142, 76%, 36%);
+  --color-card-foreground:    var(--color-greige-900);
+  --color-border:             var(--color-greige-200);
+  --color-input:              var(--color-greige-100);
+  --color-primary:            var(--color-navy-700);
   --color-primary-foreground: #ffffff;
-  --color-primary-hover:      hsl(142, 76%, 28%);
-  --color-muted:              hsl(142, 30%, 95%);
-  --color-muted-foreground:   hsl(142, 20%, 45%);
-  --color-destructive:        hsl(0, 72%, 51%);
-  --color-ring:               hsl(142, 76%, 36%);
+  --color-primary-hover:      var(--color-navy-800);
+  --color-muted:              var(--color-greige-100);
+  --color-muted-foreground:   var(--color-greige-400);
+  --color-destructive:        hsl(0, 60%, 50%);
+  --color-ring:               var(--color-navy-500);
+
+  /* ─── Radius ─── */
+  --radius-sm:   0.375rem;
+  --radius-md:   0.625rem;
+  --radius-lg:   1rem;
+  --radius-xl:   1.5rem;
 }
 
-/* --- Dark Mode Overrides --- */
+/* ─── Dark Mode ─── */
 .dark {
-  --color-background:         hsl(142, 70%, 5%);
-  --color-background-subtle:  hsl(142, 68%, 8%);
-  --color-foreground:         hsl(142, 50%, 95%);
-  --color-foreground-muted:   hsl(142, 20%, 65%);
-  --color-card:               hsl(142, 68%, 8%);
-  --color-card-foreground:    hsl(142, 50%, 93%);
-  --color-border:             hsl(142, 30%, 18%);
-  --color-input:              hsl(142, 30%, 12%);
-  --color-primary:            hsl(142, 70%, 48%);
-  --color-primary-foreground: hsl(142, 70%, 5%);
-  --color-primary-hover:      hsl(142, 70%, 55%);
-  --color-muted:              hsl(142, 30%, 12%);
-  --color-muted-foreground:   hsl(142, 20%, 55%);
-  --color-ring:               hsl(142, 70%, 48%);
+  --color-background:         var(--color-greige-950);
+  --color-background-subtle:  var(--color-greige-900);
+  --color-foreground:         var(--color-greige-50);
+  --color-foreground-muted:   var(--color-greige-400);
+  --color-card:               var(--color-greige-900);
+  --color-card-foreground:    var(--color-greige-50);
+  --color-border:             var(--color-greige-800);
+  --color-input:              var(--color-greige-800);
+  --color-primary:            var(--color-navy-400);
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover:      var(--color-navy-300);
+  --color-muted:              var(--color-greige-800);
+  --color-muted-foreground:   var(--color-greige-500);
+  --color-ring:               var(--color-navy-400);
 }
 
-/* --- Base Styles --- */
+/* ─── Base ─── */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -82,41 +132,71 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Utility: Glassmorphism card --- */
+/* ─── Glass Card ─── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(22, 163, 74, 0.15);
-  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
 }
 
 .dark .glass-card {
-  background: rgba(0, 20, 8, 0.65);
-  border-color: rgba(74, 222, 128, 0.12);
+  background: rgba(20, 18, 15, 0.7);
+  border-color: var(--color-border);
 }
 
-/* --- Utility: Brand gradient --- */
-.gradient-brand {
-  background: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(165, 82%, 32%) 100%);
+/* ─── Warm Wood Gradient ─── */
+.gradient-wood {
+  background: linear-gradient(135deg, var(--color-wood-400) 0%, var(--color-wood-500) 100%);
 }
 
-/* --- Micro-animations --- */
+/* ─── Navy Gradient ─── */
+.gradient-navy {
+  background: linear-gradient(135deg, var(--color-navy-700) 0%, var(--color-navy-900) 100%);
+}
+
+/* ─── Animations ─── */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 hsla(142, 76%, 42%, 0.5); }
-  70%  { box-shadow: 0 0 0 10px hsla(142, 76%, 42%, 0); }
-  100% { box-shadow: 0 0 0 0 hsla(142, 76%, 42%, 0); }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.4s ease-out both;
+  animation: fade-in-up 0.5s ease-out both;
 }
 
-.animate-pulse-ring {
-  animation: pulse-ring 1.8s ease-in-out infinite;
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
 }
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.35s ease-out both;
+}
+
+/* ─── Stagger children ─── */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.2s; }
+.stagger-4 { animation-delay: 0.28s; }
+.stagger-5 { animation-delay: 0.36s; }
+.stagger-6 { animation-delay: 0.44s; }

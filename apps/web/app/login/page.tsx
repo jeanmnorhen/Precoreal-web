@@ -29,56 +29,55 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-10">
-          <Link href="/" className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>
-            Preço<span style={{ color: 'var(--color-foreground)' }}>Real</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-extrabold tracking-tight no-underline">
+            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold gradient-navy">
+              R$
+            </span>
+            <span style={{ color: 'var(--color-foreground)' }}>
+              Preço<span style={{ color: 'var(--color-primary)' }}>Real</span>
+            </span>
           </Link>
-          <h1 className="text-2xl font-bold mt-6">Entrar</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
+          <h1 className="text-2xl font-bold mt-8 mb-1">Entrar</h1>
+          <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
             Acesse sua conta para continuar
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {erro && (
-            <div className="p-4 rounded-xl text-sm font-medium" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--color-destructive)' }}>
+            <div className="p-4 rounded-xl text-sm font-medium"
+                 style={{ background: 'hsl(0,50%,95%)', color: 'var(--color-destructive)' }}>
               {erro}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1.5">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Email</label>
             <input
-              id="email"
-              type="email"
-              required
-              value={email}
+              id="email" type="email" required value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors focus:ring-2"
-              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)', '--tw-ring-color': 'var(--color-ring)' } as React.CSSProperties}
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+              style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)', '--tw-ring-color': 'var(--color-ring)' } as React.CSSProperties}
               placeholder="seu@email.com"
             />
           </div>
 
           <div>
-            <label htmlFor="senha" className="block text-sm font-medium mb-1.5">Senha</label>
+            <label htmlFor="senha" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-foreground)' }}>Senha</label>
             <input
-              id="senha"
-              type="password"
-              required
-              value={senha}
+              id="senha" type="password" required value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-colors focus:ring-2"
-              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)', '--tw-ring-color': 'var(--color-ring)' } as React.CSSProperties}
+              className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all focus:ring-2"
+              style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)', '--tw-ring-color': 'var(--color-ring)' } as React.CSSProperties}
               placeholder="••••••"
             />
           </div>
 
           <button
-            type="submit"
-            disabled={carregando}
-            className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+            type="submit" disabled={carregando}
+            className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
             style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
           >
             {carregando ? 'Entrando...' : 'Entrar'}

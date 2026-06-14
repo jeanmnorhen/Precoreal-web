@@ -20,32 +20,28 @@ export default function LojistaProdutos() {
   useEffect(() => { carregar(); }, []);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Produtos</h1>
-        <Link
-          href="/lojista/produtos/adicionar"
-          className="px-5 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
-        >
-          + Adicionar produto
+    <div className="animate-fade-in-up">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">Produtos</h1>
+        <Link href="/lojista/produtos/adicionar"
+          className="px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90"
+          style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
+          + Adicionar
         </Link>
       </div>
 
       <div className="mb-6">
-        <input
-          type="text"
-          value={busca}
+        <input type="text" value={busca}
           onChange={(e) => { setBusca(e.target.value); carregar(e.target.value || undefined); }}
           placeholder="Buscar produtos..."
-          className="w-full px-5 py-3 rounded-xl text-base outline-none focus:ring-2"
-          style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)' } as React.CSSProperties}
-        />
+          className="w-full px-5 py-3 rounded-lg text-base outline-none transition-all focus:ring-2"
+          style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)' } as React.CSSProperties} />
       </div>
 
       {carregando && (
         <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)' }} />
+          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+               style={{ borderColor: 'var(--color-primary)' }} />
         </div>
       )}
 
@@ -59,15 +55,17 @@ export default function LojistaProdutos() {
       )}
 
       <div className="grid gap-3">
-        {produtos.map((p: any) => (
-          <div key={p.id} className="flex items-center justify-between p-5 rounded-2xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
+        {produtos.map((p: any, i: number) => (
+          <div key={p.id}
+            className="flex items-center justify-between p-5 rounded-xl transition-all hover:shadow-sm animate-fade-in-up"
+            style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)', animationDelay: `${i * 0.04}s` }}>
             <div>
               <p className="font-bold">{p.nome}</p>
               <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
                 {p.marca} · {p.categoria} · <span className="font-mono">{p.codigoBarras}</span>
               </p>
             </div>
-            <p className="font-bold" style={{ color: 'var(--color-primary)' }}>
+            <p className="font-bold" style={{ color: 'var(--color-navy-600)' }}>
               R$ {(p.precoMedio / 100).toFixed(2)}
             </p>
           </div>

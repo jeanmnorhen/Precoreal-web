@@ -62,11 +62,12 @@ export default function ScannerPage() {
   return (
     <main className="min-h-screen flex flex-col px-4 py-8 max-w-lg mx-auto">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/" className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors hover:opacity-70" style={{ background: 'var(--color-muted)', color: 'var(--color-foreground)' }}>
+        <Link href="/" className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:opacity-70"
+              style={{ background: 'var(--color-muted)' }}>
           ←
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Escanear produto</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Escanear produto</h1>
           <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
             Aponte para o código de barras
           </p>
@@ -82,15 +83,18 @@ export default function ScannerPage() {
 
       {loading && (
         <div className="mt-8 text-center animate-fade-in-up">
-          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl" style={{ background: 'var(--color-muted)' }}>
-            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)' }} />
+          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-xl"
+               style={{ background: 'var(--color-muted)' }}>
+            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
+                 style={{ borderColor: 'var(--color-primary)' }} />
             <span className="font-medium">Buscando preços...</span>
           </div>
         </div>
       )}
 
       {erro && !loading && (
-        <div className="mt-8 p-4 rounded-xl text-sm animate-fade-in-up" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--color-destructive)' }}>
+        <div className="mt-8 p-4 rounded-xl text-sm animate-fade-in-up"
+             style={{ background: 'hsl(0,50%,95%)', color: 'var(--color-destructive)' }}>
           {erro}
         </div>
       )}
@@ -98,7 +102,10 @@ export default function ScannerPage() {
       {scanResult && !loading && (
         <div className="mt-8 glass-card p-6 animate-fade-in-up">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: 'var(--color-brand-50)' }}>✅</div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                 style={{ background: 'var(--color-navy-50)' }}>
+              ✅
+            </div>
             <div>
               <p className="font-bold text-lg">{scanResult.produto.nome || 'Produto identificado'}</p>
               <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
@@ -126,7 +133,7 @@ export default function ScannerPage() {
             )}
             <div className="flex justify-between items-center py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
               <dt className="text-sm font-medium" style={{ color: 'var(--color-foreground-muted)' }}>Preço médio</dt>
-              <dd className="font-bold text-lg" style={{ color: 'var(--color-primary)' }}>
+              <dd className="font-bold text-lg" style={{ color: 'var(--color-navy-600)' }}>
                 R$ {(scanResult.produto.precoMedio / 100).toFixed(2)}
               </dd>
             </div>
@@ -139,14 +146,16 @@ export default function ScannerPage() {
               </p>
               <div className="space-y-3">
                 {scanResult.ofertasProximas.map((oferta: any) => (
-                  <div key={oferta.id} className="flex justify-between items-center p-4 rounded-xl" style={{ background: 'var(--color-muted)' }}>
+                  <div key={oferta.id}
+                    className="flex justify-between items-center p-4 rounded-xl"
+                    style={{ background: 'var(--color-background)' }}>
                     <div>
                       <p className="font-semibold">{oferta.lojaNome}</p>
                       <p className="text-xs" style={{ color: 'var(--color-foreground-muted)' }}>
                         {oferta.distancia < 1 ? `${(oferta.distancia * 1000).toFixed(0)}m` : `${oferta.distancia.toFixed(1)}km`}
                       </p>
                     </div>
-                    <p className="font-bold" style={{ color: 'var(--color-primary)' }}>
+                    <p className="font-bold" style={{ color: 'var(--color-navy-600)' }}>
                       R$ {(oferta.precoMedio / 100).toFixed(2)}
                     </p>
                   </div>
@@ -161,23 +170,16 @@ export default function ScannerPage() {
             </p>
           )}
 
-          <Link
-            href={`/produtos/${scanResult.produto.id}`}
-            className="mt-6 w-full py-3 rounded-xl font-bold text-lg text-center block transition-all duration-200 hover:scale-[1.02] active:scale-95"
-            style={{
-              background: 'var(--color-primary)',
-              color: 'var(--color-primary-foreground)',
-              boxShadow: '0 4px 16px hsla(142,76%,36%,0.3)',
-            }}
-          >
-            Ver detalhes do produto →
+          <Link href={`/produtos/${scanResult.produto.id}`}
+            className="mt-6 w-full py-3 rounded-xl font-bold text-base text-center block transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+            style={{ background: 'var(--color-navy-700)', color: '#fff' }}>
+            Ver detalhes →
           </Link>
 
           <button
-            className="mt-3 w-full py-3 rounded-xl font-medium transition-colors hover:opacity-70"
+            className="mt-3 w-full py-3 rounded-xl font-medium transition-opacity hover:opacity-70"
             style={{ color: 'var(--color-foreground-muted)' }}
-            onClick={() => { setProduto(null); setScanResult(null); setErro(''); }}
-          >
+            onClick={() => { setProduto(null); setScanResult(null); setErro(''); }}>
             Escanear outro produto
           </button>
         </div>

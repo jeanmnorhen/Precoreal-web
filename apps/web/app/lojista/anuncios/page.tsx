@@ -29,21 +29,20 @@ export default function LojistaAnuncios() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Anúncios</h1>
-        <Link
-          href="/lojista/anuncios/adicionar"
-          className="px-5 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
-        >
+    <div className="animate-fade-in-up">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">Anúncios</h1>
+        <Link href="/lojista/anuncios/adicionar"
+          className="px-5 py-2.5 rounded-lg font-bold text-sm transition-all hover:opacity-90"
+          style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
           + Novo anúncio
         </Link>
       </div>
 
       {carregando && (
         <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)' }} />
+          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+               style={{ borderColor: 'var(--color-primary)' }} />
         </div>
       )}
 
@@ -57,34 +56,34 @@ export default function LojistaAnuncios() {
       )}
 
       <div className="grid gap-4">
-        {anuncios.map((a: any) => {
+        {anuncios.map((a: any, i: number) => {
           const ativo = a.status === 'ativo';
           return (
-            <div key={a.id} className="p-5 rounded-2xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
+            <div key={a.id}
+              className="p-5 rounded-xl transition-all hover:shadow-sm animate-fade-in-up"
+              style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)', animationDelay: `${i * 0.05}s` }}>
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="font-bold text-lg">{a.titulo}</p>
+                  <p className="font-bold text-base">{a.titulo}</p>
                   <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
                     Raio: {a.raioAlcanceKm}km · {a.custoCreditos} créditos/dia
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-bold" style={{
-                  background: ativo ? 'rgba(22,163,74,0.1)' : 'rgba(239,68,68,0.1)',
-                  color: ativo ? 'var(--color-primary)' : 'var(--color-destructive)',
-                }}>
+                <span className="px-3 py-1 rounded-full text-xs font-bold"
+                  style={{
+                    background: ativo ? 'hsla(140,30%,42%,0.1)' : 'hsla(0,50%,50%,0.1)',
+                    color: ativo ? 'var(--color-verde-600)' : 'var(--color-destructive)',
+                  }}>
                   {ativo ? 'Ativo' : 'Pausado'}
                 </span>
               </div>
-
               <div className="flex gap-3">
-                <button
-                  onClick={() => toggleStatus(a.id, a.status)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+                <button onClick={() => toggleStatus(a.id, a.status)}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-80"
                   style={{
-                    background: ativo ? 'rgba(239,68,68,0.1)' : 'rgba(22,163,74,0.1)',
-                    color: ativo ? 'var(--color-destructive)' : 'var(--color-primary)',
-                  }}
-                >
+                    background: ativo ? 'hsla(0,50%,50%,0.08)' : 'hsla(140,30%,42%,0.08)',
+                    color: ativo ? 'var(--color-destructive)' : 'var(--color-verde-600)',
+                  }}>
                   {ativo ? 'Pausar' : 'Ativar'}
                 </button>
               </div>
