@@ -32,26 +32,13 @@ async function bootstrap() {
 
   const fastifyInstance = app.getHttpAdapter().getInstance();
 
-  fastifyInstance.addContentTypeParser(
-    'application/json',
-    { parseAs: 'buffer' },
-    (
-      request: FastifyRequest,
-      body: Buffer,
-      done: (err: Error | null, body?: unknown) => void,
-    ) => {
-      (request as unknown as { rawBody: Buffer }).rawBody = body;
-      try {
-        const parsed = JSON.parse(body.toString('utf8')) as Record<
-          string,
-          unknown
-        >;
-        done(null, parsed);
-      } catch (err) {
-        done(err as Error);
-      }
-    },
-  );
+  fastifyInstance.addHook('onRequest', async (request: FastifyRequest) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of request.raw) {
+      chunks.push(chunk);
+    }
+    (request as unknown as { rawBody: Buffer }).rawBody = Buffer.concat(chunks);
+  });
 
   app.enableCors({
     origin: '*',

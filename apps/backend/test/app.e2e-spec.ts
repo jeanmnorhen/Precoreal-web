@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, Module } from '@nestjs/common';
-import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { Module } from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { AppModule } from '../src/app.module';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const request = require('supertest');
 import { DatabaseService } from '../src/db/database.service';
 import { RedisService } from '../src/redis/redis.service';
 import { QueuesService } from '../src/queues/queues.service';
@@ -39,7 +41,7 @@ const mockRedisClient = {
 class MockQueuesModule {}
 
 describe('App (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: NestFastifyApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -52,8 +54,9 @@ describe('App (e2e)', () => {
       .overrideModule(QueuesModule).useModule(MockQueuesModule)
       .compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication(new FastifyAdapter());
     await app.init();
+    await app.getHttpAdapter().getInstance().ready();
   });
 
   afterEach(async () => {

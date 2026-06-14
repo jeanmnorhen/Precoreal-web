@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS "lojas" (
 	"endereco_cidade" varchar(100) NOT NULL,
 	"endereco_estado" varchar(2) NOT NULL,
 	"endereco_cep" varchar(8) NOT NULL,
-	"localizacao" "geometry(Point,4326)" NOT NULL,
+	"localizacao" geometry(Point,4326) NOT NULL,
 	"tabloide_url" varchar(512),
 	"criado_em" timestamp DEFAULT now() NOT NULL
 );
