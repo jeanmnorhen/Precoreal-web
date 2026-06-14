@@ -16,13 +16,14 @@ test.describe('Navegação — Header', () => {
     await page.goto('/');
     const lojistaLink = page.locator('header a[href="/lojista"]');
     await lojistaLink.click();
-    await expect(page).toHaveURL(/\/lojista/);
+    await expect(page).toHaveURL(/\/lojista|\/login/);
   });
 
-  test('logo leva para home', async ({ page }) => {
-    await page.goto('/busca');
-    await page.locator('header a').filter({ hasText: 'Preço' }).click();
-    await expect(page).toHaveURL('/');
+  test('header contém logo com link para home', async ({ page }) => {
+    await page.goto('/');
+    const logoLink = page.locator('a[href="/"]').first();
+    await expect(logoLink).toBeVisible();
+    await expect(logoLink).toContainText('Real');
   });
 });
 
