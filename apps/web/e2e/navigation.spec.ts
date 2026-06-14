@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navegação — Header', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
   test('links do header navegam para páginas corretas', async ({ page }) => {
     await page.goto('/');
 

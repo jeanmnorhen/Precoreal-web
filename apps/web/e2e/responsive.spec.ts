@@ -30,8 +30,10 @@ test.describe('Layout responsivo — Home', () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
 
-    const grid = page.locator('.grid.sm\\:grid-cols-2').first();
+    const grid = page.locator('.grid.sm\\:grid-cols-3').first();
     await expect(grid).toBeVisible();
+    const gridTemplateColumns = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+    expect(gridTemplateColumns).not.toContain(' ');
   });
 });
 
