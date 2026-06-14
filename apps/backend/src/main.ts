@@ -4,6 +4,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import type { FastifyRequest } from 'fastify';
+import { Readable } from 'stream';
 import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -32,12 +33,14 @@ async function bootstrap() {
 
   const fastifyInstance = app.getHttpAdapter().getInstance();
 
-  fastifyInstance.addHook('onRequest', async (request: FastifyRequest) => {
+  fastifyInstance.addHook('preParsing', async (request: FastifyRequest, _reply, payload) => {
     const chunks: Buffer[] = [];
-    for await (const chunk of request.raw) {
+    for await (const chunk of payload) {
       chunks.push(chunk);
     }
-    (request as unknown as { rawBody: Buffer }).rawBody = Buffer.concat(chunks);
+    const rawBody = Buffer.concat(chunks);
+    (request as unknown as { rawBody: Buffer }).rawBody = rawBody;
+    return Readable.from(rawBody);
   });
 
   app.enableCors({
