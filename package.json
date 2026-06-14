@@ -16,5 +16,10 @@
   "devDependencies": {
     "turbo": "^2.0.4",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "^10.57.0",
+    "@sentry/node": "^10.57.0",
+    "prom-client": "^15.1.3"
   }
 }

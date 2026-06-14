@@ -15,6 +15,7 @@ import { AnunciosModule } from './anuncios/anuncios.module';
 import { QueuesModule } from './queues/queues.module';
 import { ScannerModule } from './scanner/scanner.module';
 import { LojistaModule } from './lojista/lojista.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -36,6 +37,7 @@ import { AppService } from './app.service';
     QueuesModule,
     ScannerModule,
     LojistaModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
