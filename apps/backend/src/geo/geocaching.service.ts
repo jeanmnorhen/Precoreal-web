@@ -10,6 +10,8 @@ export interface NearbyAdResult {
   titulo: string;
   distancia: number;
   lojaNome: string;
+  lojaLatitude: number;
+  lojaLongitude: number;
   produtoNome: string;
   codigoBarras: string;
   precoMedio: number;
@@ -110,6 +112,8 @@ export class GeocachingService {
       titulo: ad.titulo,
       distancia: parseFloat(ad.distancia.toFixed(3)),
       lojaNome: ad.lojaNome,
+      lojaLatitude: ad.lojaLatitude,
+      lojaLongitude: ad.lojaLongitude,
       produtoNome: ad.produtoNome,
       codigoBarras: ad.codigoBarras,
       precoMedio: ad.precoMedio,
@@ -162,6 +166,8 @@ export class GeocachingService {
         id: anuncios.id,
         titulo: anuncios.titulo,
         lojaNome: lojas.nome,
+        lojaLatitude: sql<number>`ST_Y(${lojas.localizacao}::geometry)`,
+        lojaLongitude: sql<number>`ST_X(${lojas.localizacao}::geometry)`,
         produtoNome: produtos.nome,
         codigoBarras: produtos.codigoBarras,
         precoMedio: produtos.precoMedio,
@@ -173,8 +179,15 @@ export class GeocachingService {
       .limit(20);
 
     return results.map((r) => ({
-      ...r,
+      id: r.id,
+      titulo: r.titulo,
       distancia: 999,
+      lojaNome: r.lojaNome,
+      lojaLatitude: r.lojaLatitude,
+      lojaLongitude: r.lojaLongitude,
+      produtoNome: r.produtoNome,
+      codigoBarras: r.codigoBarras,
+      precoMedio: r.precoMedio,
     }));
   }
 }

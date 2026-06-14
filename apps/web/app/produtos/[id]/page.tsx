@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+
+const MapaOfertas = dynamic(() => import('@/components/mapa-ofertas').then((m) => m.MapaOfertas), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-2xl flex items-center justify-center" style={{ height: '320px', border: '1px solid var(--color-border)', background: 'var(--color-muted)' }}>
+      <span className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>Carregando mapa…</span>
+    </div>
+  ),
+});
 
 interface Produto {
   id: string;
@@ -21,6 +31,8 @@ interface Oferta {
   titulo: string;
   distancia: number;
   lojaNome: string;
+  lojaLatitude: number;
+  lojaLongitude: number;
   precoMedio: number;
 }
 
@@ -126,6 +138,10 @@ export default function ProdutoPage() {
             Escanear outro produto
           </Link>
         </div>
+      )}
+
+      {ofertas.length > 0 && (
+        <MapaOfertas ofertas={ofertas} className="mb-6" />
       )}
 
       <div className="grid gap-4">
