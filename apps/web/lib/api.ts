@@ -60,12 +60,35 @@ export const api = {
     porCodigo: (codigo: string) =>
       request<any>(`/produtos/codigo/${encodeURIComponent(codigo)}`),
     detalhe: (id: string) => request<any>(`/produtos/${id}`),
+    criar: (data: any) => request<any>('/produtos', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  // Lojas
+  lojas: {
+    listar: () => request<any[]>('/lojas'),
+    criar: (data: any) => request<any>('/lojas', { method: 'POST', body: JSON.stringify(data) }),
+    detalhe: (id: string) => request<any>(`/lojas/${id}`),
   },
 
   // Anúncios
   anuncios: {
     proximos: (lat: number, lng: number) =>
       request<any[]>(`/anuncios/proximos?latitude=${lat}&longitude=${lng}`),
+    listar: () => request<any[]>('/anuncios'),
+    criar: (data: any) => request<any>('/anuncios', { method: 'POST', body: JSON.stringify(data) }),
+    atualizar: (id: string, data: any) =>
+      request<any>(`/anuncios/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    deletar: (id: string) => request<any>(`/anuncios/${id}`, { method: 'DELETE' }),
+  },
+
+  // Lojista (portal)
+  lojista: {
+    dashboard: () => request<any>('/lojista/dashboard'),
+    comprarCreditos: (valorCentavos: number, lojaId: string) =>
+      request<any>('/lojista/creditos/comprar', {
+        method: 'POST',
+        body: JSON.stringify({ valorCentavos, lojaId }),
+      }),
   },
 
   // Scanner
