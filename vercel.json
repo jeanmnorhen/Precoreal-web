@@ -1,6 +1,5 @@
 {
   "buildCommand": "cd apps/web && npx next build",
-  "ignoreCommand": "npx turbo-ignore @precoreal/web",
   "outputDirectory": "apps/web/.next",
   "installCommand": "npm install",
   "framework": "nextjs",
