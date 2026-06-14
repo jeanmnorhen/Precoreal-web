@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd .. && npx turbo run build --filter=@precoreal/web",
+  "outputDirectory": ".next",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "regions": ["gru1"]
+}
