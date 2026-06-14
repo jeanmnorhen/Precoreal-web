@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Module } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { DatabaseService } from '../src/db/database.service';
 import { RedisService } from '../src/redis/redis.service';
+import { QueuesService } from '../src/queues/queues.service';
+import { QueuesModule } from '../src/queues/queues.module';
 
 const mockDb = {
   select: jest.fn().mockReturnThis(),
@@ -25,6 +27,17 @@ const mockRedisClient = {
   pipeline: jest.fn().mockReturnValue({ set: jest.fn().mockReturnThis(), exec: jest.fn().mockResolvedValue([]) }),
 };
 
+@Module({
+  providers: [
+    {
+      provide: QueuesService,
+      useValue: { adicionarNotificacao: jest.fn(), registrarImpressao: jest.fn() },
+    },
+  ],
+  exports: [QueuesService],
+})
+class MockQueuesModule {}
+
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -36,6 +49,7 @@ describe('App (e2e)', () => {
       .useValue({ get database() { return mockDb; } })
       .overrideProvider(RedisService)
       .useValue({ get redis() { return mockRedisClient; } })
+      .overrideModule(QueuesModule).useModule(MockQueuesModule)
       .compile();
 
     app = moduleFixture.createNestApplication();
