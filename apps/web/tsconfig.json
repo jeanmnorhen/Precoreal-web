@@ -22,7 +22,11 @@
     "paths": {
       "@/*": ["./*"],
       "@precoreal/shared": ["../../packages/shared/src"],
-      "@precoreal/shared/*": ["../../packages/shared/src/*"]
+      "@precoreal/shared/*": ["../../packages/shared/src/*"],
+      "@precoreal/api-contracts": ["../../packages/api-contracts/src"],
+      "@precoreal/api-contracts/*": ["../../packages/api-contracts/src/*"],
+      "@precoreal/api-client": ["../../packages/api-client/src"],
+      "@precoreal/api-client/*": ["../../packages/api-client/src/*"]
     }
   },
   "include": [

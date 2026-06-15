@@ -22,7 +22,9 @@
       "drizzle-orm": ["../../node_modules/drizzle-orm"],
       "drizzle-orm/*": ["../../node_modules/drizzle-orm/*"],
       "@precoreal/shared": ["../../packages/shared/src"],
-      "@precoreal/shared/*": ["../../packages/shared/src/*"]
+      "@precoreal/shared/*": ["../../packages/shared/src/*"],
+      "@precoreal/api-contracts": ["../../packages/api-contracts/src"],
+      "@precoreal/api-contracts/*": ["../../packages/api-contracts/src/*"]
     }
   }
 }

@@ -1,6 +1,7 @@
 import { IsString, IsOptional, IsNumber } from 'class-validator';
+import type { ScanResultRequest } from '@precoreal/api-contracts';
 
-export class ScanResultDto {
+export class ScanResultDto implements ScanResultRequest {
   @IsString()
   codigoBarras: string;
 

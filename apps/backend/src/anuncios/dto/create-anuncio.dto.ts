@@ -1,6 +1,7 @@
 import { IsString, IsNumber, IsOptional, IsDateString } from 'class-validator';
+import type { CreateAnuncioRequest } from '@precoreal/api-contracts';
 
-export class CreateAnuncioDto {
+export class CreateAnuncioDto implements CreateAnuncioRequest {
   @IsString()
   produtoId: string;
 

@@ -1,6 +1,7 @@
 import { IsString, MinLength, MaxLength, IsOptional } from 'class-validator';
+import type { CreateLojaRequest } from '@precoreal/api-contracts';
 
-export class CreateLojaDto {
+export class CreateLojaDto implements CreateLojaRequest {
   @IsString()
   @MinLength(2)
   nome: string;

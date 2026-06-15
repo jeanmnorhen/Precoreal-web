@@ -1,6 +1,7 @@
 import { IsString, MinLength, MaxLength, IsOptional } from 'class-validator';
+import type { UpdateLojaRequest } from '@precoreal/api-contracts';
 
-export class UpdateLojaDto {
+export class UpdateLojaDto implements UpdateLojaRequest {
   @IsString()
   @MinLength(2)
   @IsOptional()

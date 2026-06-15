@@ -1,6 +1,7 @@
 import { IsString, IsArray, IsOptional, IsNumber } from 'class-validator';
+import type { UpdateProdutoRequest } from '@precoreal/api-contracts';
 
-export class UpdateProdutoDto {
+export class UpdateProdutoDto implements UpdateProdutoRequest {
   @IsString()
   @IsOptional()
   codigoBarras?: string;

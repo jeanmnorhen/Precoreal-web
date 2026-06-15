@@ -1,6 +1,7 @@
 import { IsEmail, IsString, MinLength, IsEnum } from 'class-validator';
+import type { RegisterRequest } from '@precoreal/api-contracts';
 
-export class RegisterDto {
+export class RegisterDto implements RegisterRequest {
   @IsString()
   @MinLength(2)
   nome: string;

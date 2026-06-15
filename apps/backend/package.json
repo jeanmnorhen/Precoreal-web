@@ -43,7 +43,10 @@
     "pg": "^8.11.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "stripe": "^15.12.0"
+    "stripe": "^15.12.0",
+    "@sentry/node": "^10.57.0",
+    "prom-client": "^15.1.3",
+    "@precoreal/api-contracts": "*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

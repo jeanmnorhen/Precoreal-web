@@ -5,8 +5,9 @@ import {
   IsDateString,
   IsEnum,
 } from 'class-validator';
+import type { UpdateAnuncioRequest } from '@precoreal/api-contracts';
 
-export class UpdateAnuncioDto {
+export class UpdateAnuncioDto implements UpdateAnuncioRequest {
   @IsString()
   @IsOptional()
   produtoId?: string;

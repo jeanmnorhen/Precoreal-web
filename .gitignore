@@ -26,3 +26,10 @@ npm-debug.log*
 .turbo/
 
 .vercel
+
+# Compiled JS output in source directories (generated from .ts/.tsx)
+apps/backend/src/**/*.js
+apps/web/app/**/*.js
+apps/web/components/**/*.js
+apps/web/lib/**/*.js
+packages/shared/src/**/*.js
