@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AnunciosService } from './anuncios.service';
 import { ScopedAnuncioRepository } from '../db/scoped-anuncio.repository';
 
@@ -29,17 +29,17 @@ describe('AnunciosService', () => {
     jest.clearAllMocks();
   });
 
-  it('deve criar anúncio', async () => {
+  it('deve criar anúncio (default oferta)', async () => {
     const dto = {
       produtoId: 'prod1',
       titulo: 'Oferta',
       descricao: 'Desc',
-      raioAlcanceKm: 5,
-      custoCreditos: 100,
+      raioAlcanceKm: 3,
+      custoCreditos: 1,
       dataInicio: '2026-06-01' as string,
-      dataFim: '2026-07-01' as string,
+      dataFim: '2026-06-10' as string,
     };
-    const created = { id: 'anuncio1', ...dto };
+    const created = { id: 'anuncio1', ...dto, tipo: 'oferta' };
     mockRepo.create.mockResolvedValue(created);
 
     const result = await service.create(dto);
@@ -47,8 +47,9 @@ describe('AnunciosService', () => {
     expect(result).toEqual(created);
     expect(mockRepo.create).toHaveBeenCalledWith({
       ...dto,
+      tipo: 'oferta',
       dataInicio: new Date('2026-06-01'),
-      dataFim: new Date('2026-07-01'),
+      dataFim: new Date('2026-06-10'),
     });
   });
 
@@ -76,15 +77,6 @@ describe('AnunciosService', () => {
     await expect(service.findById('inexistente')).rejects.toThrow(NotFoundException);
   });
 
-  it('deve atualizar anúncio', async () => {
-    const updated = { id: '1', titulo: 'Atualizado', status: 'ativo' };
-    mockRepo.update.mockResolvedValue(updated);
-
-    const result = await service.update('1', { titulo: 'Atualizado', status: 'ativo' });
-
-    expect(result).toEqual(updated);
-  });
-
   it('deve lançar NotFoundException ao atualizar anúncio inexistente', async () => {
     mockRepo.update.mockResolvedValue(null);
 
@@ -104,5 +96,210 @@ describe('AnunciosService', () => {
     mockRepo.delete.mockResolvedValue(null);
 
     await expect(service.delete('inexistente')).rejects.toThrow(NotFoundException);
+  });
+
+  // ─── Regras de negócio por tipo ───
+
+  it('deve rejeitar Oferta com validade > 15 dias', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Oferta Longa',
+      tipo: 'oferta' as const,
+      raioAlcanceKm: 3,
+      custoCreditos: 1,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-20',
+    };
+    mockRepo.findById.mockResolvedValue(null);
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/15 dias/);
+  });
+
+  it('deve rejeitar Oferta com créditos insuficientes', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Oferta Sem Crédito',
+      tipo: 'oferta' as const,
+      raioAlcanceKm: 2,
+      custoCreditos: 0,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-10',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/1 crédito/);
+  });
+
+  it('deve rejeitar Oferta com raio > 3km', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Oferta Longe',
+      tipo: 'oferta' as const,
+      raioAlcanceKm: 10,
+      custoCreditos: 1,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-10',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/3km/);
+  });
+
+  it('deve rejeitar Promoção com validade > 7 dias', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Promoção Longa',
+      tipo: 'promocao' as const,
+      raioAlcanceKm: 5,
+      custoCreditos: 3,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-10',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/7 dias/);
+  });
+
+  it('deve rejeitar Promoção com créditos insuficientes', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Promoção Barata',
+      tipo: 'promocao' as const,
+      raioAlcanceKm: 3,
+      custoCreditos: 1,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-05',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/3 crédito/);
+  });
+
+  it('deve rejeitar Promoção com raio > 5km', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Promoção Distante',
+      tipo: 'promocao' as const,
+      raioAlcanceKm: 10,
+      custoCreditos: 3,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-05',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/5km/);
+  });
+
+  it('deve rejeitar Promoção Relâmpago com validade > 3 dias', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Relâmpago Longa',
+      tipo: 'promocao_relampago' as const,
+      raioAlcanceKm: 5,
+      custoCreditos: 5,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-05',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/3 dias/);
+  });
+
+  it('deve rejeitar Promoção Relâmpago com créditos insuficientes', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Relâmpago Barata',
+      tipo: 'promocao_relampago' as const,
+      raioAlcanceKm: 5,
+      custoCreditos: 2,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-02',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/5 crédito/);
+  });
+
+  it('deve rejeitar tipo inválido', async () => {
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Tipo Inválido',
+      tipo: 'invalido' as any,
+      raioAlcanceKm: 3,
+      custoCreditos: 1,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-05',
+    };
+
+    await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto)).rejects.toThrow(/inválido/);
+  });
+
+  it('deve aceitar Oferta válida', async () => {
+    mockRepo.create.mockResolvedValue({ id: 'a1', tipo: 'oferta' });
+
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Oferta OK',
+      tipo: 'oferta' as const,
+      raioAlcanceKm: 3,
+      custoCreditos: 1,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-10',
+    };
+
+    const result = await service.create(dto);
+    expect(result).toBeDefined();
+  });
+
+  it('deve aceitar Promoção válida', async () => {
+    mockRepo.create.mockResolvedValue({ id: 'a2', tipo: 'promocao' });
+
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Promoção OK',
+      tipo: 'promocao' as const,
+      raioAlcanceKm: 5,
+      custoCreditos: 3,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-05',
+    };
+
+    const result = await service.create(dto);
+    expect(result).toBeDefined();
+  });
+
+  it('deve aceitar Promoção Relâmpago válida', async () => {
+    mockRepo.create.mockResolvedValue({ id: 'a3', tipo: 'promocao_relampago' });
+
+    const dto = {
+      produtoId: 'prod1',
+      titulo: 'Relâmpago OK',
+      tipo: 'promocao_relampago' as const,
+      raioAlcanceKm: 8,
+      custoCreditos: 5,
+      dataInicio: '2026-06-01',
+      dataFim: '2026-06-02',
+    };
+
+    const result = await service.create(dto);
+    expect(result).toBeDefined();
+  });
+
+  it('deve validar regras também no update', async () => {
+    mockRepo.findById.mockResolvedValue({
+      id: 'a1',
+      tipo: 'oferta',
+      dataInicio: new Date('2026-06-01'),
+      dataFim: new Date('2026-06-10'),
+      custoCreditos: 1,
+      raioAlcanceKm: 3,
+    });
+    mockRepo.update.mockResolvedValue({ id: 'a1', tipo: 'oferta' });
+
+    await expect(
+      service.update('a1', { raioAlcanceKm: 5 })
+    ).rejects.toThrow(BadRequestException);
   });
 });

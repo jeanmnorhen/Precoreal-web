@@ -1,23 +1,22 @@
 # PreçoReal
 
-Plataforma de comparação de preços com geolocalização que conecta consumidores a lojas locais. Escaneie códigos de barras, compare preços e encontre as melhores ofertas perto de você.
+Plataforma de comparação de preços com geolocalização que conecta consumidores a lojas locais. Escaneie códigos de barras, compare preços e encontre as melhores ofertas perto de você. Suporta 4 perfis de usuário: **Consumidor**, **Lojista**, **Funcionário** e **Administrador**.
 
 ## Stack
 
 | Camada | Tecnologia |
 |---|---|
 | **Monorepo** | Turborepo + npm workspaces |
-| **Frontend** | Next.js 16 (App Router) + React 19 |
+| **Frontend** | Next.js 16 (App Router) + React 19 + Tailwind CSS v4 |
 | **Backend** | NestJS 11 (Fastify) |
 | **Linguagem** | TypeScript 5 |
-| **Estilo** | Tailwind CSS v4 |
 | **ORM** | Drizzle ORM |
 | **Banco** | PostgreSQL 16 + PostGIS 3.4 |
 | **Cache/Fila** | Redis 7 + BullMQ |
 | **Pagamento** | Stripe |
+| **Gráficos** | Lightweight Charts (TradingView) |
 | **Monitoramento** | Sentry + Prometheus |
-| **Testes E2E** | Playwright |
-| **Testes unitários** | Jest |
+| **Testes** | Jest (unitários) + Playwright (E2E) |
 
 ## Estrutura
 
@@ -25,18 +24,32 @@ Plataforma de comparação de preços com geolocalização que conecta consumido
 precoreal/
 ├── apps/
 │   ├── backend/          # API NestJS (porta 3001)
-│   │   ├── src/          # Módulos: auth, usuarios, lojas, produtos,
-│   │   │                 # anuncios, geo, stripe, scanner, filas
+│   │   ├── src/
+│   │   │   ├── admin/        # Módulo admin (dashboard, precos, uso)
+│   │   │   ├── anuncios/     # CRUD anúncios + regras por tipo
+│   │   │   ├── auth/         # JWT, guards (4 tipos), decorators
+│   │   │   ├── db/           # DatabaseService, ScopedAnuncioRepository
+│   │   │   ├── funcionario/  # Módulo funcionário (geofencing + turnos)
+│   │   │   ├── geo/          # Geocaching (Redis + PostGIS)
+│   │   │   ├── lojista/      # Dashboard + funcionários CRUD
+│   │   │   ├── produtos/     # Catálogo global
+│   │   │   ├── stripe/       # Pagamento + webhook
+│   │   │   └── ...           # usuarios, lojas, scanner, filas
 │   │   ├── drizzle/      # Migrações do banco
 │   │   └── test/         # Testes E2E (Jest + supertest)
 │   └── web/              # Frontend Next.js (porta 3000)
 │       ├── app/          # Páginas (App Router)
+│       │   ├── admin/        # Dashboard, Preços, Uso
+│       │   ├── funcionario/  # Dashboard, Produtos, Anúncios
+│       │   ├── lojista/      # Dashboard, Anúncios, Funcionários
+│       │   └── ...           # Home, Busca, Scanner, Login
 │       ├── components/   # Componentes reutilizáveis
-│       ├── lib/          # API client, contexto de auth
-│       └── e2e/          # Testes Playwright
+│       ├── lib/          # API client, auth-context
+│       └── middleware.ts # Proteção de rotas por role
 ├── packages/
-│   └── shared/           # Schema Drizzle, parser GS1, tipos
-├── skills/               # Base de conhecimento para dev
+│   ├── api-client/       # Cliente HTTP centralizado
+│   ├── api-contracts/    # Tipos request/response
+│   └── shared/           # Schema Drizzle, parser GS1
 ├── docker-compose.yml    # PostGIS + Redis + Backend
 ├── documentacao.md       # Documentação técnica detalhada
 └── turbo.json            # Pipeline Turborepo
@@ -47,20 +60,37 @@ precoreal/
 ### Consumidor
 - Leitor de código de barras (EAN-13, GS1 DataMatrix) com `react-zxing`
 - Busca de produtos por nome, marca ou código de barras
-- Feed de ofertas geolocalizadas, ordenadas por distância
+- Feed de ofertas geolocalizadas com badges por tipo (📢 Oferta, 🔥 Promoção, ⚡ Relâmpago)
 - Mapa com ofertas próximas (Leaflet)
 - Autenticação JWT (registro/login)
+- Scanner com fluxo de confirmação → busca de ofertas
 
 ### Lojista
 - Dashboard com estatísticas (lojas, anúncios ativos, total)
 - Cadastro de lojas com endereço e coordenadas (PostGIS)
 - Gerenciamento de produtos no catálogo
-- Criação e gerenciamento de anúncios com raio de alcance
+- Criação de anúncios com tipo dinâmico (regras de validade, créditos e raio)
+- Gerenciamento de funcionários (adicionar por email, definir turnos, remover)
 - Compra de créditos via Stripe
 - Sidebar no desktop, navegação inferior no mobile
 
+### Funcionário
+- Autenticação com geolocalização + verificação de horário de trabalho
+- Verificação contínua a cada 30s (geofencing por PostGIS + turnos)
+- Visualização de produtos e anúncios da loja vinculada
+- Multi-loja: seleção de loja ao entrar
+
+### Administrador
+- Dashboard com métricas agregadas (usuários ativos, total ofertas, novas lojas, pendências)
+- Gráfico de preços (Lightweight Charts, linha) com filtro 7d/30d/90d
+- Gráfico de uso (Lightweight Charts, histograma) + top 10 produtos
+- Revisão de produtos pendentes
+
 ### Sistema
-- **Multitenancy** — anúncios e lojas escopados por `lojaId` via JWT
+- **4 perfis JWT** — `consumidor`, `lojista`, `funcionario`, `admin` com guards específicos
+- **Multitenancy** — anúncios e lojas escopados por `lojaId` via JWT (Scope.REQUEST)
+- **Geofencing** — PostGIS `ST_DWithin` + polígonos + verificação de turnos (dia da semana + hora)
+- **Tipos de Anúncio**: `oferta` (15d, 1créd, 3km), `promocao` (7d, 3créd, 5km), `promocao_relampago` (3d, 5créd, 10km)
 - **Geo caching** — Redis com Geohash (precisão 5, ~4.89km, 9 vizinhos), fallback para PostGIS
 - **Circuit breaker** — Stripe: 3 falhas consecutivas abrem circuito por 20s
 - **Degradação graciosa** — Redis indisponível → PostGIS; PostGIS indisponível → feed popular
@@ -152,10 +182,11 @@ Tabelas principais (`packages/shared/src/db/schema.ts`):
 
 | Tabela | Descrição |
 |---|---|
-| `usuarios` | Usuários (consumidor/lojista), saldo de créditos |
-| `lojas` | Lojas com endereço e ponto geográfico (PostGIS) |
-| `produtos` | Catálogo global de produtos, código de barras único |
-| `anuncios` | Anúncios por loja, com raio de alcance e status |
+| `usuarios` | Usuários (consumidor/lojista/funcionario/admin), saldo de créditos |
+| `lojas` | Lojas com endereço, ponto geográfico (PostGIS), perímetro e raio |
+| `funcionariosLojas` | Vínculo funcionário→loja com turnos (JSON) |
+| `produtos` | Catálogo global, código de barras único, status de revisão |
+| `anuncios` | Anúncios por loja com tipo (oferta/promocao/promocao_relampago), raio e status |
 
 ## Licença
 

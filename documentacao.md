@@ -61,6 +61,26 @@ precoreal/
 - PWA: manifest, service worker, ícones
 - Pino logger com request IDs
 
+### Iteração 6 — Roles & Permissions (Admin + Funcionário)
+- Schema: enum `tipoUsuario` com 4 valores, `funcionariosLojas` table, `perimetro`/`perimetroRaioMetros`, `tipo` em anuncios, `statusRevisao` em produtos
+- AdminModule: Guard, Controller (`GET /dashboard`, `GET /precos`, `GET /uso`), Service (agregações + revisão)
+- FuncionarioModule: Guard (permite funcionario + lojista), Controller (`GET /lojas`, `POST verificar-acesso/:lojaId`, `GET :lojaId/produtos|anuncios`), Service (geofencing ST_DWithin + turnos)
+- LojistaModule extendido: CRUD funcionários (adicionar por email, turnos, remover)
+- API Client: métodos admin.*, funcionario.*, lojista.funcionarios.*
+- Regras de negócio `validarRegrasAnuncio()` no AnunciosService
+
+### Iteração 7 — Frontend Completo (4 perfis)
+- Consumidor: search-bar, category-filters, offer-card (badges por tipo), feed-promocoes (horizontal), feed-ofertas (vertical), scanner com confirmação
+- Lojista: seleção de loja, sidebar, gerenciamento de funcionários com modais, formulário de anúncios com tipo dinâmico (validade/créditos/raio auto-ajustados)
+- Funcionário: seleção de loja via API, verificação contínua geo+tempo (30s interval), painel com produtos e anúncios
+- Admin: dashboard com 4 widgets, gráfico de preços (Lightweight Charts linha), gráfico de uso (Lightweight Charts histograma) + top 10
+
+### Iteração 8 — Polimento
+- Middleware de proteção de rotas (Next.js middleware.ts com cookie JWT)
+- Redirect por tipo no login/register (consumidor→/, lojista→/lojista, etc.)
+- Limpeza de componentes obsoletos (ofertas-feed, header antigo)
+- Seed expandido: admin, funcionário, tipos de anúncio, geofencing, revisão pendente
+
 ## Rotas da Aplicação
 
 ### Backend (porta 3001)
@@ -76,28 +96,49 @@ precoreal/
 | GET/POST | /produtos | CRUD |
 | GET | /produtos/codigo/:codigoBarras | Busca por barras |
 | GET/POST/PATCH/DELETE | /anuncios | CRUD scoped |
-| GET | /anuncios/proximos | Feed geo |
+| GET | /anuncios/proximos | Feed geo (filtro `?tipo=`) |
 | POST | /scanner/resultado | Parse GS1 |
 | POST | /stripe/webhook | Webhook pagamento |
 | POST | /stripe/create-payment-intent | Criar pagamento |
 | GET | /lojista/dashboard | Métricas lojista |
 | POST | /lojista/creditos/comprar | Comprar créditos |
+| GET | /lojista/funcionarios | Listar funcionários por loja |
+| POST | /lojista/funcionarios | Adicionar funcionário |
+| PATCH | /lojista/funcionarios/:id/turnos | Atualizar turnos |
+| DELETE | /lojista/funcionarios/:id | Remover funcionário |
+| GET | /funcionario/lojas | Lojas vinculadas |
+| POST | /funcionario/verificar-acesso/:lojaId | Verificar geo + horário |
+| GET | /funcionario/:lojaId/produtos | Produtos da loja |
+| GET | /funcionario/:lojaId/anuncios | Anúncios ativos da loja |
+| GET | /admin/dashboard | Métricas admin |
+| GET | /admin/precos | Preços (filtro ?produtoId, ?regiao, ?periodo) |
+| GET | /admin/uso | Uso (filtro ?periodo) |
 | GET | /metrics | Prometheus |
 
 ### Frontend
 
-| Rota | Descrição |
-|------|-----------|
-| / | Landing page |
-| /login | Login |
-| /register | Cadastro |
-| /busca | Busca produtos |
-| /produtos/[id] | Detalhe + mapa + ofertas |
-| /scanner | Scanner câmera |
-| /lojista | Dashboard lojista |
-| /lojista/produtos | Gestão produtos |
-| /lojista/anuncios | Gestão anúncios |
-| /lojista/creditos | Carteira créditos |
+| Rota | Role | Descrição |
+|------|------|-----------|
+| / | todos | Landing page com feeds de ofertas |
+| /login | público | Login |
+| /register | público | Cadastro |
+| /busca | público | Busca produtos |
+| /produtos/[id] | público | Detalhe + mapa + ofertas |
+| /scanner | público | Scanner câmera |
+| /lojista | lojista | Dashboard |
+| /lojista/produtos | lojista | Gestão produtos |
+| /lojista/anuncios | lojista | Gestão anúncios |
+| /lojista/selecionar | lojista | Seleção de loja |
+| /lojista/anuncios/adicionar | lojista | Novo anúncio (com tipo) |
+| /lojista/funcionarios | lojista | Gerenciar funcionários |
+| /lojista/creditos | lojista | Carteira créditos |
+| /funcionario | funcionario | Dashboard |
+| /funcionario/selecionar | funcionario | Seleção de loja |
+| /funcionario/produtos | funcionario | Produtos da loja |
+| /funcionario/anuncios | funcionario | Anúncios ativos |
+| /admin | admin | Dashboard com métricas |
+| /admin/precos | admin | Gráfico de preços |
+| /admin/uso | admin | Gráfico de uso |
 
 ## Arquitetura Multi-tenant
 
@@ -131,18 +172,24 @@ Interceptor global no Fastify verifica `X-Idempotency-Key` no Redis:
 ## Testes
 
 ```
-28 testes, 7 suites
+~80+ testes, 14 suites
 ```
 
 | Suite | Testes |
 |-------|--------|
 | AuthService | register, login, me |
+| AdminService | dashboard (zerado/com dados), monitoramentoPrecos, monitoramentoUso |
+| AdminGuard | admin permite, consumidor/lojista/funcionario 403, sem user 403 |
+| AdminController | dashboard, precos, uso (com/sem filtros) |
+| FuncionarioService | verificarAcesso: sem vínculo 404, permitido, fora horário, fora perímetro, erro DB |
+| FuncionarioGuard | funcionario/lojista permite, consumidor/admin 403, sem user 403 |
+| FuncionarioController | listarLojas, verificarAcesso, listarProdutos, listarAnuncios |
+| AnunciosService | CRUD + NotFound + regras por tipo (10 cenários: oferta/promocao/relâmpago) |
+| LojistaService | dashboard, comprarCreditos, listar/adicionar/atualizarTurnos/remover funcionários |
 | StripeService | payment intent, circuit breaker, webhook |
 | StripeController | defined |
 | GeocachingService | cache hit, cache miss, fallback |
-| LojistaService | dashboard, comprar créditos |
-| AnunciosService | CRUD + NotFound |
-| App (e2e) | hello, register conflict, login 401, geo |
+| App (e2e) | hello, auth (register/login 401, register admin), admin (403 sem token), funcionario (401), lojista funcionarios (401), anuncios (proximos, tipo) |
 
 ### Comandos
 
@@ -207,3 +254,10 @@ SENTRY_DSN=https://...
 | react-zxing v2 API | `onDecodeResult` / `onDecodeError` |
 | dynamic import Leaflet | Evita erro SSR (window is not defined) |
 | Drizzle em vez de Prisma | SQL-first, sem engine pesada, tipagem estática |
+| 4 roles JWT (`consumidor`/`lojista`/`funcionario`/`admin`) | Evita complexidade RBAC externo; guards simples por papel |
+| FuncionarioGuard permite lojista | Lojista pode visualizar dados da loja como funcionário |
+| ScopedAnuncioRepository (Scope.REQUEST) | Injeta `lojaId` do JWT em queries sem poluir controllers |
+| Lightweight Charts em vez de Chart.js | Menor bundle, melhor performance em gráficos financeiros |
+| PostGIS ST_DWithin + raio em metros | Geofencing funcionário sem necessidade de polígono complexo |
+| Turnos como JSON array em `funcionariosLojas` | Flexível (dias/horários variados), sem tabela separada |
+| 3 tipos de anúncio com regras fixas | Regras de negócio validadas no backend; frontend apenas reflete |
