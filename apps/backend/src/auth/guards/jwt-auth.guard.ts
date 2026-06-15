@@ -10,7 +10,7 @@ import { FastifyRequest } from 'fastify';
 export interface JwtPayload {
   userId: string;
   email: string;
-  tipo: 'consumidor' | 'lojista';
+  tipo: 'consumidor' | 'lojista' | 'funcionario' | 'admin';
   lojaId?: string;
 }
 

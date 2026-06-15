@@ -15,9 +15,11 @@ export const postgisPoint = customType<{ data: string; driverData: string }>({
 });
 
 // Enums Globais do Sistema
-export const tipoUsuarioEnum = pgEnum('tipo_usuario', ['consumidor', 'lojista']);
+export const tipoUsuarioEnum = pgEnum('tipo_usuario', ['consumidor', 'lojista', 'funcionario', 'admin']);
+export const tipoAnuncioEnum = pgEnum('tipo_anuncio', ['oferta', 'promocao', 'promocao_relampago']);
 export const statusAnuncioEnum = pgEnum('status_anuncio', ['ativo', 'pausado', 'expirado']);
 export const statusPedidoEnum = pgEnum('status_pedido', ['aguardando_pagamento', 'pago', 'enviado', 'entregue', 'cancelado']);
+export const statusRevisaoEnum = pgEnum('status_revisao', ['pendente', 'aprovado', 'rejeitado']);
 
 // Tabela de Usuários (Centraliza Autenticação e Saldos)
 export const usuarios = pgTable('usuarios', {
@@ -46,12 +48,26 @@ export const lojas = pgTable('lojas', {
   enderecoEstado: varchar('endereco_estado', { length: 2 }).notNull(),
   enderecoCep: varchar('endereco_cep', { length: 8 }).notNull(),
   localizacao: postgisPoint('localizacao').notNull(),
+  perimetro: postgisPoint('perimetro'), // Polygon geometry para geofencing
+  perimetroRaioMetros: integer('perimetro_raio_metros').notNull().default(100),
   tabloideUrl: varchar('tabloide_url', { length: 512 }),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({
   lojaOwnerIdx: index('lojas_owner_idx').on(table.usuarioProprietarioId),
-  // Índice espacial GiST para buscas geográficas rápidas
   localizacaoGistIdx: index('lojas_localizacao_gist_idx').on(table.localizacao)
+}));
+
+// Tabela de Vínculo Funcionário-Loja (com turnos)
+export const funcionariosLojas = pgTable('funcionarios_lojas', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  usuarioId: uuid('usuario_id').references(() => usuarios.id).notNull(),
+  lojaId: uuid('loja_id').references(() => lojas.id).notNull(),
+  turnos: text('turnos').array(), // JSON array: [{"diaSemana":1,"horaInicio":"08:00","horaFim":"18:00"}]
+  criadoEm: timestamp('criado_em').defaultNow().notNull()
+}, (table) => ({
+  funcionarioLojaUidx: uniqueIndex('funcionarios_loja_uidx').on(table.usuarioId, table.lojaId),
+  funcionarioIdx: index('funcionarios_usuario_idx').on(table.usuarioId),
+  funcionarioLojaIdx: index('funcionarios_loja_idx').on(table.lojaId)
 }));
 
 // Tabela de Produtos (Catálogo unificado via EAN/GTIN)
@@ -64,10 +80,13 @@ export const produtos = pgTable('produtos', {
   marca: varchar('marca', { length: 100 }).notNull(),
   precoMedio: integer('preco_medio').notNull().default(0),
   listaImagens: text('lista_imagens').array(),
+  statusRevisao: statusRevisaoEnum('status_revisao').notNull().default('pendente'),
+  revisadoPor: uuid('revisado_por').references(() => usuarios.id),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({
   codigoBarrasUidx: uniqueIndex('produtos_codigo_barras_uidx').on(table.codigoBarras),
-  nomeIdx: index('produtos_nome_idx').on(table.nome)
+  nomeIdx: index('produtos_nome_idx').on(table.nome),
+  revisaoStatusIdx: index('produtos_revisao_status_idx').on(table.statusRevisao)
 }));
 
 // Tabela de Anúncios (Multi-tenant por loja_id)
@@ -77,6 +96,7 @@ export const anuncios = pgTable('anuncios', {
   produtoId: uuid('produto_id').references(() => produtos.id).notNull(),
   titulo: varchar('titulo', { length: 255 }).notNull(),
   descricao: text('descricao'),
+  tipo: tipoAnuncioEnum('tipo').notNull().default('oferta'),
   raioAlcanceKm: integer('raio_alcance_km').notNull(),
   custoCreditos: integer('custo_creditos').notNull(),
   dataInicio: timestamp('data_inicio').notNull(),
@@ -85,12 +105,14 @@ export const anuncios = pgTable('anuncios', {
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({
   anuncioTenantIdx: index('anuncios_tenant_idx').on(table.lojaId),
-  anuncioStatusIdx: index('anuncios_status_idx').on(table.status)
+  anuncioStatusIdx: index('anuncios_status_idx').on(table.status),
+  anunciaTipoIdx: index('anuncios_tipo_idx').on(table.tipo)
 }));
 
 // Definições de Relações
 export const usuariosRelations = relations(usuarios, ({ many }) => ({
-  lojas: many(lojas)
+  lojas: many(lojas),
+  vinculosFuncionario: many(funcionariosLojas)
 }));
 
 export const lojasRelations = relations(lojas, ({ one, many }) => ({
@@ -98,7 +120,8 @@ export const lojasRelations = relations(lojas, ({ one, many }) => ({
     fields: [lojas.usuarioProprietarioId],
     references: [usuarios.id]
   }),
-  anuncios: many(anuncios)
+  anuncios: many(anuncios),
+  funcionarios: many(funcionariosLojas)
 }));
 
 export const produtosRelations = relations(produtos, ({ many }) => ({
@@ -113,5 +136,16 @@ export const anunciosRelations = relations(anuncios, ({ one }) => ({
   produto: one(produtos, {
     fields: [anuncios.produtoId],
     references: [produtos.id]
+  })
+}));
+
+export const funcionariosLojasRelations = relations(funcionariosLojas, ({ one }) => ({
+  usuario: one(usuarios, {
+    fields: [funcionariosLojas.usuarioId],
+    references: [usuarios.id]
+  }),
+  loja: one(lojas, {
+    fields: [funcionariosLojas.lojaId],
+    references: [lojas.id]
   })
 }));

@@ -3,6 +3,15 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 
+function perfilHref(tipo?: string) {
+  switch (tipo) {
+    case 'lojista': return '/lojista';
+    case 'funcionario': return '/funcionario';
+    case 'admin': return '/admin';
+    default: return '/busca';
+  }
+}
+
 export function TopBar() {
   const { user, logout } = useAuth();
 
@@ -20,9 +29,15 @@ export function TopBar() {
         </Link>
 
         <div className="flex items-center gap-1">
+          <Link href="/scanner"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-lg transition-colors hover:opacity-80"
+                style={{ color: 'var(--color-foreground-muted)' }}
+                title="Escanear código de barras">
+            📷
+          </Link>
           {user ? (
             <>
-              <Link href={user.tipo === 'lojista' ? '/lojista' : '/busca'}
+              <Link href={perfilHref(user.tipo)}
                     className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors hover:opacity-80"
                     style={{ background: 'var(--color-navy-50)', color: 'var(--color-navy-700)' }}>
                 {user.nome.charAt(0).toUpperCase()}

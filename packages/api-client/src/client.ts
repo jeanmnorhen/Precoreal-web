@@ -10,7 +10,17 @@ import type {
   UpdateAnuncioRequest,
   DashboardResponse,
   ScanResultRequest,
-  ScanResultResponse
+  ScanResultResponse,
+  AdminDashboardResponse,
+  PrecoMonitoramentoRequest,
+  PrecoMonitoramentoResponse,
+  UsoMonitoramentoRequest,
+  UsoMonitoramentoResponse,
+  VerificarAcessoRequest,
+  VerificarAcessoResponse,
+  FuncionarioResponse,
+  AddFuncionarioRequest,
+  UpdateTurnosRequest
 } from '@precoreal/api-contracts';
 
 const defaultApiBase = 'http://localhost:3000';
@@ -90,8 +100,10 @@ export function createApiClient(options: ApiClientOptions) {
 
     // Anúncios
     anuncios: {
-      proximos: (lat: number, lng: number) =>
-        request<AnuncioProximoResponse[]>(`/anuncios/proximos?latitude=${lat}&longitude=${lng}`),
+      proximos: (lat: number, lng: number, tipo?: string) =>
+        request<AnuncioProximoResponse[]>(
+          `/anuncios/proximos?latitude=${lat}&longitude=${lng}${tipo ? `&tipo=${encodeURIComponent(tipo)}` : ''}`,
+        ),
       listar: () => request<AnuncioResponse[]>('/anuncios'),
       criar: (data: CreateAnuncioRequest) => request<AnuncioResponse>('/anuncios', { method: 'POST', body: JSON.stringify(data) }),
       atualizar: (id: string, data: UpdateAnuncioRequest) =>
@@ -107,6 +119,22 @@ export function createApiClient(options: ApiClientOptions) {
           method: 'POST',
           body: JSON.stringify({ valorCentavos, lojaId }),
         }),
+      funcionarios: {
+        listar: (lojaId: string) =>
+          request<FuncionarioResponse[]>(`/lojista/funcionarios?lojaId=${encodeURIComponent(lojaId)}`),
+        adicionar: (data: AddFuncionarioRequest) =>
+          request<FuncionarioResponse>('/lojista/funcionarios', {
+            method: 'POST',
+            body: JSON.stringify(data),
+          }),
+        atualizarTurnos: (id: string, data: UpdateTurnosRequest) =>
+          request<FuncionarioResponse>(`/lojista/funcionarios/${id}/turnos`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+          }),
+        remover: (id: string) =>
+          request<void>(`/lojista/funcionarios/${id}`, { method: 'DELETE' }),
+      },
     },
 
     // Scanner
@@ -116,6 +144,36 @@ export function createApiClient(options: ApiClientOptions) {
           method: 'POST',
           body: JSON.stringify(data),
         }),
+    },
+
+    // Admin
+    admin: {
+      dashboard: () => request<AdminDashboardResponse>('/admin/dashboard'),
+      monitoramentoPrecos: (params?: PrecoMonitoramentoRequest) =>
+        request<PrecoMonitoramentoResponse>(
+          `/admin/precos${params ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
+        ),
+      monitoramentoUso: (params?: UsoMonitoramentoRequest) =>
+        request<UsoMonitoramentoResponse>(
+          `/admin/uso${params ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
+        ),
+    },
+
+    // Funcionário
+    funcionario: {
+      verificarAcesso: (lojaId: string, data: VerificarAcessoRequest) =>
+        request<VerificarAcessoResponse>(`/funcionario/verificar-acesso/${lojaId}`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      produtos: {
+        listar: (lojaId: string) =>
+          request<ProdutoResponse[]>(`/funcionario/${lojaId}/produtos`),
+      },
+      anuncios: {
+        listar: (lojaId: string) =>
+          request<AnuncioResponse[]>(`/funcionario/${lojaId}/anuncios`),
+      },
     },
   };
 }

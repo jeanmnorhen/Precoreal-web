@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsDateString, IsEnum } from 'class-validator';
 import type { CreateAnuncioRequest } from '@precoreal/api-contracts';
 
 export class CreateAnuncioDto implements CreateAnuncioRequest {
@@ -11,6 +11,10 @@ export class CreateAnuncioDto implements CreateAnuncioRequest {
   @IsString()
   @IsOptional()
   descricao?: string;
+
+  @IsEnum(['oferta', 'promocao', 'promocao_relampago'])
+  @IsOptional()
+  tipo?: 'oferta' | 'promocao' | 'promocao_relampago';
 
   @IsNumber()
   raioAlcanceKm: number;

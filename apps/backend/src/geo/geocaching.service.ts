@@ -8,6 +8,7 @@ import { eq, and, sql } from 'drizzle-orm';
 export interface NearbyAdResult {
   id: string;
   titulo: string;
+  tipo: string;
   distancia: number;
   lojaNome: string;
   lojaLatitude: number;
@@ -37,9 +38,10 @@ export class GeocachingService {
   async getNearbyAnuncios(
     latitude: number,
     longitude: number,
+    tipo?: string,
   ): Promise<NearbyAdResult[]> {
     try {
-      return await this.tryGeocache(latitude, longitude);
+      return await this.tryGeocache(latitude, longitude, tipo);
     } catch (err) {
       this.logger.warn(
         `Falha no cache geo, usando fallback: ${(err as Error).message}`,
@@ -51,6 +53,7 @@ export class GeocachingService {
   private async tryGeocache(
     latitude: number,
     longitude: number,
+    tipo?: string,
   ): Promise<NearbyAdResult[]> {
     const regionalHashes = Geohash.get9Neighbors(latitude, longitude);
     const redisKeys = regionalHashes.map((hash) => `anuncios:geohash:${hash}`);
@@ -88,6 +91,7 @@ export class GeocachingService {
       .select({
         id: anuncios.id,
         titulo: anuncios.titulo,
+        tipo: anuncios.tipo,
         raioAlcanceKm: anuncios.raioAlcanceKm,
         lojaNome: lojas.nome,
         lojaLatitude: sql<number>`ST_Y(${lojas.localizacao}::geometry)`,
@@ -103,6 +107,7 @@ export class GeocachingService {
       .where(
         and(
           eq(anuncios.status, 'ativo'),
+          tipo ? eq(anuncios.tipo, tipo as any) : sql`1=1`,
           sql`ST_DWithin(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography, ${anuncios.raioAlcanceKm} * 1000)`,
         ),
       );
@@ -110,6 +115,7 @@ export class GeocachingService {
     const formattedAds: NearbyAdResult[] = dbResults.map((ad) => ({
       id: ad.id,
       titulo: ad.titulo,
+      tipo: ad.tipo,
       distancia: parseFloat(ad.distancia.toFixed(3)),
       lojaNome: ad.lojaNome,
       lojaLatitude: ad.lojaLatitude,
@@ -165,6 +171,7 @@ export class GeocachingService {
       .select({
         id: anuncios.id,
         titulo: anuncios.titulo,
+        tipo: anuncios.tipo,
         lojaNome: lojas.nome,
         lojaLatitude: sql<number>`ST_Y(${lojas.localizacao}::geometry)`,
         lojaLongitude: sql<number>`ST_X(${lojas.localizacao}::geometry)`,
@@ -181,6 +188,7 @@ export class GeocachingService {
     return results.map((r) => ({
       id: r.id,
       titulo: r.titulo,
+      tipo: r.tipo,
       distancia: 999,
       lojaNome: r.lojaNome,
       lojaLatitude: r.lojaLatitude,

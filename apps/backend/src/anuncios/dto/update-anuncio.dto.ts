@@ -20,6 +20,10 @@ export class UpdateAnuncioDto implements UpdateAnuncioRequest {
   @IsOptional()
   descricao?: string;
 
+  @IsEnum(['oferta', 'promocao', 'promocao_relampago'])
+  @IsOptional()
+  tipo?: 'oferta' | 'promocao' | 'promocao_relampago';
+
   @IsNumber()
   @IsOptional()
   raioAlcanceKm?: number;

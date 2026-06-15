@@ -2,116 +2,71 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { SearchBar } from '@/components/search-bar';
+import { FeedOfertas } from '@/components/feed-ofertas';
+import { BottomNav } from '@/components/bottom-nav';
 import Link from 'next/link';
-import { api } from '@/lib/api';
-
-interface Produto {
-  id: string;
-  nome: string;
-  codigoBarras: string;
-  categoria: string;
-  marca: string;
-  precoMedio: number;
-  descricao?: string;
-}
 
 function BuscaContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [query, setQuery] = useState(searchParams.get('busca') || '');
-  const [resultados, setResultados] = useState<Produto[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const query = searchParams.get('busca') || searchParams.get('produtoId') || '';
+  const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    const q = searchParams.get('busca');
-    if (q) {
-      setCarregando(true);
-      api.produtos.buscar(q)
-        .then(setResultados)
-        .catch(() => setResultados([]))
-        .finally(() => setCarregando(false));
-    }
-  }, [searchParams]);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setCoordenadas({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { timeout: 5000 },
+    );
+  }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/busca?busca=${encodeURIComponent(query)}`);
+  const handleSearch = (term: string) => {
+    if (term.trim()) {
+      router.push(`/busca?busca=${encodeURIComponent(term.trim())}`);
+    }
   };
 
   return (
-    <main className="min-h-screen px-6 py-8 max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/" className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:opacity-70"
-              style={{ background: 'var(--color-muted)' }}>
-          ←
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight">Buscar produtos</h1>
+    <main className="min-h-screen flex flex-col">
+      <div className="sticky top-0 z-50" style={{ background: 'var(--color-card)', borderBottom: '1px solid var(--color-border)' }}>
+        <div className="flex items-center gap-3 px-4 h-14 max-w-3xl mx-auto">
+          <Link href="/" className="text-lg leading-none hover:opacity-70 transition-opacity" style={{ color: 'var(--color-foreground-muted)' }}>
+            ←
+          </Link>
+          <div className="flex-1">
+            <SearchBar
+              onSearch={handleSearch}
+              placeholder="Buscar produtos, lojas, marcas..."
+              autoFocus
+            />
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSearch} className="mb-10 animate-fade-in-up">
-        <div className="flex gap-3">
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Nome, marca, código de barras..."
-            className="flex-1 px-5 py-3 rounded-xl text-base outline-none transition-all focus:ring-2"
-            style={{ background: 'var(--color-card)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)', '--tw-ring-color': 'var(--color-ring)' } as React.CSSProperties} />
-          <button type="submit"
-            className="px-6 py-3 rounded-xl font-bold transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
-            Buscar
-          </button>
-        </div>
-      </form>
+      <div className="flex-1 max-w-3xl mx-auto w-full pt-4 pb-24">
+        {query && (
+          <div className="px-4 mb-2">
+            <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
+              Resultados para: <span className="font-semibold" style={{ color: 'var(--color-foreground)' }}>{query}</span>
+            </p>
+          </div>
+        )}
 
-      {carregando && (
-        <div className="text-center py-12">
-          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin mx-auto"
-               style={{ borderColor: 'var(--color-primary)' }} />
-          <p className="mt-4" style={{ color: 'var(--color-foreground-muted)' }}>Buscando...</p>
-        </div>
-      )}
+        {coordenadas ? (
+          <FeedOfertas
+            searchTerm={query}
+            coordenadas={coordenadas}
+          />
+        ) : (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+                 style={{ borderColor: 'var(--color-primary)' }} />
+          </div>
+        )}
+      </div>
 
-      {!carregando && resultados.length === 0 && searchParams.get('busca') && (
-        <div className="text-center py-12">
-          <p className="text-lg font-medium">Nenhum produto encontrado</p>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>Tente outro termo de busca</p>
-        </div>
-      )}
-
-      {!carregando && resultados.length > 0 && (
-        <div className="grid gap-4">
-          {resultados.map((p, i) => (
-            <Link key={p.id} href={`/produtos/${p.id}`}
-              className="flex items-start gap-5 p-6 rounded-xl transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up"
-              style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)', animationDelay: `${i * 0.06}s` }}>
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                   style={{ background: 'var(--color-navy-50)' }}>
-                📦
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg truncate">{p.nome}</h3>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--color-foreground-muted)' }}>
-                  {p.marca} · {p.categoria}
-                </p>
-                <p className="text-xs font-mono mt-1 opacity-50" style={{ color: 'var(--color-foreground-muted)' }}>
-                  {p.codigoBarras}
-                </p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold" style={{ color: 'var(--color-navy-600)' }}>
-                  {p.precoMedio > 0 ? `R$ ${(p.precoMedio / 100).toFixed(2)}` : 'N/D'}
-                </p>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-foreground-muted)' }}>preço médio</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {!carregando && !searchParams.get('busca') && (
-        <div className="text-center py-12">
-          <p className="text-lg" style={{ color: 'var(--color-foreground-muted)' }}>Digite um termo para buscar produtos</p>
-        </div>
-      )}
+      <BottomNav />
     </main>
   );
 }

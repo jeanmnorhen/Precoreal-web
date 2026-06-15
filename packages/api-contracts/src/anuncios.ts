@@ -2,6 +2,7 @@ export interface CreateAnuncioRequest {
   produtoId: string;
   titulo: string;
   descricao?: string;
+  tipo?: 'oferta' | 'promocao' | 'promocao_relampago';
   raioAlcanceKm: number;
   custoCreditos: number;
   dataInicio: string;
@@ -12,6 +13,7 @@ export interface UpdateAnuncioRequest {
   produtoId?: string;
   titulo?: string;
   descricao?: string;
+  tipo?: 'oferta' | 'promocao' | 'promocao_relampago';
   raioAlcanceKm?: number;
   custoCreditos?: number;
   dataInicio?: string;
@@ -25,6 +27,7 @@ export interface AnuncioResponse {
   produtoId: string;
   titulo: string;
   descricao?: string;
+  tipo: 'oferta' | 'promocao' | 'promocao_relampago';
   raioAlcanceKm: number;
   custoCreditos: number;
   dataInicio: string;

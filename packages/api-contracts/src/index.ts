@@ -5,3 +5,5 @@ export * from './anuncios';
 export * from './lojista';
 export * from './scanner';
 export * from './usuarios';
+export * from './admin';
+export * from './funcionario';

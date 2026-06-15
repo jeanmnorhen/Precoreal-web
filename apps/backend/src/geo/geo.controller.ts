@@ -9,6 +9,7 @@ export class GeoController {
   async proximos(
     @Query('latitude') latitude: string,
     @Query('longitude') longitude: string,
+    @Query('tipo') tipo?: string,
   ) {
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
@@ -17,6 +18,6 @@ export class GeoController {
       return { error: 'Parâmetros latitude e longitude são obrigatórios.' };
     }
 
-    return this.geocachingService.getNearbyAnuncios(lat, lng);
+    return this.geocachingService.getNearbyAnuncios(lat, lng, tipo);
   }
 }
