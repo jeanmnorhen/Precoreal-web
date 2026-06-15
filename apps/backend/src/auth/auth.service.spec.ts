@@ -10,6 +10,7 @@ const mockUsuarioRepository = (): jest.Mocked<IUsuarioRepository> => ({
   findById: jest.fn(),
   findByEmail: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
   debitarCreditos: jest.fn(),
 });
 

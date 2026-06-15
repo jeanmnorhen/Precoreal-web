@@ -6,5 +6,6 @@ export interface IUsuarioRepository {
   findById(id: string): Promise<UsuarioData | null>;
   findByEmail(email: string): Promise<UsuarioData | null>;
   create(data: Omit<UsuarioData, 'id' | 'criadoEm'>): Promise<UsuarioData>;
+  update(id: string, data: Partial<Omit<UsuarioData, 'id' | 'criadoEm'>>): Promise<UsuarioData | null>;
   debitarCreditos(id: string, valor: number): Promise<number>;
 }

@@ -28,6 +28,11 @@ export class DrizzleUsuarioRepository implements IUsuarioRepository {
     return row as UsuarioData;
   }
 
+  async update(id: string, data: Partial<Omit<UsuarioData, 'id' | 'criadoEm'>>): Promise<UsuarioData | null> {
+    const [row] = await this.db.update(usuarios).set(data as any).where(eq(usuarios.id, id)).returning();
+    return (row as UsuarioData) || null;
+  }
+
   async debitarCreditos(id: string, valor: number): Promise<number> {
     const [row] = await this.db
       .update(usuarios)

@@ -23,18 +23,38 @@ export class DrizzleProdutoRepository implements IProdutoRepository {
     return (row as ProdutoData) || null;
   }
 
+  async findAll(): Promise<ProdutoData[]> {
+    const rows = await this.db.select().from(produtos).limit(50);
+    return rows as ProdutoData[];
+  }
+
   async search(query: string): Promise<ProdutoData[]> {
     const pattern = `%${query}%`;
     const rows = await this.db
       .select()
       .from(produtos)
-      .where(or(ilike(produtos.nome, pattern), ilike(produtos.marca, pattern)))
-      .limit(20);
+      .where(or(
+        ilike(produtos.nome, pattern),
+        ilike(produtos.codigoBarras, pattern),
+        ilike(produtos.marca, pattern),
+        ilike(produtos.categoria, pattern),
+      ))
+      .limit(50);
     return rows as ProdutoData[];
   }
 
   async create(data: Omit<ProdutoData, 'id' | 'criadoEm'>): Promise<ProdutoData> {
     const [row] = await this.db.insert(produtos).values(data as any).returning();
     return row as ProdutoData;
+  }
+
+  async update(id: string, data: Partial<Omit<ProdutoData, 'id' | 'criadoEm'>>): Promise<ProdutoData | null> {
+    const [row] = await this.db.update(produtos).set(data as any).where(eq(produtos.id, id)).returning();
+    return (row as ProdutoData) || null;
+  }
+
+  async delete(id: string): Promise<ProdutoData | null> {
+    const [row] = await this.db.delete(produtos).where(eq(produtos.id, id)).returning();
+    return (row as ProdutoData) || null;
   }
 }
