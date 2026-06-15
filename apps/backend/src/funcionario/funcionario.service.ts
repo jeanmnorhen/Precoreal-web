@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { DatabaseService } from '../db/database.service';
-import { funcionariosLojas, lojas } from '@precoreal/shared';
+import { funcionariosLojas, lojas, anuncios, produtos } from '@precoreal/shared';
 import { eq, and, sql } from 'drizzle-orm';
 
 @Injectable()
@@ -93,5 +93,41 @@ export class FuncionarioService {
       dentoPerimetro: dentroPerimetro,
       horarioValido,
     };
+  }
+
+  async listarLojas(usuarioId: string) {
+    return this.db
+      .select({
+        id: lojas.id,
+        nome: lojas.nome,
+        enderecoCidade: lojas.enderecoCidade,
+        enderecoEstado: lojas.enderecoEstado,
+      })
+      .from(funcionariosLojas)
+      .innerJoin(lojas, eq(funcionariosLojas.lojaId, lojas.id))
+      .where(eq(funcionariosLojas.usuarioId, usuarioId));
+  }
+
+  async listarProdutos(lojaId: string) {
+    return this.db
+      .select()
+      .from(produtos)
+      .innerJoin(anuncios, eq(anuncios.produtoId, produtos.id))
+      .where(eq(anuncios.lojaId, lojaId))
+      .limit(100);
+  }
+
+  async listarAnuncios(lojaId: string) {
+    return this.db
+      .select()
+      .from(anuncios)
+      .innerJoin(lojas, eq(anuncios.lojaId, lojas.id))
+      .where(
+        and(
+          eq(anuncios.lojaId, lojaId),
+          eq(anuncios.status, 'ativo'),
+        ),
+      )
+      .limit(100);
   }
 }
