@@ -1,5 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, BadRequestException } from '@nestjs/common';
 import { GeocachingService } from './geocaching.service';
+
+const TIPOS_VALIDOS = ['oferta', 'promocao', 'promocao_relampago'] as const;
 
 @Controller('anuncios')
 export class GeoController {
@@ -16,6 +18,12 @@ export class GeoController {
 
     if (isNaN(lat) || isNaN(lng)) {
       return { error: 'Parâmetros latitude e longitude são obrigatórios.' };
+    }
+
+    if (tipo && !TIPOS_VALIDOS.includes(tipo as any)) {
+      throw new BadRequestException(
+        `tipo inválido: "${tipo}". Valores aceitos: ${TIPOS_VALIDOS.join(', ')}`,
+      );
     }
 
     return this.geocachingService.getNearbyAnuncios(lat, lng, tipo);

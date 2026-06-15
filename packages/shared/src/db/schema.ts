@@ -48,7 +48,7 @@ export const lojas = pgTable('lojas', {
   enderecoEstado: varchar('endereco_estado', { length: 2 }).notNull(),
   enderecoCep: varchar('endereco_cep', { length: 8 }).notNull(),
   localizacao: postgisPoint('localizacao').notNull(),
-  perimetro: postgisPoint('perimetro'), // Polygon geometry para geofencing
+  perimetro: postgisPoint('perimetro'), // Point geometry para geofencing + raio
   perimetroRaioMetros: integer('perimetro_raio_metros').notNull().default(100),
   tabloideUrl: varchar('tabloide_url', { length: 512 }),
   criadoEm: timestamp('criado_em').defaultNow().notNull()

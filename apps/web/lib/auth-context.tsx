@@ -22,6 +22,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function setTokenCookie(token: string) {
+  document.cookie = `token=${token};path=/;max-age=86400;SameSite=Lax`;
+}
+
+function removeTokenCookie() {
+  document.cookie = 'token=;path=/;max-age=0';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,9 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
+      setTokenCookie(token);
       api.me()
         .then(setUser)
-        .catch(() => localStorage.removeItem('token'))
+        .catch(() => {
+          localStorage.removeItem('token');
+          removeTokenCookie();
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -41,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, senha: string) => {
     const res = await api.login(email, senha);
     localStorage.setItem('token', res.accessToken);
+    setTokenCookie(res.accessToken);
     setUser(res.user);
     return res.user;
   }, []);
@@ -48,12 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (nome: string, email: string, senha: string, tipo: string) => {
     const res = await api.register(nome, email, senha, tipo);
     localStorage.setItem('token', res.accessToken);
+    setTokenCookie(res.accessToken);
     setUser(res.user);
     return res.user;
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    removeTokenCookie();
     setUser(null);
   }, []);
 
