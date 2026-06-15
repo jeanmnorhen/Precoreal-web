@@ -18,6 +18,7 @@ import type {
   UsoMonitoramentoRequest,
   UsoMonitoramentoResponse,
   TestExecutionResult,
+  ObservabilidadeResponse,
   VerificarAcessoRequest,
   VerificarAcessoResponse,
   FuncionarioResponse,
@@ -166,6 +167,8 @@ export function createApiClient(options: ApiClientOptions) {
         request<UsoMonitoramentoResponse>(
           `/admin/uso${params ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
         ),
+      observabilidade: () =>
+        request<ObservabilidadeResponse>('/admin/observabilidade'),
       testes: {
         executar: () =>
           request<TestExecutionResult>('/admin/testes/executar', { method: 'POST' }),

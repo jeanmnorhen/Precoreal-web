@@ -28,6 +28,50 @@ export interface UsoMonitoramentoResponse {
   engajamento: { data: string; usuariosAtivos: number }[];
 }
 
+export interface HealthStatusResponse {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  uptime: number;
+  timestamp: string;
+  servicos: {
+    bancoDeDados: { status: 'ok' | 'erro'; latencyMs: number; error?: string };
+    redis: { status: 'ok' | 'erro'; latencyMs: number; error?: string };
+    stripe: { status: 'ok' | 'erro' | 'nao_configurado'; latencyMs?: number; error?: string };
+    storage: { status: 'ok' | 'nao_configurado' };
+  };
+}
+
+export interface FilaStatus {
+  nome: string;
+  depth: number;
+  ativos: number;
+  aguardando: number;
+  processados: number;
+  falhos: number;
+  processadosHoje: number;
+  falhosHoje: number;
+  tempoMedioProcessamentoMs: number;
+}
+
+export interface ErroRecente {
+  id: string;
+  mensagem: string;
+  metodo: string;
+  url: string;
+  statusCode: number;
+  ocorridoEm: string;
+}
+
+export interface ErrosRecentesResponse {
+  erros: ErroRecente[];
+  total: number;
+}
+
+export interface ObservabilidadeResponse {
+  health: HealthStatusResponse;
+  filas: FilaStatus[];
+  erros: ErrosRecentesResponse;
+}
+
 export interface TestSuiteResult {
   name: string;
   status: 'passed' | 'failed';

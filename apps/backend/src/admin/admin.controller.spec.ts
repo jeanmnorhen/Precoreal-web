@@ -15,6 +15,7 @@ describe('AdminController', () => {
     monitoramentoPrecos: jest.fn(),
     monitoramentoUso: jest.fn(),
     executarTestes: jest.fn(),
+    observabilidade: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -67,6 +68,18 @@ describe('AdminController', () => {
     mockService.monitoramentoUso.mockResolvedValue({ volumeBuscas: [], produtosMaisBuscados: [] });
     const result = await controller.monitoramentoUso('30d');
     expect(mockService.monitoramentoUso).toHaveBeenCalledWith('30d');
+  });
+
+  it('deve chamar observabilidade()', async () => {
+    const mockResult = {
+      health: { status: 'healthy', uptime: 3600, timestamp: new Date().toISOString(), servicos: {} },
+      filas: [],
+      erros: { erros: [], total: 0 },
+    };
+    mockService.observabilidade.mockResolvedValue(mockResult);
+    const result = await controller.observabilidade();
+    expect(result.health.status).toBe('healthy');
+    expect(mockService.observabilidade).toHaveBeenCalled();
   });
 
   it('deve chamar executarTestes()', async () => {

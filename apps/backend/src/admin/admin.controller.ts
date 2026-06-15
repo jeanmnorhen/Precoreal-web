@@ -10,6 +10,11 @@ import { JwtPayload } from '../auth/guards/jwt-auth.guard';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Get('observabilidade')
+  async observabilidade() {
+    return this.adminService.observabilidade();
+  }
+
   @Get('dashboard')
   async dashboard(@CurrentUser() user: JwtPayload) {
     return this.adminService.dashboard();

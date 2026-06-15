@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminService } from './admin.service';
 import { DatabaseService } from '../db/database.service';
+import { RedisService } from '../redis/redis.service';
 
 const makeQuery = (result: any) => {
   const q: any = {
@@ -25,10 +26,21 @@ describe('AdminService', () => {
     dbSelect = jest.fn(() => makeQuery(resultSets[callIndex++]));
 
     const mockDb = { select: dbSelect };
+    const mockRedis = {
+      redis: {
+        ping: jest.fn().mockResolvedValue('PONG'),
+        llen: jest.fn().mockResolvedValue(0),
+        zcard: jest.fn().mockResolvedValue(0),
+        lrange: jest.fn().mockResolvedValue([]),
+        lpush: jest.fn().mockResolvedValue(1),
+        ltrim: jest.fn().mockResolvedValue('OK'),
+      },
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AdminService,
         { provide: DatabaseService, useValue: { get database() { return mockDb; } } },
+        { provide: RedisService, useValue: mockRedis },
       ],
     }).compile();
     return module.get<AdminService>(AdminService);
