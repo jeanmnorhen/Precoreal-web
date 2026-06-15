@@ -1,13 +1,13 @@
 import {
   Injectable,
+  Inject,
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { DatabaseService } from '../db/database.service';
-import { usuarios } from '@precoreal/shared';
-import { eq } from 'drizzle-orm';
+import { USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { IUsuarioRepository } from '@precoreal/domain';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './guards/jwt-auth.guard';
@@ -15,36 +15,27 @@ import { JwtPayload } from './guards/jwt-auth.guard';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly dbService: DatabaseService,
+    @Inject(USUARIO_REPOSITORY) private readonly usuarioRepository: IUsuarioRepository,
     private readonly jwtService: JwtService,
   ) {}
 
-  private get db() {
-    return this.dbService.database;
-  }
-
   async register(dto: RegisterDto) {
-    const existing = await this.db
-      .select()
-      .from(usuarios)
-      .where(eq(usuarios.email, dto.email))
-      .limit(1);
+    const existing = await this.usuarioRepository.findByEmail(dto.email);
 
-    if (existing.length > 0) {
+    if (existing) {
       throw new ConflictException('Email já cadastrado.');
     }
 
     const senhaHash = await bcrypt.hash(dto.senha, 10);
 
-    const [user] = await this.db
-      .insert(usuarios)
-      .values({
-        nome: dto.nome,
-        email: dto.email,
-        senhaHash,
-        tipo: dto.tipo,
-      })
-      .returning();
+    const user = await this.usuarioRepository.create({
+      nome: dto.nome,
+      email: dto.email,
+      senhaHash,
+      tipo: dto.tipo,
+      saldoCreditos: 0,
+      quantidadeDiamantes: 0,
+    });
 
     const payload: JwtPayload = {
       userId: user.id,
@@ -64,11 +55,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const [user] = await this.db
-      .select()
-      .from(usuarios)
-      .where(eq(usuarios.email, dto.email))
-      .limit(1);
+    const user = await this.usuarioRepository.findByEmail(dto.email);
 
     if (!user) {
       throw new UnauthorizedException('Email ou senha inválidos.');
@@ -97,12 +84,7 @@ export class AuthService {
   }
 
   async me(userId: string) {
-    const [user] = await this.db
-      .select()
-      .from(usuarios)
-      .where(eq(usuarios.id, userId))
-      .limit(1);
-
+    const user = await this.usuarioRepository.findById(userId);
     if (!user) return null;
 
     return {

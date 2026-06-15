@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
 import { DatabaseService } from '../db/database.service';
 import { StripeService } from '../stripe/stripe.service';
-import { anuncios, lojas, usuarios, funcionariosLojas } from '@precoreal/shared';
+import { LOJA_REPOSITORY, USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IUsuarioRepository } from '@precoreal/domain';
+import { anuncios, usuarios, funcionariosLojas } from '@precoreal/shared';
 import { eq, sql, and } from 'drizzle-orm';
 
 @Injectable()
@@ -9,6 +11,8 @@ export class LojistaService {
   constructor(
     private readonly dbService: DatabaseService,
     private readonly stripeService: StripeService,
+    @Inject(LOJA_REPOSITORY) private readonly lojaRepository: ILojaRepository,
+    @Inject(USUARIO_REPOSITORY) private readonly usuarioRepository: IUsuarioRepository,
   ) {}
 
   private get db() {
@@ -16,10 +20,7 @@ export class LojistaService {
   }
 
   async dashboard(usuarioId: string) {
-    const lojasDoUsuario = await this.db
-      .select({ id: lojas.id })
-      .from(lojas)
-      .where(eq(lojas.usuarioProprietarioId, usuarioId));
+    const lojasDoUsuario = await this.lojaRepository.findByProprietario(usuarioId);
 
     const lojaIds = lojasDoUsuario.map((l) => l.id);
 
@@ -87,25 +88,15 @@ export class LojistaService {
     lojaId: string,
     turnos: any[],
   ) {
-    const loja = await this.db
-      .select()
-      .from(lojas)
-      .where(
-        and(eq(lojas.id, lojaId), eq(lojas.usuarioProprietarioId, proprietarioId)),
-      )
-      .limit(1);
+    const loja = await this.lojaRepository.findById(lojaId);
 
-    if (loja.length === 0) {
+    if (!loja || loja.usuarioProprietarioId !== proprietarioId) {
       throw new NotFoundException('Loja não encontrada ou não pertence a você.');
     }
 
-    const usuario = await this.db
-      .select()
-      .from(usuarios)
-      .where(eq(usuarios.email, email))
-      .limit(1);
+    const usuario = await this.usuarioRepository.findByEmail(email);
 
-    if (usuario.length === 0) {
+    if (!usuario) {
       throw new NotFoundException('Usuário com este email não encontrado.');
     }
 
@@ -114,7 +105,7 @@ export class LojistaService {
       .from(funcionariosLojas)
       .where(
         and(
-          eq(funcionariosLojas.usuarioId, usuario[0].id),
+          eq(funcionariosLojas.usuarioId, usuario.id),
           eq(funcionariosLojas.lojaId, lojaId),
         ),
       )
@@ -127,7 +118,7 @@ export class LojistaService {
     const [vinculo] = await this.db
       .insert(funcionariosLojas)
       .values({
-        usuarioId: usuario[0].id,
+        usuarioId: usuario.id,
         lojaId,
         turnos: turnos.map((t) => JSON.stringify(t)),
       })
@@ -135,9 +126,9 @@ export class LojistaService {
 
     return {
       id: vinculo.id,
-      usuarioId: usuario[0].id,
-      nome: usuario[0].nome,
-      email: usuario[0].email,
+      usuarioId: usuario.id,
+      nome: usuario.nome,
+      email: usuario.email,
       lojaId: vinculo.lojaId,
       turnos,
       criadoEm: vinculo.criadoEm?.toISOString() || new Date().toISOString(),

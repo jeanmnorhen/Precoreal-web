@@ -1,79 +1,57 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { DatabaseService } from '../db/database.service';
-import { lojas, anuncios } from '@precoreal/shared';
-import { eq, and, desc } from 'drizzle-orm';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { LOJA_REPOSITORY, ANUNCIO_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IAnuncioRepository, LojaData } from '@precoreal/domain';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 
 @Injectable()
 export class LojasService {
-  constructor(private readonly dbService: DatabaseService) {}
-
-  private get db() {
-    return this.dbService.database;
-  }
+  constructor(
+    @Inject(LOJA_REPOSITORY) private readonly lojaRepository: ILojaRepository,
+    @Inject(ANUNCIO_REPOSITORY) private readonly anuncioRepository: IAnuncioRepository,
+  ) {}
 
   async create(usuarioId: string, dto: CreateLojaDto) {
     const localizacao = `SRID=4326;POINT(${dto.longitude} ${dto.latitude})`;
 
-    const [loja] = await this.db
-      .insert(lojas)
-      .values({
-        usuarioProprietarioId: usuarioId,
-        nome: dto.nome,
-        descricao: dto.descricao,
-        enderecoRua: dto.enderecoRua,
-        enderecoNumero: dto.enderecoNumero,
-        enderecoBairro: dto.enderecoBairro,
-        enderecoCidade: dto.enderecoCidade,
-        enderecoEstado: dto.enderecoEstado,
-        enderecoCep: dto.enderecoCep,
-        localizacao,
-        logoUrl: dto.logoUrl,
-        tabloideUrl: dto.tabloideUrl,
-      })
-      .returning();
+    const loja = await this.lojaRepository.create({
+      usuarioProprietarioId: usuarioId,
+      nome: dto.nome,
+      descricao: dto.descricao ?? null,
+      enderecoRua: dto.enderecoRua,
+      enderecoNumero: dto.enderecoNumero,
+      enderecoBairro: dto.enderecoBairro,
+      enderecoCidade: dto.enderecoCidade,
+      enderecoEstado: dto.enderecoEstado,
+      enderecoCep: dto.enderecoCep,
+      localizacao,
+      perimetro: null,
+      perimetroRaioMetros: 300,
+      logoUrl: dto.logoUrl ?? null,
+      tabloideUrl: dto.tabloideUrl ?? null,
+    });
 
     return loja;
   }
 
-  async findByProprietario(usuarioId: string) {
-    return this.db
-      .select()
-      .from(lojas)
-      .where(eq(lojas.usuarioProprietarioId, usuarioId));
+  async findByProprietario(usuarioId: string): Promise<LojaData[]> {
+    return this.lojaRepository.findByProprietario(usuarioId);
   }
 
-  async findById(id: string) {
-    const [loja] = await this.db
-      .select()
-      .from(lojas)
-      .where(eq(lojas.id, id))
-      .limit(1);
-
+  async findById(id: string): Promise<LojaData> {
+    const loja = await this.lojaRepository.findById(id);
     if (!loja) throw new NotFoundException('Loja não encontrada.');
     return loja;
   }
 
   async findPublicProfile(id: string) {
-    const [loja] = await this.db
-      .select()
-      .from(lojas)
-      .where(eq(lojas.id, id))
-      .limit(1);
-
+    const loja = await this.lojaRepository.findById(id);
     if (!loja) throw new NotFoundException('Loja não encontrada.');
 
-    const listaAnuncios = await this.db
-      .select()
-      .from(anuncios)
-      .where(and(
-        eq(anuncios.lojaId, id),
-        eq(anuncios.status, 'ativo'),
-      ))
-      .orderBy(desc(anuncios.criadoEm));
+    const anuncios = await this.anuncioRepository.findAll({ lojaId: id, status: 'ativo' });
+    anuncios.sort((a, b) => new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime());
 
-    return { ...loja, anuncios: listaAnuncios };
+    return { ...loja, anuncios };
   }
 
   async update(id: string, usuarioId: string, dto: UpdateLojaDto) {
@@ -85,22 +63,13 @@ export class LojasService {
       updateData.localizacao = `SRID=4326;POINT(${longitude} ${latitude})`;
     }
 
-    const [loja] = await this.db
-      .update(lojas)
-      .set(updateData)
-      .where(and(eq(lojas.id, id), eq(lojas.usuarioProprietarioId, usuarioId)))
-      .returning();
-
+    const loja = await this.lojaRepository.update(id, usuarioId, updateData as any);
     if (!loja) throw new NotFoundException('Loja não encontrada.');
     return loja;
   }
 
   async delete(id: string, usuarioId: string) {
-    const [loja] = await this.db
-      .delete(lojas)
-      .where(and(eq(lojas.id, id), eq(lojas.usuarioProprietarioId, usuarioId)))
-      .returning();
-
+    const loja = await this.lojaRepository.delete(id, usuarioId);
     if (!loja) throw new NotFoundException('Loja não encontrada.');
     return loja;
   }

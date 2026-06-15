@@ -2,35 +2,34 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { IUsuarioRepository } from '@precoreal/domain';
 import { AuthService } from './auth.service';
-import { DatabaseService } from '../db/database.service';
 
-const mockDb = {
-  select: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  limit: jest.fn().mockResolvedValue([]),
-  insert: jest.fn().mockReturnThis(),
-  values: jest.fn().mockReturnThis(),
-  returning: jest.fn().mockResolvedValue([]),
-};
+const mockUsuarioRepository = (): jest.Mocked<IUsuarioRepository> => ({
+  findById: jest.fn(),
+  findByEmail: jest.fn(),
+  create: jest.fn(),
+  debitarCreditos: jest.fn(),
+});
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
+  let usuarioRepo: jest.Mocked<IUsuarioRepository>;
 
-  beforeEach(async () => {
+  const build = async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: DatabaseService, useValue: { get database() { return mockDb; } } },
+        { provide: USUARIO_REPOSITORY, useValue: usuarioRepo },
         { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('token') } },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
-  });
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -39,11 +38,13 @@ describe('AuthService', () => {
   describe('register', () => {
     it('deve registrar um novo usuário e retornar token', async () => {
       const dto = { nome: 'João', email: 'joao@email.com', senha: '123456', tipo: 'consumidor' as const };
-      const mockUser = { id: '1', nome: 'João', email: 'joao@email.com', tipo: 'consumidor', senhaHash: 'hash' };
+      const mockUser = { id: '1', nome: 'João', email: 'joao@email.com', tipo: 'consumidor', senhaHash: 'hash', saldoCreditos: 0, quantidadeDiamantes: 0, criadoEm: new Date() };
 
-      mockDb.limit.mockResolvedValue([]);
-      mockDb.returning.mockResolvedValue([mockUser]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findByEmail.mockResolvedValue(null);
+      usuarioRepo.create.mockResolvedValue(mockUser as any);
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hash' as never);
+      await build();
 
       const result = await service.register(dto);
 
@@ -53,7 +54,9 @@ describe('AuthService', () => {
     });
 
     it('deve lançar ConflictException se email já existir', async () => {
-      mockDb.limit.mockResolvedValue([{ id: '1', email: 'joao@email.com' }]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findByEmail.mockResolvedValue({ id: '1', email: 'joao@email.com' } as any);
+      await build();
 
       await expect(service.register({ nome: 'João', email: 'joao@email.com', senha: '123456', tipo: 'consumidor' }))
         .rejects.toThrow(ConflictException);
@@ -64,8 +67,10 @@ describe('AuthService', () => {
     it('deve logar e retornar token para credenciais válidas', async () => {
       const mockUser = { id: '1', nome: 'João', email: 'joao@email.com', tipo: 'consumidor', senhaHash: 'hash' };
 
-      mockDb.limit.mockResolvedValue([mockUser]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findByEmail.mockResolvedValue(mockUser as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      await build();
 
       const result = await service.login({ email: 'joao@email.com', senha: '123456' });
 
@@ -74,15 +79,19 @@ describe('AuthService', () => {
     });
 
     it('deve lançar UnauthorizedException para email inexistente', async () => {
-      mockDb.limit.mockResolvedValue([]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findByEmail.mockResolvedValue(null);
+      await build();
 
       await expect(service.login({ email: 'x@x.com', senha: '123456' }))
         .rejects.toThrow(UnauthorizedException);
     });
 
     it('deve lançar UnauthorizedException para senha incorreta', async () => {
-      mockDb.limit.mockResolvedValue([{ id: '1', email: 'joao@email.com', senhaHash: 'hash' }]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findByEmail.mockResolvedValue({ id: '1', email: 'joao@email.com', senhaHash: 'hash' } as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      await build();
 
       await expect(service.login({ email: 'joao@email.com', senha: 'errada' }))
         .rejects.toThrow(UnauthorizedException);
@@ -93,7 +102,9 @@ describe('AuthService', () => {
     it('deve retornar dados do usuário', async () => {
       const mockUser = { id: '1', nome: 'João', email: 'joao@email.com', tipo: 'consumidor', saldoCreditos: 100, quantidadeDiamantes: 5, criadoEm: new Date() };
 
-      mockDb.limit.mockResolvedValue([mockUser]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findById.mockResolvedValue(mockUser as any);
+      await build();
 
       const result = await service.me('1');
 
@@ -103,7 +114,9 @@ describe('AuthService', () => {
     });
 
     it('deve retornar null se usuário não existir', async () => {
-      mockDb.limit.mockResolvedValue([]);
+      usuarioRepo = mockUsuarioRepository();
+      usuarioRepo.findById.mockResolvedValue(null);
+      await build();
 
       const result = await service.me('inexistente');
 

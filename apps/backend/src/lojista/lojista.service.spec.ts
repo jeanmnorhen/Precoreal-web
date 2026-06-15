@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { LOJA_REPOSITORY, USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IUsuarioRepository } from '@precoreal/domain';
 import { LojistaService } from './lojista.service';
 import { DatabaseService } from '../db/database.service';
 import { StripeService } from '../stripe/stripe.service';
@@ -27,6 +29,22 @@ const mockDb = () => {
   return base;
 };
 
+const mockLojaRepository = (): jest.Mocked<ILojaRepository> => ({
+  findById: jest.fn(),
+  findByProprietario: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+});
+
+const mockUsuarioRepository = (): jest.Mocked<IUsuarioRepository> => ({
+  findById: jest.fn(),
+  findByEmail: jest.fn(),
+  create: jest.fn(),
+  debitarCreditos: jest.fn(),
+});
+
 const mockStripeService = {
   createPaymentIntent: jest.fn().mockResolvedValue({
     clientSecret: 'pi_secret',
@@ -37,6 +55,8 @@ const mockStripeService = {
 describe('LojistaService', () => {
   let service: LojistaService;
   let db: ReturnType<typeof mockDb>;
+  let lojaRepo: jest.Mocked<ILojaRepository>;
+  let usuarioRepo: jest.Mocked<IUsuarioRepository>;
 
   const build = async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +64,8 @@ describe('LojistaService', () => {
         LojistaService,
         { provide: DatabaseService, useValue: { get database() { return db; } } },
         { provide: StripeService, useValue: mockStripeService },
+        { provide: LOJA_REPOSITORY, useValue: lojaRepo },
+        { provide: USUARIO_REPOSITORY, useValue: usuarioRepo },
       ],
     }).compile();
     service = module.get<LojistaService>(LojistaService);
@@ -56,7 +78,9 @@ describe('LojistaService', () => {
   describe('dashboard', () => {
     it('deve retornar métricas zeradas quando não há lojas', async () => {
       db = mockDb();
-      db.where.mockResolvedValue([]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findByProprietario.mockResolvedValue([]);
       await build();
 
       const result = await service.dashboard('user1');
@@ -68,9 +92,10 @@ describe('LojistaService', () => {
 
     it('deve retornar métricas do dashboard', async () => {
       db = mockDb();
-      db.where
-        .mockResolvedValueOnce([{ id: 'loja1' }, { id: 'loja2' }])
-        .mockResolvedValueOnce([{ total: '10', ativos: '5' }]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findByProprietario.mockResolvedValue([{ id: 'loja1' }, { id: 'loja2' }] as any);
+      db.where.mockResolvedValue([{ total: '10', ativos: '5' }]);
       await build();
 
       const result = await service.dashboard('user1');
@@ -82,6 +107,8 @@ describe('LojistaService', () => {
   describe('comprarCreditos', () => {
     it('deve delegar ao StripeService.createPaymentIntent', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       await build();
       const result = await service.comprarCreditos('user1', 'a@b.com', 1000);
 
@@ -95,6 +122,8 @@ describe('LojistaService', () => {
   describe('listarFuncionarios', () => {
     it('deve retornar lista de funcionários com turnos parseados', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.where.mockResolvedValue([
         {
           id: 'v1', usuarioId: 'u1', nome: 'Carlos', email: 'carlos@email.com',
@@ -113,6 +142,8 @@ describe('LojistaService', () => {
 
     it('deve retornar lista vazia quando não há funcionários', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.where.mockResolvedValue([]);
       await build();
 
@@ -124,10 +155,11 @@ describe('LojistaService', () => {
   describe('adicionarFuncionario', () => {
     it('deve adicionar funcionário com sucesso', async () => {
       db = mockDb();
-      db.limit
-        .mockResolvedValueOnce([{ id: 'loja1', usuarioProprietarioId: 'owner1' }])
-        .mockResolvedValueOnce([{ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' }])
-        .mockResolvedValueOnce([]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
+      usuarioRepo.findByEmail.mockResolvedValue({ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' } as any);
+      db.limit.mockResolvedValueOnce([]);
       db.returning.mockResolvedValue([{ id: 'v1', usuarioId: 'u1', lojaId: 'loja1', criadoEm: new Date() }]);
       await build();
 
@@ -141,7 +173,9 @@ describe('LojistaService', () => {
 
     it('deve lançar NotFoundException se loja não pertence ao proprietário', async () => {
       db = mockDb();
-      db.limit.mockResolvedValue([]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findById.mockResolvedValue(null);
       await build();
 
       await expect(
@@ -151,9 +185,10 @@ describe('LojistaService', () => {
 
     it('deve lançar NotFoundException se email não existe', async () => {
       db = mockDb();
-      db.limit
-        .mockResolvedValueOnce([{ id: 'loja1', usuarioProprietarioId: 'owner1' }])
-        .mockResolvedValueOnce([]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
+      usuarioRepo.findByEmail.mockResolvedValue(null);
       await build();
 
       await expect(
@@ -163,10 +198,11 @@ describe('LojistaService', () => {
 
     it('deve lançar ConflictException se vínculo já existe', async () => {
       db = mockDb();
-      db.limit
-        .mockResolvedValueOnce([{ id: 'loja1', usuarioProprietarioId: 'owner1' }])
-        .mockResolvedValueOnce([{ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' }])
-        .mockResolvedValueOnce([{ id: 'v1' }]);
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
+      lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
+      usuarioRepo.findByEmail.mockResolvedValue({ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' } as any);
+      db.limit.mockResolvedValueOnce([{ id: 'v1' }]);
       await build();
 
       await expect(
@@ -178,6 +214,8 @@ describe('LojistaService', () => {
   describe('atualizarTurnos', () => {
     it('deve atualizar turnos com sucesso', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.returning.mockResolvedValue([{ id: 'v1' }]);
       await build();
 
@@ -190,6 +228,8 @@ describe('LojistaService', () => {
 
     it('deve lançar NotFoundException se vínculo não existe', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.returning.mockResolvedValue([]);
       await build();
 
@@ -202,6 +242,8 @@ describe('LojistaService', () => {
   describe('removerFuncionario', () => {
     it('deve remover funcionário com sucesso', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.returning.mockResolvedValue([{ id: 'v1' }]);
       await build();
 
@@ -211,6 +253,8 @@ describe('LojistaService', () => {
 
     it('deve lançar NotFoundException se vínculo não existe', async () => {
       db = mockDb();
+      lojaRepo = mockLojaRepository();
+      usuarioRepo = mockUsuarioRepository();
       db.returning.mockResolvedValue([]);
       await build();
 

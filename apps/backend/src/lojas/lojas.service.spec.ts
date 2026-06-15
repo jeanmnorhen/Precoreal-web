@@ -1,35 +1,37 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { LOJA_REPOSITORY, ANUNCIO_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IAnuncioRepository } from '@precoreal/domain';
 import { LojasService } from './lojas.service';
-import { DatabaseService } from '../db/database.service';
 
-const mockDb = () => {
-  const base = {
-    select: jest.fn().mockReturnThis(),
-    from: jest.fn().mockReturnThis(),
-    where: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockResolvedValue([]),
-    orderBy: jest.fn().mockResolvedValue([]),
-    insert: jest.fn().mockReturnThis(),
-    values: jest.fn().mockReturnThis(),
-    returning: jest.fn().mockResolvedValue([]),
-    update: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
-    delete: jest.fn().mockReturnThis(),
-  };
-  base.where.mockReturnValue(base);
-  return base;
-};
+const mockLojaRepository = (): jest.Mocked<ILojaRepository> => ({
+  findById: jest.fn(),
+  findByProprietario: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+});
+
+const mockAnuncioRepository = (): jest.Mocked<IAnuncioRepository> => ({
+  findById: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+});
 
 describe('LojasService', () => {
   let service: LojasService;
-  let db: ReturnType<typeof mockDb>;
+  let lojaRepo: jest.Mocked<ILojaRepository>;
+  let anuncioRepo: jest.Mocked<IAnuncioRepository>;
 
   const build = async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LojasService,
-        { provide: DatabaseService, useValue: { get database() { return db; } } },
+        { provide: LOJA_REPOSITORY, useValue: lojaRepo },
+        { provide: ANUNCIO_REPOSITORY, useValue: anuncioRepo },
       ],
     }).compile();
     service = module.get<LojasService>(LojasService);
@@ -40,13 +42,14 @@ describe('LojasService', () => {
   });
 
   describe('findPublicProfile', () => {
-    const lojaMock = { id: 'loja1', nome: 'Loja Teste' };
-    const anunciosMock = [{ id: 'a1', titulo: 'Oferta' }];
+    const lojaMock = { id: 'loja1', nome: 'Loja Teste', criadoEm: new Date() };
+    const anunciosMock = [{ id: 'a1', titulo: 'Oferta', criadoEm: new Date() }];
 
     it('deve retornar loja com anúncios ativos', async () => {
-      db = mockDb();
-      db.limit.mockResolvedValueOnce([lojaMock]);
-      db.orderBy.mockResolvedValueOnce(anunciosMock);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findById.mockResolvedValue(lojaMock as any);
+      anuncioRepo.findAll.mockResolvedValue(anunciosMock as any);
       await build();
 
       const result = await service.findPublicProfile('loja1');
@@ -57,9 +60,10 @@ describe('LojasService', () => {
     });
 
     it('deve retornar lista vazia de anúncios quando não há anúncios ativos', async () => {
-      db = mockDb();
-      db.limit.mockResolvedValueOnce([lojaMock]);
-      db.orderBy.mockResolvedValueOnce([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findById.mockResolvedValue(lojaMock as any);
+      anuncioRepo.findAll.mockResolvedValue([]);
       await build();
 
       const result = await service.findPublicProfile('loja1');
@@ -68,8 +72,9 @@ describe('LojasService', () => {
     });
 
     it('deve lançar NotFoundException se loja não existe', async () => {
-      db = mockDb();
-      db.limit.mockResolvedValueOnce([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findById.mockResolvedValue(null);
       await build();
 
       await expect(service.findPublicProfile('inexistente')).rejects.toThrow(NotFoundException);
@@ -78,8 +83,9 @@ describe('LojasService', () => {
 
   describe('findById', () => {
     it('deve retornar loja quando encontrada', async () => {
-      db = mockDb();
-      db.limit.mockResolvedValueOnce([{ id: 'loja1', nome: 'Loja' }]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findById.mockResolvedValue({ id: 'loja1', nome: 'Loja' } as any);
       await build();
 
       const result = await service.findById('loja1');
@@ -87,8 +93,9 @@ describe('LojasService', () => {
     });
 
     it('deve lançar NotFoundException se loja não existe', async () => {
-      db = mockDb();
-      db.limit.mockResolvedValueOnce([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findById.mockResolvedValue(null);
       await build();
 
       await expect(service.findById('x')).rejects.toThrow(NotFoundException);
@@ -97,8 +104,9 @@ describe('LojasService', () => {
 
   describe('findByProprietario', () => {
     it('deve retornar lojas do proprietário', async () => {
-      db = mockDb();
-      db.where.mockResolvedValue([{ id: 'loja1' }, { id: 'loja2' }]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findByProprietario.mockResolvedValue([{ id: 'loja1' }, { id: 'loja2' }] as any);
       await build();
 
       const result = await service.findByProprietario('user1');
@@ -106,8 +114,9 @@ describe('LojasService', () => {
     });
 
     it('deve retornar array vazio quando proprietário não tem lojas', async () => {
-      db = mockDb();
-      db.where.mockResolvedValue([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.findByProprietario.mockResolvedValue([]);
       await build();
 
       const result = await service.findByProprietario('user1');
@@ -117,9 +126,9 @@ describe('LojasService', () => {
 
   describe('create', () => {
     it('deve criar loja com dados completos', async () => {
-      db = mockDb();
-      const lojaEsperada = { id: 'nova', nome: 'Minha Loja' };
-      db.returning.mockResolvedValue([lojaEsperada]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.create.mockResolvedValue({ id: 'nova', nome: 'Minha Loja' } as any);
       await build();
 
       const result = await service.create('user1', {
@@ -140,8 +149,9 @@ describe('LojasService', () => {
 
   describe('update', () => {
     it('deve atualizar loja com sucesso', async () => {
-      db = mockDb();
-      db.returning.mockResolvedValue([{ id: 'loja1', nome: 'Atualizada' }]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.update.mockResolvedValue({ id: 'loja1', nome: 'Atualizada' } as any);
       await build();
 
       const result = await service.update('loja1', 'user1', { nome: 'Atualizada' });
@@ -149,8 +159,9 @@ describe('LojasService', () => {
     });
 
     it('deve lançar NotFoundException se loja não pertence ao usuário', async () => {
-      db = mockDb();
-      db.returning.mockResolvedValue([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.update.mockResolvedValue(null);
       await build();
 
       await expect(service.update('x', 'user1', { nome: 'X' })).rejects.toThrow(NotFoundException);
@@ -159,8 +170,9 @@ describe('LojasService', () => {
 
   describe('delete', () => {
     it('deve remover loja com sucesso', async () => {
-      db = mockDb();
-      db.returning.mockResolvedValue([{ id: 'loja1' }]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.delete.mockResolvedValue({ id: 'loja1' } as any);
       await build();
 
       const result = await service.delete('loja1', 'user1');
@@ -168,8 +180,9 @@ describe('LojasService', () => {
     });
 
     it('deve lançar NotFoundException se loja não pertence ao usuário', async () => {
-      db = mockDb();
-      db.returning.mockResolvedValue([]);
+      lojaRepo = mockLojaRepository();
+      anuncioRepo = mockAnuncioRepository();
+      lojaRepo.delete.mockResolvedValue(null);
       await build();
 
       await expect(service.delete('x', 'user1')).rejects.toThrow(NotFoundException);
