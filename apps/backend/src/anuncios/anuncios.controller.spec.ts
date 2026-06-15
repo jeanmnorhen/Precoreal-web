@@ -78,7 +78,7 @@ describe('AnunciosController', () => {
     const result = await controller.update('a1', dto);
 
     expect(mockService.update).toHaveBeenCalledWith('a1', dto);
-    expect(result.titulo).toBe('Novo');
+    expect(result!.titulo).toBe('Novo');
   });
 
   it('remove() deve chamar service.delete', async () => {
