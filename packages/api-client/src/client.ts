@@ -17,6 +17,7 @@ import type {
   PrecoMonitoramentoResponse,
   UsoMonitoramentoRequest,
   UsoMonitoramentoResponse,
+  TestExecutionResult,
   VerificarAcessoRequest,
   VerificarAcessoResponse,
   FuncionarioResponse,
@@ -165,6 +166,10 @@ export function createApiClient(options: ApiClientOptions) {
         request<UsoMonitoramentoResponse>(
           `/admin/uso${params ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
         ),
+      testes: {
+        executar: () =>
+          request<TestExecutionResult>('/admin/testes/executar', { method: 'POST' }),
+      },
     },
 
     // Funcionário

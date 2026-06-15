@@ -181,6 +181,30 @@ describe('App (e2e)', () => {
     });
   });
 
+  describe('Lojas (público)', () => {
+    it('GET /lojas/public/:id -> 200 com dados da loja', async () => {
+      dbInstance = mockDb();
+      dbInstance.limit.mockResolvedValueOnce([{ id: 'loja1', nome: 'Loja Teste', logoUrl: null }]);
+      dbInstance.orderBy.mockResolvedValueOnce([{ id: 'a1', titulo: 'Oferta', status: 'ativo' }]);
+
+      const res = await request(app.getHttpServer())
+        .get('/lojas/public/loja1')
+        .expect(200);
+
+      expect(res.body.id).toBe('loja1');
+      expect(res.body.anuncios).toHaveLength(1);
+    });
+
+    it('GET /lojas/public/:id -> 404 se loja não existe', async () => {
+      dbInstance = mockDb();
+      dbInstance.limit.mockResolvedValueOnce([]);
+
+      await request(app.getHttpServer())
+        .get('/lojas/public/inexistente')
+        .expect(404);
+    });
+  });
+
   describe('Anuncios', () => {
     it('GET /anuncios/proximos -> array vazio', async () => {
       const res = await request(app.getHttpServer())
@@ -202,6 +226,54 @@ describe('App (e2e)', () => {
       await request(app.getHttpServer())
         .get('/anuncios/proximos?latitude=-23.5&longitude=-46.6&tipo=invalido')
         .expect(400);
+    });
+  });
+
+  describe('Anuncios Renovar', () => {
+    it('POST /anuncios/:id/renovar -> 401 sem token', async () => {
+      dbInstance = mockDb();
+      await request(app.getHttpServer())
+        .post('/anuncios/anuncio-1/renovar')
+        .expect(401);
+    });
+
+    it('POST /anuncios/:id/renovar -> 200 e retorna creditosRestantes', async () => {
+      dbInstance = mockDb();
+      dbInstance.limit.mockResolvedValue([]);
+      dbInstance.returning.mockResolvedValue([{ id: 'u1', nome: 'Lojista', email: 'lojista@test.com', tipo: 'lojista' }]);
+
+      const regRes = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ nome: 'Lojista', email: 'lojista@test.com', senha: '123456', tipo: 'lojista' })
+        .expect(201);
+
+      const token = regRes.body.accessToken;
+
+      const anuncioId = 'anuncio-1';
+      const lojaId = 'loja-do-user';
+      dbInstance = mockDb();
+      dbInstance.limit
+        .mockResolvedValueOnce([{ id: anuncioId, lojaId, tipo: 'oferta', custoCreditos: 1, dataFim: new Date(Date.now() + 86400000 * 10) }])
+        .mockResolvedValueOnce([{ id: 'u1', saldoCreditos: 100 }])
+        .mockResolvedValueOnce([{ saldoCreditos: 99 }]);
+
+      let whereCount = 0;
+      dbInstance.where.mockImplementation(() => {
+        whereCount++;
+        if (whereCount === 2) return Promise.resolve([{ id: lojaId, usuarioProprietarioId: 'u1' }]); // findByProprietario
+        if (whereCount === 4) return Promise.resolve(undefined); // update user credits
+        return dbInstance;
+      });
+
+      dbInstance.returning.mockResolvedValueOnce([{ id: anuncioId, dataFim: new Date() }]);
+
+      const res = await request(app.getHttpServer())
+        .post(`/anuncios/${anuncioId}/renovar`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(201);
+
+      expect(res.body.creditosRestantes).toBeDefined();
+      expect(res.body.anuncio).toBeDefined();
     });
   });
 });

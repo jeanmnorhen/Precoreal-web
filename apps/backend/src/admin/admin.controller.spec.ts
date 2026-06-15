@@ -14,6 +14,7 @@ describe('AdminController', () => {
     dashboard: jest.fn(),
     monitoramentoPrecos: jest.fn(),
     monitoramentoUso: jest.fn(),
+    executarTestes: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -66,5 +67,19 @@ describe('AdminController', () => {
     mockService.monitoramentoUso.mockResolvedValue({ volumeBuscas: [], produtosMaisBuscados: [] });
     const result = await controller.monitoramentoUso('30d');
     expect(mockService.monitoramentoUso).toHaveBeenCalledWith('30d');
+  });
+
+  it('deve chamar executarTestes()', async () => {
+    const mockResult = {
+      unit: { numPassedSuites: 16, numFailedSuites: 0, numPassedTests: 109, numFailedTests: 0, suites: [], duration: 14000 },
+      e2e: { numPassedSuites: 1, numFailedSuites: 0, numPassedTests: 18, numFailedTests: 0, suites: [], duration: 9000 },
+      coverage: { lines: 85, statements: 82, functions: 78, branches: 70 },
+    };
+    mockService.executarTestes.mockResolvedValue(mockResult);
+
+    const result = await controller.executarTestes();
+
+    expect(result.unit.numPassedTests).toBe(109);
+    expect(result.coverage.lines).toBe(85);
   });
 });

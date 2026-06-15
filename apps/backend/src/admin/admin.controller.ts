@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AdminGuard } from './admin.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -27,5 +27,10 @@ export class AdminController {
   @Get('uso')
   async monitoramentoUso(@Query('periodo') periodo?: string) {
     return this.adminService.monitoramentoUso(periodo);
+  }
+
+  @Post('testes/executar')
+  async executarTestes() {
+    return this.adminService.executarTestes();
   }
 }

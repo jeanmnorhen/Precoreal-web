@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { AnunciosService } from './anuncios.service';
 import { ScopedAnuncioRepository } from '../db/scoped-anuncio.repository';
 import { DatabaseService } from '../db/database.service';
@@ -13,8 +13,18 @@ const mockRepo = {
   delete: jest.fn(),
 };
 
-const mockDbService = {
-  database: {},
+const mockDb = () => {
+  const base = {
+    select: jest.fn().mockReturnThis(),
+    from: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockResolvedValue([]),
+    update: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+    returning: jest.fn().mockResolvedValue([]),
+  };
+  base.where.mockReturnValue(base);
+  return base;
 };
 
 const mockLojasService = {
@@ -23,13 +33,15 @@ const mockLojasService = {
 
 describe('AnunciosService', () => {
   let service: AnunciosService;
+  let db: ReturnType<typeof mockDb>;
 
   beforeEach(async () => {
+    db = mockDb();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AnunciosService,
         { provide: ScopedAnuncioRepository, useValue: mockRepo },
-        { provide: DatabaseService, useValue: mockDbService },
+        { provide: DatabaseService, useValue: { get database() { return db; } } },
         { provide: LojasService, useValue: mockLojasService },
       ],
     }).compile();
@@ -313,5 +325,77 @@ describe('AnunciosService', () => {
     await expect(
       service.update('a1', { raioAlcanceKm: 5 })
     ).rejects.toThrow(BadRequestException);
+  });
+
+  // ─── Renovar ───
+
+  describe('renovar', () => {
+    const anuncioId = 'anuncio-1';
+    const usuarioId = 'user-1';
+    const lojaId = 'loja-1';
+
+    const anuncioMock = {
+      id: anuncioId,
+      lojaId,
+      tipo: 'oferta' as const,
+      custoCreditos: 1,
+      dataFim: new Date(Date.now() + 86400000 * 10),
+    };
+
+    const userMock = { id: usuarioId, saldoCreditos: 100 };
+
+    it('deve renovar anúncio com sucesso', async () => {
+      let whereCount = 0;
+      db.where.mockImplementation(() => {
+        whereCount++;
+        if (whereCount === 3) return Promise.resolve(undefined); // query 4: update (terminal)
+        return db;
+      });
+
+      db.limit
+        .mockResolvedValueOnce([anuncioMock])   // query 1
+        .mockResolvedValueOnce([userMock])       // query 3
+        .mockResolvedValueOnce([{ saldoCreditos: 99 }]); // query 6
+
+      db.returning.mockResolvedValueOnce([{ id: anuncioId, dataFim: new Date() }]); // query 5
+
+      mockLojasService.findByProprietario.mockResolvedValue([{ id: lojaId, usuarioProprietarioId: usuarioId }]);
+
+      const result = await service.renovar(anuncioId, usuarioId);
+
+      expect(result.anuncio.id).toBe(anuncioId);
+      expect(result.creditosRestantes).toBe(99);
+    });
+
+    it('deve lançar NotFoundException se anúncio não existe', async () => {
+      db.limit.mockResolvedValueOnce([]);
+
+      await expect(service.renovar('inexistente', usuarioId)).rejects.toThrow(NotFoundException);
+    });
+
+    it('deve lançar ForbiddenException se anúncio não pertence a loja do usuário', async () => {
+      db.limit.mockResolvedValueOnce([anuncioMock]);
+      mockLojasService.findByProprietario.mockResolvedValue([]);
+
+      await expect(service.renovar(anuncioId, usuarioId)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('deve lançar BadRequestException se tipo de anúncio é inválido', async () => {
+      db.limit.mockResolvedValueOnce([{ ...anuncioMock, tipo: 'invalido' }]);
+      mockLojasService.findByProprietario.mockResolvedValue([{ id: lojaId, usuarioProprietarioId: usuarioId }]);
+
+      await expect(service.renovar(anuncioId, usuarioId)).rejects.toThrow(BadRequestException);
+    });
+
+    it('deve lançar BadRequestException se saldo de créditos é insuficiente', async () => {
+      db.limit
+        .mockResolvedValueOnce([anuncioMock])   // query 1
+        .mockResolvedValueOnce([{ id: usuarioId, saldoCreditos: 0 }]); // query 3
+
+      mockLojasService.findByProprietario.mockResolvedValue([{ id: lojaId, usuarioProprietarioId: usuarioId }]);
+
+      const result = service.renovar(anuncioId, usuarioId);
+      await expect(result).rejects.toThrow(BadRequestException);
+    });
   });
 });

@@ -27,3 +27,37 @@ export interface UsoMonitoramentoResponse {
   produtosMaisBuscados: { produtoId: string; nome: string; totalBuscas: number }[];
   engajamento: { data: string; usuariosAtivos: number }[];
 }
+
+export interface TestSuiteResult {
+  name: string;
+  status: 'passed' | 'failed';
+  duration: number;
+  numPassingTests: number;
+  numFailingTests: number;
+  failureMessage?: string;
+}
+
+export interface TestExecutionResult {
+  unit: {
+    numPassedSuites: number;
+    numFailedSuites: number;
+    numPassedTests: number;
+    numFailedTests: number;
+    suites: TestSuiteResult[];
+    duration: number;
+  };
+  e2e: {
+    numPassedSuites: number;
+    numFailedSuites: number;
+    numPassedTests: number;
+    numFailedTests: number;
+    suites: TestSuiteResult[];
+    duration: number;
+  };
+  coverage: {
+    lines: number;
+    statements: number;
+    functions: number;
+    branches: number;
+  } | null;
+}
