@@ -4,7 +4,8 @@ import { DrizzleAnuncioRepository } from './drizzle-anuncio-repository';
 import { DrizzleLojaRepository } from './drizzle-loja-repository';
 import { DrizzleUsuarioRepository } from './drizzle-usuario-repository';
 import { DrizzleProdutoRepository } from './drizzle-produto-repository';
-import { ANUNCIO_REPOSITORY, LOJA_REPOSITORY, USUARIO_REPOSITORY, PRODUTO_REPOSITORY } from '@precoreal/domain';
+import { DrizzleFuncionarioLojaRepository } from './drizzle-funcionario-loja-repository';
+import { ANUNCIO_REPOSITORY, LOJA_REPOSITORY, USUARIO_REPOSITORY, PRODUTO_REPOSITORY, FUNCIONARIO_LOJA_REPOSITORY } from '@precoreal/domain';
 
 @Module({
   imports: [TenantModule],
@@ -13,7 +14,8 @@ import { ANUNCIO_REPOSITORY, LOJA_REPOSITORY, USUARIO_REPOSITORY, PRODUTO_REPOSI
     { provide: LOJA_REPOSITORY, useClass: DrizzleLojaRepository },
     { provide: USUARIO_REPOSITORY, useClass: DrizzleUsuarioRepository },
     { provide: PRODUTO_REPOSITORY, useClass: DrizzleProdutoRepository },
+    { provide: FUNCIONARIO_LOJA_REPOSITORY, useClass: DrizzleFuncionarioLojaRepository },
   ],
-  exports: [ANUNCIO_REPOSITORY, LOJA_REPOSITORY, USUARIO_REPOSITORY, PRODUTO_REPOSITORY],
+  exports: [ANUNCIO_REPOSITORY, LOJA_REPOSITORY, USUARIO_REPOSITORY, PRODUTO_REPOSITORY, FUNCIONARIO_LOJA_REPOSITORY],
 })
 export class RepositoriesModule {}

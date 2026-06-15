@@ -6,3 +6,5 @@ export type { IUsuarioRepository } from './i-usuario-repository';
 export { USUARIO_REPOSITORY } from './i-usuario-repository';
 export type { IProdutoRepository } from './i-produto-repository';
 export { PRODUTO_REPOSITORY } from './i-produto-repository';
+export type { IFuncionarioLojaRepository } from './i-funcionario-loja-repository';
+export { FUNCIONARIO_LOJA_REPOSITORY } from './i-funcionario-loja-repository';

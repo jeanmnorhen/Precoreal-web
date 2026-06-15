@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ConflictException } from '@nestjs/common';
-import { LOJA_REPOSITORY, USUARIO_REPOSITORY } from '@precoreal/domain';
-import type { ILojaRepository, IUsuarioRepository } from '@precoreal/domain';
+import { LOJA_REPOSITORY, USUARIO_REPOSITORY, FUNCIONARIO_LOJA_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IUsuarioRepository, IFuncionarioLojaRepository } from '@precoreal/domain';
 import { LojistaService } from './lojista.service';
 import { DatabaseService } from '../db/database.service';
 import { StripeService } from '../stripe/stripe.service';
@@ -46,6 +46,15 @@ const mockUsuarioRepository = (): jest.Mocked<IUsuarioRepository> => ({
   debitarCreditos: jest.fn(),
 });
 
+const mockFuncionarioLojaRepository = (): jest.Mocked<IFuncionarioLojaRepository> => ({
+  findById: jest.fn(),
+  findByLojaId: jest.fn(),
+  findVinculo: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+});
+
 const mockStripeService = {
   createPaymentIntent: jest.fn().mockResolvedValue({
     clientSecret: 'pi_secret',
@@ -58,6 +67,7 @@ describe('LojistaService', () => {
   let db: ReturnType<typeof mockDb>;
   let lojaRepo: jest.Mocked<ILojaRepository>;
   let usuarioRepo: jest.Mocked<IUsuarioRepository>;
+  let funcionarioLojaRepo: jest.Mocked<IFuncionarioLojaRepository>;
 
   const build = async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -67,6 +77,7 @@ describe('LojistaService', () => {
         { provide: StripeService, useValue: mockStripeService },
         { provide: LOJA_REPOSITORY, useValue: lojaRepo },
         { provide: USUARIO_REPOSITORY, useValue: usuarioRepo },
+        { provide: FUNCIONARIO_LOJA_REPOSITORY, useValue: funcionarioLojaRepo },
       ],
     }).compile();
     service = module.get<LojistaService>(LojistaService);
@@ -81,6 +92,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findByProprietario.mockResolvedValue([]);
       await build();
 
@@ -95,6 +107,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findByProprietario.mockResolvedValue([{ id: 'loja1' }, { id: 'loja2' }] as any);
       db.where.mockResolvedValue([{ total: '10', ativos: '5' }]);
       await build();
@@ -110,6 +123,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       await build();
       const result = await service.comprarCreditos('user1', 'a@b.com', 1000);
 
@@ -125,6 +139,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       db.where.mockResolvedValue([
         {
           id: 'v1', usuarioId: 'u1', nome: 'Carlos', email: 'carlos@email.com',
@@ -145,6 +160,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       db.where.mockResolvedValue([]);
       await build();
 
@@ -158,10 +174,11 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
       usuarioRepo.findByEmail.mockResolvedValue({ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' } as any);
-      db.limit.mockResolvedValueOnce([]);
-      db.returning.mockResolvedValue([{ id: 'v1', usuarioId: 'u1', lojaId: 'loja1', criadoEm: new Date() }]);
+      funcionarioLojaRepo.findVinculo.mockResolvedValue(null);
+      funcionarioLojaRepo.create.mockResolvedValue({ id: 'v1', usuarioId: 'u1', lojaId: 'loja1', turnos: null, criadoEm: new Date() } as any);
       await build();
 
       const result = await service.adicionarFuncionario(
@@ -176,6 +193,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findById.mockResolvedValue(null);
       await build();
 
@@ -188,6 +206,7 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
       usuarioRepo.findByEmail.mockResolvedValue(null);
       await build();
@@ -201,9 +220,10 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
       lojaRepo.findById.mockResolvedValue({ id: 'loja1', usuarioProprietarioId: 'owner1' } as any);
       usuarioRepo.findByEmail.mockResolvedValue({ id: 'u1', nome: 'Carlos', email: 'carlos@email.com' } as any);
-      db.limit.mockResolvedValueOnce([{ id: 'v1' }]);
+      funcionarioLojaRepo.findVinculo.mockResolvedValue({ id: 'v1' } as any);
       await build();
 
       await expect(
@@ -217,7 +237,8 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
-      db.returning.mockResolvedValue([{ id: 'v1' }]);
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
+      funcionarioLojaRepo.update.mockResolvedValue({ id: 'v1', turnos: null } as any);
       await build();
 
       const result = await service.atualizarTurnos('v1', [
@@ -231,7 +252,8 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
-      db.returning.mockResolvedValue([]);
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
+      funcionarioLojaRepo.update.mockResolvedValue(null);
       await build();
 
       await expect(
@@ -245,7 +267,8 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
-      db.returning.mockResolvedValue([{ id: 'v1' }]);
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
+      funcionarioLojaRepo.delete.mockResolvedValue({ id: 'v1' } as any);
       await build();
 
       const result = await service.removerFuncionario('v1');
@@ -256,7 +279,8 @@ describe('LojistaService', () => {
       db = mockDb();
       lojaRepo = mockLojaRepository();
       usuarioRepo = mockUsuarioRepository();
-      db.returning.mockResolvedValue([]);
+      funcionarioLojaRepo = mockFuncionarioLojaRepository();
+      funcionarioLojaRepo.delete.mockResolvedValue(null);
       await build();
 
       await expect(

@@ -1,10 +1,10 @@
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
 import { DatabaseService } from '../db/database.service';
 import { StripeService } from '../stripe/stripe.service';
-import { LOJA_REPOSITORY, USUARIO_REPOSITORY } from '@precoreal/domain';
-import type { ILojaRepository, IUsuarioRepository } from '@precoreal/domain';
+import { LOJA_REPOSITORY, USUARIO_REPOSITORY, FUNCIONARIO_LOJA_REPOSITORY } from '@precoreal/domain';
+import type { ILojaRepository, IUsuarioRepository, IFuncionarioLojaRepository } from '@precoreal/domain';
 import { anuncios, usuarios, funcionariosLojas } from '@precoreal/shared';
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 @Injectable()
 export class LojistaService {
@@ -13,6 +13,7 @@ export class LojistaService {
     private readonly stripeService: StripeService,
     @Inject(LOJA_REPOSITORY) private readonly lojaRepository: ILojaRepository,
     @Inject(USUARIO_REPOSITORY) private readonly usuarioRepository: IUsuarioRepository,
+    @Inject(FUNCIONARIO_LOJA_REPOSITORY) private readonly funcionarioLojaRepository: IFuncionarioLojaRepository,
   ) {}
 
   private get db() {
@@ -100,29 +101,17 @@ export class LojistaService {
       throw new NotFoundException('Usuário com este email não encontrado.');
     }
 
-    const vinculoExistente = await this.db
-      .select()
-      .from(funcionariosLojas)
-      .where(
-        and(
-          eq(funcionariosLojas.usuarioId, usuario.id),
-          eq(funcionariosLojas.lojaId, lojaId),
-        ),
-      )
-      .limit(1);
+    const vinculoExistente = await this.funcionarioLojaRepository.findVinculo(usuario.id, lojaId);
 
-    if (vinculoExistente.length > 0) {
+    if (vinculoExistente) {
       throw new ConflictException('Este usuário já é funcionário desta loja.');
     }
 
-    const [vinculo] = await this.db
-      .insert(funcionariosLojas)
-      .values({
-        usuarioId: usuario.id,
-        lojaId,
-        turnos: turnos.map((t) => JSON.stringify(t)),
-      })
-      .returning();
+    const vinculo = await this.funcionarioLojaRepository.create({
+      usuarioId: usuario.id,
+      lojaId,
+      turnos: turnos.map((t) => JSON.stringify(t)),
+    });
 
     return {
       id: vinculo.id,
@@ -136,11 +125,9 @@ export class LojistaService {
   }
 
   async atualizarTurnos(id: string, turnos: any[]) {
-    const [vinculo] = await this.db
-      .update(funcionariosLojas)
-      .set({ turnos: turnos.map((t) => JSON.stringify(t)) })
-      .where(eq(funcionariosLojas.id, id))
-      .returning();
+    const vinculo = await this.funcionarioLojaRepository.update(id, {
+      turnos: turnos.map((t) => JSON.stringify(t)),
+    });
 
     if (!vinculo) {
       throw new NotFoundException('Vínculo de funcionário não encontrado.');
@@ -153,10 +140,7 @@ export class LojistaService {
   }
 
   async removerFuncionario(id: string) {
-    const [vinculo] = await this.db
-      .delete(funcionariosLojas)
-      .where(eq(funcionariosLojas.id, id))
-      .returning();
+    const vinculo = await this.funcionarioLojaRepository.delete(id);
 
     if (!vinculo) {
       throw new NotFoundException('Vínculo de funcionário não encontrado.');
