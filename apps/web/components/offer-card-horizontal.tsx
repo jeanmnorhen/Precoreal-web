@@ -8,6 +8,7 @@ interface OfferCardHorizontalProps {
   tipo: 'oferta' | 'promocao' | 'promocao_relampago';
   descricao?: string;
   lojaNome: string;
+  lojaId: string;
   produtoId: string;
   precoMedio: number;
   distancia: number;
@@ -20,12 +21,12 @@ const BADGE_TIPO: Record<string, { label: string; bg: string; color: string }> =
 };
 
 export function OfferCardHorizontal({
-  id, titulo, tipo, lojaNome, produtoId, precoMedio, distancia,
+  id, titulo, tipo, lojaNome, lojaId, produtoId, precoMedio, distancia,
 }: OfferCardHorizontalProps) {
   const badge = BADGE_TIPO[tipo] || BADGE_TIPO.oferta;
 
   return (
-    <Link href={`/produtos/${produtoId}`} className="no-underline flex-shrink-0">
+    <Link href={`/loja/${lojaId}?anuncio=${id}`} className="no-underline flex-shrink-0">
       <article
         className="w-44 rounded-xl overflow-hidden transition-all hover:shadow-md animate-fade-in-up"
         style={{

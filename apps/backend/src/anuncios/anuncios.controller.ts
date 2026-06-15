@@ -12,6 +12,8 @@ import { AnunciosService } from './anuncios.service';
 import { CreateAnuncioDto } from './dto/create-anuncio.dto';
 import { UpdateAnuncioDto } from './dto/update-anuncio.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtPayload } from '../auth/guards/jwt-auth.guard';
 
 @Controller('anuncios')
 @UseGuards(JwtAuthGuard)
@@ -41,5 +43,10 @@ export class AnunciosController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.anunciosService.delete(id);
+  }
+
+  @Post(':id/renovar')
+  renovar(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.anunciosService.renovar(id, user.userId);
   }
 }

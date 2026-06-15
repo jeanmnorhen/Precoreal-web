@@ -44,3 +44,8 @@ export interface AnuncioProximoResponse extends AnuncioResponse {
   codigoBarras: string;
   produtoNome: string;
 }
+
+export interface RenovarAnuncioResponse {
+  anuncio: AnuncioResponse;
+  creditosRestantes: number;
+}

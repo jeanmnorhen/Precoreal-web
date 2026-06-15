@@ -1,3 +1,5 @@
+import type { AnuncioResponse } from './anuncios';
+
 export interface CreateLojaRequest {
   nome: string;
   descricao?: string;
@@ -9,6 +11,8 @@ export interface CreateLojaRequest {
   enderecoCep: string;
   latitude: string;
   longitude: string;
+  logoUrl?: string;
+  tabloideUrl?: string;
 }
 
 export interface UpdateLojaRequest {
@@ -22,6 +26,8 @@ export interface UpdateLojaRequest {
   enderecoCep?: string;
   latitude?: string;
   longitude?: string;
+  logoUrl?: string;
+  tabloideUrl?: string;
 }
 
 export interface LojaResponse {
@@ -36,5 +42,10 @@ export interface LojaResponse {
   enderecoEstado: string;
   enderecoCep: string;
   localizacao: string; // representacao no postgis ou geojson
+  logoUrl?: string;
   tabloideUrl?: string;
+}
+
+export interface LojaPublicResponse extends LojaResponse {
+  anuncios: AnuncioResponse[];
 }

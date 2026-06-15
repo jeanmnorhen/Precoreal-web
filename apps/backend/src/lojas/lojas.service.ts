@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../db/database.service';
-import { lojas } from '@precoreal/shared';
-import { eq, and } from 'drizzle-orm';
+import { lojas, anuncios } from '@precoreal/shared';
+import { eq, and, desc } from 'drizzle-orm';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 
@@ -29,6 +29,8 @@ export class LojasService {
         enderecoEstado: dto.enderecoEstado,
         enderecoCep: dto.enderecoCep,
         localizacao,
+        logoUrl: dto.logoUrl,
+        tabloideUrl: dto.tabloideUrl,
       })
       .returning();
 
@@ -51,6 +53,27 @@ export class LojasService {
 
     if (!loja) throw new NotFoundException('Loja não encontrada.');
     return loja;
+  }
+
+  async findPublicProfile(id: string) {
+    const [loja] = await this.db
+      .select()
+      .from(lojas)
+      .where(eq(lojas.id, id))
+      .limit(1);
+
+    if (!loja) throw new NotFoundException('Loja não encontrada.');
+
+    const listaAnuncios = await this.db
+      .select()
+      .from(anuncios)
+      .where(and(
+        eq(anuncios.lojaId, id),
+        eq(anuncios.status, 'ativo'),
+      ))
+      .orderBy(desc(anuncios.criadoEm));
+
+    return { ...loja, anuncios: listaAnuncios };
   }
 
   async update(id: string, usuarioId: string, dto: UpdateLojaDto) {

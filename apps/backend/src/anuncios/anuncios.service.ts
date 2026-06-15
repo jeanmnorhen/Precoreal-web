@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ScopedAnuncioRepository } from '../db/scoped-anuncio.repository';
 import { CreateAnuncioDto } from './dto/create-anuncio.dto';
 import { UpdateAnuncioDto } from './dto/update-anuncio.dto';
+import { DatabaseService } from '../db/database.service';
+import { LojasService } from '../lojas/lojas.service';
+import { anuncios as anunciosTable, usuarios } from '@precoreal/shared';
+import { eq, sql } from 'drizzle-orm';
 
 const REGRAS_TIPO = {
   oferta:            { maxDias: 15, custoMin: 1,  raioMaxKm: 3  },
@@ -11,7 +15,15 @@ const REGRAS_TIPO = {
 
 @Injectable()
 export class AnunciosService {
-  constructor(private readonly anuncioRepo: ScopedAnuncioRepository) {}
+  constructor(
+    private readonly anuncioRepo: ScopedAnuncioRepository,
+    private readonly dbService: DatabaseService,
+    private readonly lojasService: LojasService,
+  ) {}
+
+  private get db() {
+    return this.dbService.database;
+  }
 
   private validarRegrasAnuncio(dados: {
     tipo: string;
@@ -121,5 +133,60 @@ export class AnunciosService {
     const anuncio = await this.anuncioRepo.delete(id);
     if (!anuncio) throw new NotFoundException('Anúncio não encontrado.');
     return anuncio;
+  }
+
+  async renovar(id: string, usuarioId: string) {
+    const [anuncio] = await this.db
+      .select()
+      .from(anunciosTable)
+      .where(eq(anunciosTable.id, id))
+      .limit(1);
+
+    if (!anuncio) throw new NotFoundException('Anúncio não encontrado.');
+
+    const minhasLojas = await this.lojasService.findByProprietario(usuarioId);
+    const ehDono = minhasLojas.some((l) => l.id === anuncio.lojaId);
+    if (!ehDono) throw new ForbiddenException('Este anúncio não pertence a uma loja sua.');
+
+    const regra = REGRAS_TIPO[anuncio.tipo as keyof typeof REGRAS_TIPO];
+    if (!regra) throw new BadRequestException(`Tipo de anúncio inválido: ${anuncio.tipo}`);
+
+    const agora = new Date();
+    const restanteMs = Math.max(0, anuncio.dataFim.getTime() - agora.getTime());
+    const novoFim = new Date(agora.getTime() + restanteMs + regra.maxDias * 86400000);
+
+    const [user] = await this.db
+      .select()
+      .from(usuarios)
+      .where(eq(usuarios.id, usuarioId))
+      .limit(1);
+
+    if (!user || user.saldoCreditos < anuncio.custoCreditos) {
+      throw new BadRequestException(
+        `Saldo insuficiente. Necessário: ${anuncio.custoCreditos} crédito(s). Saldo: ${user?.saldoCreditos || 0}`,
+      );
+    }
+
+    await this.db
+      .update(usuarios)
+      .set({ saldoCreditos: sql`${usuarios.saldoCreditos} - ${anuncio.custoCreditos}` })
+      .where(eq(usuarios.id, usuarioId));
+
+    const [atualizado] = await this.db
+      .update(anunciosTable)
+      .set({ dataFim: novoFim })
+      .where(eq(anunciosTable.id, id))
+      .returning();
+
+    const [userAtualizado] = await this.db
+      .select({ saldoCreditos: usuarios.saldoCreditos })
+      .from(usuarios)
+      .where(eq(usuarios.id, usuarioId))
+      .limit(1);
+
+    return {
+      anuncio: atualizado,
+      creditosRestantes: userAtualizado?.saldoCreditos || 0,
+    };
   }
 }

@@ -48,6 +48,7 @@ export const lojas = pgTable('lojas', {
   localizacao: postgisPoint('localizacao').notNull(),
   perimetro: postgisPoint('perimetro'), // Point geometry para geofencing + raio
   perimetroRaioMetros: integer('perimetro_raio_metros').notNull().default(100),
+  logoUrl: varchar('logo_url', { length: 512 }),
   tabloideUrl: varchar('tabloide_url', { length: 512 }),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({

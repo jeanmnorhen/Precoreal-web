@@ -46,4 +46,12 @@ export class UpdateLojaDto implements UpdateLojaRequest {
   @IsString()
   @IsOptional()
   longitude?: string;
+
+  @IsString()
+  @IsOptional()
+  logoUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  tabloideUrl?: string;
 }

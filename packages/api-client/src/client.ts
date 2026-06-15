@@ -4,6 +4,7 @@ import type {
   CreateProdutoRequest,
   LojaResponse,
   CreateLojaRequest,
+  UpdateLojaRequest,
   AnuncioResponse,
   AnuncioProximoResponse,
   CreateAnuncioRequest,
@@ -20,7 +21,9 @@ import type {
   VerificarAcessoResponse,
   FuncionarioResponse,
   AddFuncionarioRequest,
-  UpdateTurnosRequest
+  UpdateTurnosRequest,
+  RenovarAnuncioResponse,
+  LojaPublicResponse
 } from '@precoreal/api-contracts';
 
 const defaultApiBase = 'http://localhost:3001';
@@ -96,6 +99,9 @@ export function createApiClient(options: ApiClientOptions) {
       listar: () => request<LojaResponse[]>('/lojas'),
       criar: (data: CreateLojaRequest) => request<LojaResponse>('/lojas', { method: 'POST', body: JSON.stringify(data) }),
       detalhe: (id: string) => request<LojaResponse>(`/lojas/${id}`),
+      atualizar: (id: string, data: UpdateLojaRequest) =>
+        request<LojaResponse>(`/lojas/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+      publicProfile: (id: string) => request<LojaPublicResponse>(`/lojas/public/${id}`),
     },
 
     // Anúncios
@@ -109,6 +115,8 @@ export function createApiClient(options: ApiClientOptions) {
       atualizar: (id: string, data: UpdateAnuncioRequest) =>
         request<AnuncioResponse>(`/anuncios/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
       deletar: (id: string) => request<AnuncioResponse>(`/anuncios/${id}`, { method: 'DELETE' }),
+      renovar: (id: string) =>
+        request<RenovarAnuncioResponse>(`/anuncios/${id}/renovar`, { method: 'POST' }),
     },
 
     // Lojista (portal)

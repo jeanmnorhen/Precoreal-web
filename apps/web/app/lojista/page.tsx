@@ -96,6 +96,11 @@ export default function LojistaDashboard() {
                     {loja.enderecoCidade}, {loja.enderecoEstado}
                   </p>
                 </div>
+                <Link href={`/lojista/${loja.id}/editar`}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
+                  style={{ background: 'var(--color-muted)', color: 'var(--color-foreground)' }}>
+                  ✏️ Editar
+                </Link>
               </div>
             ))}
           </div>

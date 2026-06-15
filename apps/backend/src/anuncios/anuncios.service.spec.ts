@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AnunciosService } from './anuncios.service';
 import { ScopedAnuncioRepository } from '../db/scoped-anuncio.repository';
+import { DatabaseService } from '../db/database.service';
+import { LojasService } from '../lojas/lojas.service';
 
 const mockRepo = {
   create: jest.fn(),
@@ -9,6 +11,14 @@ const mockRepo = {
   findById: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+};
+
+const mockDbService = {
+  database: {},
+};
+
+const mockLojasService = {
+  findByProprietario: jest.fn(),
 };
 
 describe('AnunciosService', () => {
@@ -19,6 +29,8 @@ describe('AnunciosService', () => {
       providers: [
         AnunciosService,
         { provide: ScopedAnuncioRepository, useValue: mockRepo },
+        { provide: DatabaseService, useValue: mockDbService },
+        { provide: LojasService, useValue: mockLojasService },
       ],
     }).compile();
 

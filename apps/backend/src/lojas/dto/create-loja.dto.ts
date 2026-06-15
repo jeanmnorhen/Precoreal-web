@@ -37,4 +37,12 @@ export class CreateLojaDto implements CreateLojaRequest {
 
   @IsString()
   longitude: string;
+
+  @IsString()
+  @IsOptional()
+  logoUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  tabloideUrl?: string;
 }

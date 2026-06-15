@@ -4,6 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 
+const REGRAS_TIPO: Record<string, { maxDias: number }> = {
+  oferta:            { maxDias: 15 },
+  promocao:          { maxDias: 7  },
+  promocao_relampago: { maxDias: 3  },
+};
+
 export default function LojistaAnuncios() {
   const [anuncios, setAnuncios] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -22,6 +28,21 @@ export default function LojistaAnuncios() {
     const novoStatus = statusAtual === 'ativo' ? 'pausado' : 'ativo';
     try {
       await api.anuncios.atualizar(id, { status: novoStatus });
+      carregar();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const renovar = async (a: any) => {
+    const regra = REGRAS_TIPO[a.tipo] || REGRAS_TIPO.oferta;
+    const confirma = confirm(
+      `Renovar "${a.titulo}"?\n\nCusto: ${a.custoCreditos} crédito(s)\nValidade adicional: ${regra.maxDias} dias\n\nSaldo restante será deduzido automaticamente.`,
+    );
+    if (!confirma) return;
+    try {
+      const res = await api.anuncios.renovar(a.id);
+      alert(`Anúncio renovado! Créditos restantes: ${res.creditosRestantes}`);
       carregar();
     } catch (err: any) {
       alert(err.message);
@@ -58,6 +79,9 @@ export default function LojistaAnuncios() {
       <div className="grid gap-4">
         {anuncios.map((a: any, i: number) => {
           const ativo = a.status === 'ativo';
+          const diasRestantes = ativo
+            ? Math.max(0, Math.ceil((new Date(a.dataFim).getTime() - Date.now()) / 86400000))
+            : 0;
           return (
             <div key={a.id}
               className="p-5 rounded-xl transition-all hover:shadow-sm animate-fade-in-up"
@@ -66,7 +90,8 @@ export default function LojistaAnuncios() {
                 <div>
                   <p className="font-bold text-base">{a.titulo}</p>
                   <p className="text-sm" style={{ color: 'var(--color-foreground-muted)' }}>
-                    Raio: {a.raioAlcanceKm}km · {a.custoCreditos} créditos/dia
+                    Raio: {a.raioAlcanceKm}km · {a.custoCreditos} créditos
+                    {ativo && ` · ${diasRestantes}d restantes`}
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold"
@@ -86,6 +111,16 @@ export default function LojistaAnuncios() {
                   }}>
                   {ativo ? 'Pausar' : 'Ativar'}
                 </button>
+                {ativo && (
+                  <button onClick={() => renovar(a)}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-80"
+                    style={{
+                      background: 'hsla(210,60%,50%,0.08)',
+                      color: 'var(--color-navy-600)',
+                    }}>
+                    🔄 Renovar
+                  </button>
+                )}
               </div>
             </div>
           );
