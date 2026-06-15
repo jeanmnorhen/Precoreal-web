@@ -32,7 +32,8 @@ export function FeedOfertas({ searchTerm, categoria, coordenadas }: FeedOfertasP
     if (!coordenadas) return;
     setCarregando(true);
     try {
-      let data = await api.anuncios.proximos(coordenadas.lat, coordenadas.lng) as unknown as Oferta[];
+      let data = (await api.anuncios.proximos(coordenadas.lat, coordenadas.lng) as unknown as Oferta[])
+        .filter((item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx);
 
       if (searchTerm) {
         const term = searchTerm.toLowerCase();

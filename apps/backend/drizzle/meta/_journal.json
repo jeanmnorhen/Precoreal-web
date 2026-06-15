@@ -15,6 +15,13 @@
       "when": 1781490622952,
       "tag": "0001_tired_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781492824705,
+      "tag": "0002_medical_triton",
+      "breakpoints": true
     }
   ]
 }

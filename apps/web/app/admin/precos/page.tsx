@@ -64,10 +64,10 @@ export default function AdminPrecos() {
       },
     });
 
-    const chartData = dados.map((p) => ({
-      time: p.data.split('T')[0],
-      value: p.precoMedio,
-    }));
+    const chartData = dados
+      .map((p) => ({ time: p.data.split('T')[0], value: p.precoMedio }))
+      .sort((a, b) => a.time.localeCompare(b.time))
+      .filter((item, idx, arr) => idx === 0 || item.time !== arr[idx - 1].time);
 
     lineSeries.setData(chartData as any);
     chart.timeScale().fitContent();

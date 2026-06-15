@@ -9,3 +9,4 @@ exports.default = (0, drizzle_kit_1.defineConfig)({
         url: process.env.DATABASE_URL ?? 'postgres://localhost:5432/precoreal',
     },
 });
+//# sourceMappingURL=drizzle.config.js.map

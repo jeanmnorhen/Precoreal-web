@@ -2,13 +2,6 @@ export interface AdminDashboardResponse {
   usuariosAtivos: number;
   totalOfertas: number;
   novasLojas: number;
-  produtosPendentesRevisao: number;
-  produtosPendentesLista: {
-    id: string;
-    nome: string;
-    codigoBarras: string;
-    criadoEm: string;
-  }[];
 }
 
 export interface PrecoMonitoramentoRequest {

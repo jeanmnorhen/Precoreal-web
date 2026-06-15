@@ -44,7 +44,6 @@ describe('AdminService', () => {
         [{ total: '0' }],
         [{ total: '0' }],
         [{ total: '0' }],
-        [],
       ]);
 
       const result = await service.dashboard();
@@ -52,8 +51,6 @@ describe('AdminService', () => {
       expect(result.usuariosAtivos).toBe(0);
       expect(result.totalOfertas).toBe(0);
       expect(result.novasLojas).toBe(0);
-      expect(result.produtosPendentesRevisao).toBe(0);
-      expect(result.produtosPendentesLista).toEqual([]);
     });
 
     it('deve retornar métricas com dados', async () => {
@@ -61,7 +58,6 @@ describe('AdminService', () => {
         [{ total: '15' }],
         [{ total: '42' }],
         [{ total: '3' }],
-        [{ id: 'p1', nome: 'Produto Pendente', codigoBarras: '789', criadoEm: new Date() }],
       ]);
 
       const result = await service.dashboard();
@@ -69,7 +65,6 @@ describe('AdminService', () => {
       expect(result.usuariosAtivos).toBe(15);
       expect(result.totalOfertas).toBe(42);
       expect(result.novasLojas).toBe(3);
-      expect(result.produtosPendentesRevisao).toBe(1);
     });
   });
 

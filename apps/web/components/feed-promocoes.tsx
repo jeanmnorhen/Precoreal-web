@@ -34,7 +34,8 @@ export function FeedPromocoes({ searchTerm, categoria, coordenadas }: FeedPromoc
     try {
       const data = await api.anuncios.proximos(coordenadas.lat, coordenadas.lng, 'promocao');
       const dataRelampago = await api.anuncios.proximos(coordenadas.lat, coordenadas.lng, 'promocao_relampago');
-      const todas = [...data, ...dataRelampago] as unknown as Oferta[];
+      const todas = ([...data, ...dataRelampago] as unknown as Oferta[])
+        .filter((item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx);
 
       let filtradas = todas;
       if (searchTerm) {

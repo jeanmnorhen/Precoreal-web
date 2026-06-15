@@ -19,8 +19,6 @@ export const tipoUsuarioEnum = pgEnum('tipo_usuario', ['consumidor', 'lojista', 
 export const tipoAnuncioEnum = pgEnum('tipo_anuncio', ['oferta', 'promocao', 'promocao_relampago']);
 export const statusAnuncioEnum = pgEnum('status_anuncio', ['ativo', 'pausado', 'expirado']);
 export const statusPedidoEnum = pgEnum('status_pedido', ['aguardando_pagamento', 'pago', 'enviado', 'entregue', 'cancelado']);
-export const statusRevisaoEnum = pgEnum('status_revisao', ['pendente', 'aprovado', 'rejeitado']);
-
 // Tabela de Usuários (Centraliza Autenticação e Saldos)
 export const usuarios = pgTable('usuarios', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -80,13 +78,10 @@ export const produtos = pgTable('produtos', {
   marca: varchar('marca', { length: 100 }).notNull(),
   precoMedio: integer('preco_medio').notNull().default(0),
   listaImagens: text('lista_imagens').array(),
-  statusRevisao: statusRevisaoEnum('status_revisao').notNull().default('pendente'),
-  revisadoPor: uuid('revisado_por').references(() => usuarios.id),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({
   codigoBarrasUidx: uniqueIndex('produtos_codigo_barras_uidx').on(table.codigoBarras),
   nomeIdx: index('produtos_nome_idx').on(table.nome),
-  revisaoStatusIdx: index('produtos_revisao_status_idx').on(table.statusRevisao)
 }));
 
 // Tabela de Anúncios (Multi-tenant por loja_id)

@@ -23,7 +23,7 @@ import type {
   UpdateTurnosRequest
 } from '@precoreal/api-contracts';
 
-const defaultApiBase = 'http://localhost:3000';
+const defaultApiBase = 'http://localhost:3001';
 
 export interface ApiClientOptions {
   baseUrl?: string;

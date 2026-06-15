@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../db/database.service';
 import { usuarios, anuncios, lojas, produtos } from '@precoreal/shared';
-import { eq, sql, and, gte, desc } from 'drizzle-orm';
+import { sql, eq, and, gte, desc } from 'drizzle-orm';
 
 @Injectable()
 export class AdminService {
@@ -28,24 +28,10 @@ export class AdminService {
       .from(lojas)
       .where(gte(lojas.criadoEm, trintaDiasAtras));
 
-    const produtosPendentes = await this.db
-      .select({
-        id: produtos.id,
-        nome: produtos.nome,
-        codigoBarras: produtos.codigoBarras,
-        criadoEm: produtos.criadoEm,
-      })
-      .from(produtos)
-      .where(eq(produtos.statusRevisao, 'pendente'))
-      .orderBy(desc(produtos.criadoEm))
-      .limit(10);
-
     return {
       usuariosAtivos: Number(userCount?.total || 0),
       totalOfertas: Number(ofertaCount?.total || 0),
       novasLojas: Number(lojaCount?.total || 0),
-      produtosPendentesRevisao: produtosPendentes.length,
-      produtosPendentesLista: produtosPendentes,
     };
   }
 

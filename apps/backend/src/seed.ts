@@ -141,21 +141,21 @@ async function seed() {
 
   // ─── PRODUTOS ───
   const produtosData = [
-    { codigoBarras: '7891000100103', nome: 'Leite Integral', descricao: 'Leite integral 1L', categoria: 'Laticínios', marca: 'Italac', precoMedio: 499, listaImagens: ['https://placehold.co/400x400/eee/333?text=Leite'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100202', nome: 'Arroz Branco', descricao: 'Arroz tipo 1 5kg', categoria: 'Grãos', marca: 'Tio João', precoMedio: 2599, listaImagens: ['https://placehold.co/400x400/eee/333?text=Arroz'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100309', nome: 'Feijão Carioca', descricao: 'Feijão carioca 1kg', categoria: 'Grãos', marca: 'Camil', precoMedio: 899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Feijao'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100408', nome: 'Óleo de Soja', descricao: 'Óleo de soja 900ml', categoria: 'Óleos', marca: 'Liza', precoMedio: 699, listaImagens: ['https://placehold.co/400x400/eee/333?text=Oleo'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100507', nome: 'Açúcar Refinado', descricao: 'Açúcar refinado 1kg', categoria: 'Açúcares', marca: 'União', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Acucar'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100606', nome: 'Café Torrado Moído', descricao: 'Café torrado moído 500g', categoria: 'Cafés', marca: 'Pilão', precoMedio: 1599, listaImagens: ['https://placehold.co/400x400/eee/333?text=Cafe'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100705', nome: 'Macarrão Espaguete', descricao: 'Macarrão espaguete 500g', categoria: 'Massas', marca: 'Adria', precoMedio: 499, listaImagens: ['https://placehold.co/400x400/eee/333?text=Macarrao'], statusRevisao: 'pendente' as const },
-    { codigoBarras: '7891000100804', nome: 'Molho de Tomate', descricao: 'Molho de tomate 340g', categoria: 'Molhos', marca: 'Pomarola', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Molho'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000100903', nome: 'Sabão em Pó', descricao: 'Sabão em pó 800g', categoria: 'Limpeza', marca: 'Omo', precoMedio: 1299, listaImagens: ['https://placehold.co/400x400/eee/333?text=Sabo'], statusRevisao: 'pendente' as const },
-    { codigoBarras: '7891000101009', nome: 'Detergente Líquido', descricao: 'Detergente líquido 500ml', categoria: 'Limpeza', marca: 'Ypê', precoMedio: 299, listaImagens: ['https://placehold.co/400x400/eee/333?text=Detergente'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000101108', nome: 'Papel Higiênico', descricao: 'Papel higiênico 12 rolos', categoria: 'Higiene', marca: 'Neve', precoMedio: 1899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Papel'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000101207', nome: 'Shampoo', descricao: 'Shampoo 350ml', categoria: 'Higiene', marca: 'Seda', precoMedio: 1099, listaImagens: ['https://placehold.co/400x400/eee/333?text=Shampoo'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000101306', nome: 'Refrigerante Cola', descricao: 'Refrigerante cola 2L', categoria: 'Bebidas', marca: 'Coca-Cola', precoMedio: 899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Coca'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000101405', nome: 'Suco de Laranja', descricao: 'Suco de laranja 1L', categoria: 'Bebidas', marca: 'Del Valle', precoMedio: 699, listaImagens: ['https://placehold.co/400x400/eee/333?text=Suco'], statusRevisao: 'aprovado' as const },
-    { codigoBarras: '7891000101504', nome: 'Biscoito Recheado', descricao: 'Biscoito recheado chocolate 140g', categoria: 'Biscoitos', marca: 'Passatempo', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Biscoito'], statusRevisao: 'pendente' as const },
+    { codigoBarras: '7891000100103', nome: 'Leite Integral', descricao: 'Leite integral 1L', categoria: 'Laticínios', marca: 'Italac', precoMedio: 499, listaImagens: ['https://placehold.co/400x400/eee/333?text=Leite'] },
+    { codigoBarras: '7891000100202', nome: 'Arroz Branco', descricao: 'Arroz tipo 1 5kg', categoria: 'Grãos', marca: 'Tio João', precoMedio: 2599, listaImagens: ['https://placehold.co/400x400/eee/333?text=Arroz'] },
+    { codigoBarras: '7891000100309', nome: 'Feijão Carioca', descricao: 'Feijão carioca 1kg', categoria: 'Grãos', marca: 'Camil', precoMedio: 899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Feijao'] },
+    { codigoBarras: '7891000100408', nome: 'Óleo de Soja', descricao: 'Óleo de soja 900ml', categoria: 'Óleos', marca: 'Liza', precoMedio: 699, listaImagens: ['https://placehold.co/400x400/eee/333?text=Oleo'] },
+    { codigoBarras: '7891000100507', nome: 'Açúcar Refinado', descricao: 'Açúcar refinado 1kg', categoria: 'Açúcares', marca: 'União', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Acucar'] },
+    { codigoBarras: '7891000100606', nome: 'Café Torrado Moído', descricao: 'Café torrado moído 500g', categoria: 'Cafés', marca: 'Pilão', precoMedio: 1599, listaImagens: ['https://placehold.co/400x400/eee/333?text=Cafe'] },
+    { codigoBarras: '7891000100705', nome: 'Macarrão Espaguete', descricao: 'Macarrão espaguete 500g', categoria: 'Massas', marca: 'Adria', precoMedio: 499, listaImagens: ['https://placehold.co/400x400/eee/333?text=Macarrao'] },
+    { codigoBarras: '7891000100804', nome: 'Molho de Tomate', descricao: 'Molho de tomate 340g', categoria: 'Molhos', marca: 'Pomarola', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Molho'] },
+    { codigoBarras: '7891000100903', nome: 'Sabão em Pó', descricao: 'Sabão em pó 800g', categoria: 'Limpeza', marca: 'Omo', precoMedio: 1299, listaImagens: ['https://placehold.co/400x400/eee/333?text=Sabo'] },
+    { codigoBarras: '7891000101009', nome: 'Detergente Líquido', descricao: 'Detergente líquido 500ml', categoria: 'Limpeza', marca: 'Ypê', precoMedio: 299, listaImagens: ['https://placehold.co/400x400/eee/333?text=Detergente'] },
+    { codigoBarras: '7891000101108', nome: 'Papel Higiênico', descricao: 'Papel higiênico 12 rolos', categoria: 'Higiene', marca: 'Neve', precoMedio: 1899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Papel'] },
+    { codigoBarras: '7891000101207', nome: 'Shampoo', descricao: 'Shampoo 350ml', categoria: 'Higiene', marca: 'Seda', precoMedio: 1099, listaImagens: ['https://placehold.co/400x400/eee/333?text=Shampoo'] },
+    { codigoBarras: '7891000101306', nome: 'Refrigerante Cola', descricao: 'Refrigerante cola 2L', categoria: 'Bebidas', marca: 'Coca-Cola', precoMedio: 899, listaImagens: ['https://placehold.co/400x400/eee/333?text=Coca'] },
+    { codigoBarras: '7891000101405', nome: 'Suco de Laranja', descricao: 'Suco de laranja 1L', categoria: 'Bebidas', marca: 'Del Valle', precoMedio: 699, listaImagens: ['https://placehold.co/400x400/eee/333?text=Suco'] },
+    { codigoBarras: '7891000101504', nome: 'Biscoito Recheado', descricao: 'Biscoito recheado chocolate 140g', categoria: 'Biscoitos', marca: 'Passatempo', precoMedio: 399, listaImagens: ['https://placehold.co/400x400/eee/333?text=Biscoito'] },
   ];
 
   const createdProdutos = [];
@@ -164,7 +164,7 @@ async function seed() {
     createdProdutos.push(prod);
   }
 
-  console.log(`📦 ${createdProdutos.length} produtos criados (3 pendentes de revisão)`);
+  console.log(`📦 ${createdProdutos.length} produtos criados`);
 
   // ─── ANÚNCIOS (com tipo variado) ───
   const now = new Date();
