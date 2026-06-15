@@ -6,7 +6,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/guards/jwt-auth.guard';
 import { VerificarAcessoDto } from './dto/verificar-acesso.dto';
 import { DatabaseService } from '../db/database.service';
-import { anuncios, produtos, lojas } from '@precoreal/shared';
+import { anuncios, produtos, lojas, funcionariosLojas } from '@precoreal/shared';
 import { eq, and } from 'drizzle-orm';
 
 @Controller('funcionario')
@@ -18,6 +18,21 @@ export class FuncionarioController {
 
   private get db() {
     return this.dbService.database;
+  }
+
+  @Get('lojas')
+  @UseGuards(JwtAuthGuard, FuncionarioGuard)
+  async listarLojas(@CurrentUser() user: JwtPayload) {
+    return this.db
+      .select({
+        id: lojas.id,
+        nome: lojas.nome,
+        enderecoCidade: lojas.enderecoCidade,
+        enderecoEstado: lojas.enderecoEstado,
+      })
+      .from(funcionariosLojas)
+      .innerJoin(lojas, eq(funcionariosLojas.lojaId, lojas.id))
+      .where(eq(funcionariosLojas.usuarioId, user.userId));
   }
 
   @Post('verificar-acesso/:lojaId')

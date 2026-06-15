@@ -15,13 +15,20 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
 
+  const redirectMap: Record<string, string> = {
+    consumidor: '/',
+    lojista: '/lojista',
+    funcionario: '/funcionario',
+    admin: '/admin',
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
     setCarregando(true);
     try {
-      await register(nome, email, senha, tipo);
-      router.push('/');
+      const userData = await register(nome, email, senha, tipo);
+      router.push(redirectMap[userData.tipo] || '/');
     } catch (err: any) {
       setErro(err.message || 'Erro ao cadastrar.');
     } finally {

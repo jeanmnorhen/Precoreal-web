@@ -161,6 +161,8 @@ export function createApiClient(options: ApiClientOptions) {
 
     // Funcionário
     funcionario: {
+      lojas: () =>
+        request<{ id: string; nome: string; enderecoCidade: string; enderecoEstado: string }[]>('/funcionario/lojas'),
       verificarAcesso: (lojaId: string, data: VerificarAcessoRequest) =>
         request<VerificarAcessoResponse>(`/funcionario/verificar-acesso/${lojaId}`, {
           method: 'POST',

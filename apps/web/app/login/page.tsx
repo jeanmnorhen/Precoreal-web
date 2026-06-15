@@ -13,13 +13,20 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
+  const redirectMap: Record<string, string> = {
+    consumidor: '/',
+    lojista: '/lojista',
+    funcionario: '/funcionario',
+    admin: '/admin',
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
     setCarregando(true);
     try {
-      await login(email, senha);
-      router.push('/');
+      const userData = await login(email, senha);
+      router.push(redirectMap[userData.tipo] || '/');
     } catch (err: any) {
       setErro(err.message || 'Erro ao fazer login.');
     } finally {
