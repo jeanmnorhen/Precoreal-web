@@ -244,6 +244,17 @@ SENTRY_DSN=https://...
 - Ícones SVG em `/icons/`
 - Registro automático via `ServiceWorkerRegister` component
 
+## Precificação
+
+| Item | Valor |
+|---|---|
+| **1 crédito** | R$ 1,00 |
+| **Formas de pagamento** | Débito, crédito ou PIX (via Stripe) |
+| **Conversão** | `valorCentavos / 100` = créditos adicionados ao saldo |
+| **Consumo** | Anúncios consomem `custoCreditos` créditos por dia |
+
+Os créditos são comprados pelo lojista via Stripe (`POST /lojista/creditos/comprar`) e adicionados ao saldo do usuário (`usuarios.saldoCreditos`). O webhook do Stripe processa o evento `payment_intent.succeeded` e credita o valor.
+
 ## Decisões Técnicas
 
 | Decisão | Motivo |

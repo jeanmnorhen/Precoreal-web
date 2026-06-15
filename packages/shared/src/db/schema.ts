@@ -28,7 +28,7 @@ export const usuarios = pgTable('usuarios', {
   email: varchar('email', { length: 255 }).notNull(),
   senhaHash: varchar('senha_hash', { length: 255 }).notNull(),
   tipo: tipoUsuarioEnum('tipo').notNull().default('consumidor'),
-  saldoCreditos: integer('saldo_creditos').notNull().default(0), // Armazenado em centavos
+  saldoCreditos: integer('saldo_creditos').notNull().default(0),
   quantidadeDiamantes: integer('quantidade_diamantes').notNull().default(0),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({

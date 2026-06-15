@@ -68,7 +68,7 @@ export class StripeService implements OnModuleInit {
         currency: 'brl',
         metadata: {
           usuarioId,
-          creditosAAdicionar: valorCentavos.toString(),
+          creditosAAdicionar: Math.floor(valorCentavos / 100).toString(),
         },
         receipt_email: email,
       });

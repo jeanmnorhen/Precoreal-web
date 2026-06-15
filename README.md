@@ -98,6 +98,16 @@ precoreal/
 - **Filas** — BullMQ para notificações e impressões, retry com backoff exponencial
 - **Observabilidade** — Sentry, Prometheus (`GET /metrics`), Pino logger com UUIDs
 
+## Precificação
+
+| Item | Valor |
+|---|---|
+| **1 crédito** | R$ 1,00 |
+| **Formas de pagamento** | Débito, crédito ou PIX (via Stripe) |
+| **Custo mínimo por tipo** | Oferta: 1 crédito/dia · Promoção: 3 créditos/dia · Promoção Relâmpago: 5 créditos/dia |
+
+Os créditos são comprados pelo lojista na página `Carteira de Créditos` e consumidos diariamente por cada anúncio ativo.
+
 ## Pré-requisitos
 
 - Node.js 22+ e npm 11+

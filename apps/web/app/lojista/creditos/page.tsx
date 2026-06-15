@@ -5,10 +5,10 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 
 const VALORES = [
-  { label: 'R$ 10', centavos: 1000, creditos: 1000 },
-  { label: 'R$ 25', centavos: 2500, creditos: 2500 },
-  { label: 'R$ 50', centavos: 5000, creditos: 5000 },
-  { label: 'R$ 100', centavos: 10000, creditos: 10000 },
+  { label: 'R$ 10', centavos: 1000, creditos: 10 },
+  { label: 'R$ 25', centavos: 2500, creditos: 25 },
+  { label: 'R$ 50', centavos: 5000, creditos: 50 },
+  { label: 'R$ 100', centavos: 10000, creditos: 100 },
 ];
 
 export default function LojistaCreditos() {
@@ -40,7 +40,7 @@ export default function LojistaCreditos() {
       <div className="p-6 rounded-xl mb-8" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
         <p className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>Saldo Atual</p>
         <p className="text-4xl font-bold mt-1" style={{ color: 'var(--color-navy-600)' }}>
-          {((user?.saldoCreditos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          {(user?.saldoCreditos || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
         </p>
         <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
           {user?.saldoCreditos || 0} créditos disponíveis

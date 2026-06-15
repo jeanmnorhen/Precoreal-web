@@ -21,7 +21,7 @@ function createMockStripe(reject = false) {
     webhooks: {
       constructEvent: jest.fn().mockReturnValue({
         type: 'payment_intent.succeeded',
-        data: { object: { metadata: { usuarioId: 'user1', creditosAAdicionar: '1000' } } },
+        data: { object: { metadata: { usuarioId: 'user1', creditosAAdicionar: '10' } } },
       }),
     },
   };

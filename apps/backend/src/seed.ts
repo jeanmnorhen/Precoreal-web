@@ -38,7 +38,7 @@ async function seed() {
     email: 'joao@email.com',
     senhaHash,
     tipo: 'lojista',
-    saldoCreditos: 50000,
+    saldoCreditos: 500,
     quantidadeDiamantes: 10,
   }).returning();
 
@@ -47,7 +47,7 @@ async function seed() {
     email: 'supercentro@email.com',
     senhaHash,
     tipo: 'lojista',
-    saldoCreditos: 100000,
+    saldoCreditos: 1000,
     quantidadeDiamantes: 20,
   }).returning();
 
