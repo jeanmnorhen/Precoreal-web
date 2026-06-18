@@ -83,3 +83,34 @@ export function calcularNovaDataFim(anuncio: {
   const restanteMs = Math.max(0, anuncio.dataFim.getTime() - agora.getTime());
   return new Date(agora.getTime() + restanteMs + regra.maxDias * 86400000);
 }
+
+export class Anuncio {
+  constructor(public readonly data: AnuncioData) {}
+
+  get id() { return this.data.id; }
+  get lojaId() { return this.data.lojaId; }
+  get produtoId() { return this.data.produtoId; }
+  get titulo() { return this.data.titulo; }
+  get descricao() { return this.data.descricao; }
+  get tipo() { return this.data.tipo; }
+  get raioAlcanceKm() { return this.data.raioAlcanceKm; }
+  get custoCreditos() { return this.data.custoCreditos; }
+  get dataInicio() { return this.data.dataInicio; }
+  get dataFim() { return this.data.dataFim; }
+  get status() { return this.data.status; }
+  get criadoEm() { return this.data.criadoEm; }
+
+  validarRegras(): ValidationError[] {
+    return validarRegrasAnuncio({
+      tipo: this.tipo,
+      dataInicio: this.dataInicio,
+      dataFim: this.dataFim,
+      custoCreditos: this.custoCreditos,
+      raioAlcanceKm: this.raioAlcanceKm,
+    });
+  }
+
+  calcularNovaDataFim(): Date {
+    return calcularNovaDataFim(this.data);
+  }
+}

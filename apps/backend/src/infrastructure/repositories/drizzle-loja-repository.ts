@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../db/database.service';
 import { lojas } from '@precoreal/shared';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql, gte } from 'drizzle-orm';
 import type { ILojaRepository } from '@precoreal/domain';
 import type { LojaData } from '@precoreal/domain';
 
@@ -29,6 +29,39 @@ export class DrizzleLojaRepository implements ILojaRepository {
   async findAll(): Promise<LojaData[]> {
     const rows = await this.db.select().from(lojas);
     return rows as LojaData[];
+  }
+
+  async countByDateRange(desde: Date): Promise<number> {
+    const [row] = await this.db
+      .select({ total: sql<number>`count(*)` })
+      .from(lojas)
+      .where(gte(lojas.criadoEm, desde));
+    return Number(row?.total || 0);
+  }
+
+  async checkGeofence(lojaId: string, latitude: number, longitude: number): Promise<boolean> {
+    try {
+      const lojasResult = await this.db
+        .select({ localizacao: lojas.localizacao, raio: lojas.perimetroRaioMetros })
+        .from(lojas)
+        .where(eq(lojas.id, lojaId))
+        .limit(1);
+      const loja = lojasResult[0];
+      if (!loja?.localizacao) return false;
+      const result = await this.db.execute(
+        sql`
+          SELECT ST_DWithin(
+            ${loja.localizacao}::geography,
+            ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography,
+            ${loja.raio}
+          ) as dentro
+        `,
+      );
+      const row = result.rows?.[0] as Record<string, unknown> | undefined;
+      return row?.dentro === true || row?.dentro === 'true';
+    } catch {
+      return false;
+    }
   }
 
   async create(data: Omit<LojaData, 'id' | 'criadoEm'>): Promise<LojaData> {

@@ -1,7 +1,6 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DatabaseService } from '../db/database.service';
-import { usuarios } from '@precoreal/shared';
-import { eq, sql } from 'drizzle-orm';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { IUsuarioRepository } from '@precoreal/domain';
 import Stripe from 'stripe';
 
 @Injectable()
@@ -11,11 +10,9 @@ export class StripeService implements OnModuleInit {
   private consecutiveFailures = 0;
   private lastFailureTime = 0;
 
-  constructor(private readonly dbService: DatabaseService) {}
-
-  private get db() {
-    return this.dbService.database;
-  }
+  constructor(
+    @Inject(USUARIO_REPOSITORY) private readonly usuarioRepository: IUsuarioRepository,
+  ) {}
 
   onModuleInit() {
     const key = process.env.STRIPE_RESTRICTED_KEY;
@@ -118,11 +115,6 @@ export class StripeService implements OnModuleInit {
 
     if (!usuarioId || creditos <= 0) return;
 
-    await this.db
-      .update(usuarios)
-      .set({
-        saldoCreditos: sql`${usuarios.saldoCreditos} + ${creditos}`,
-      })
-      .where(eq(usuarios.id, usuarioId));
+    await this.usuarioRepository.creditarCreditos(usuarioId, creditos);
   }
 }

@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { LojistaController } from './lojista.controller';
-import { LojistaService } from './lojista.service';
 import { LojistaGuard } from './lojista.guard';
 import { StripeModule } from '../stripe/stripe.module';
-import { AuthModule } from '../auth/auth.module';
 import { RepositoriesModule } from '../infrastructure/repositories/repositories.module';
+import { ApplicationModule } from '../application/application.module';
 
 @Module({
-  imports: [AuthModule, StripeModule, RepositoriesModule],
+  imports: [StripeModule, RepositoriesModule, ApplicationModule],
   controllers: [LojistaController],
-  providers: [LojistaService, LojistaGuard],
+  providers: [LojistaGuard],
 })
 export class LojistaModule {}

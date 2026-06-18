@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../db/database.service';
-import { produtos } from '@precoreal/shared';
-import { eq, or, ilike } from 'drizzle-orm';
+import { produtos, anuncios, lojas } from '@precoreal/shared';
+import { eq, or, ilike, and, sql, desc } from 'drizzle-orm';
 import type { IProdutoRepository } from '@precoreal/domain';
 import type { ProdutoData } from '@precoreal/domain';
 
@@ -41,6 +41,31 @@ export class DrizzleProdutoRepository implements IProdutoRepository {
       ))
       .limit(50);
     return rows as ProdutoData[];
+  }
+
+  async getPrecoHistory(produtoId?: string, regiao?: string): Promise<{ data: string; precoMedio: number; regiao: string | null }[]> {
+    const rows = await this.db
+      .select({
+        data: produtos.criadoEm,
+        precoMedio: produtos.precoMedio,
+        regiao: lojas.enderecoEstado,
+      })
+      .from(produtos)
+      .innerJoin(anuncios, eq(anuncios.produtoId, produtos.id))
+      .innerJoin(lojas, eq(anuncios.lojaId, lojas.id))
+      .where(
+        and(
+          produtoId ? eq(produtos.id, produtoId) : sql`1=1`,
+          regiao ? eq(lojas.enderecoEstado, regiao) : sql`1=1`,
+        ),
+      )
+      .orderBy(desc(produtos.criadoEm))
+      .limit(100);
+    return rows.map((r) => ({
+      data: r.data?.toISOString() || new Date().toISOString(),
+      precoMedio: r.precoMedio,
+      regiao: r.regiao,
+    }));
   }
 
   async create(data: Omit<ProdutoData, 'id' | 'criadoEm'>): Promise<ProdutoData> {

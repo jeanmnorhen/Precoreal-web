@@ -1,35 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { DatabaseService } from '../db/database.service';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { Geohash } from './geohash';
-import { anuncios, lojas, produtos } from '@precoreal/shared';
-import { eq, and, sql } from 'drizzle-orm';
-
-export interface NearbyAdResult {
-  id: string;
-  titulo: string;
-  tipo: string;
-  distancia: number;
-  lojaNome: string;
-  lojaLatitude: number;
-  lojaLongitude: number;
-  produtoNome: string;
-  codigoBarras: string;
-  precoMedio: number;
-}
+import { ANUNCIO_REPOSITORY } from '@precoreal/domain';
+import type { IAnuncioRepository, NearbyAdResult } from '@precoreal/domain';
 
 @Injectable()
 export class GeocachingService {
   private readonly logger = new Logger(GeocachingService.name);
 
   constructor(
-    private readonly dbService: DatabaseService,
     private readonly redisService: RedisService,
+    @Inject(ANUNCIO_REPOSITORY) private readonly anuncioRepo: IAnuncioRepository,
   ) {}
-
-  private get db() {
-    return this.dbService.database;
-  }
 
   private get redis() {
     return this.redisService.redis;
@@ -46,7 +28,7 @@ export class GeocachingService {
       this.logger.warn(
         `Falha no cache geo, usando fallback: ${(err as Error).message}`,
       );
-      return this.fallbackAnuncios();
+      return this.anuncioRepo.findAtivosComDetalhes(20);
     }
   }
 
@@ -87,43 +69,7 @@ export class GeocachingService {
       }
     }
 
-    const dbResults = await this.db
-      .select({
-        id: anuncios.id,
-        titulo: anuncios.titulo,
-        tipo: anuncios.tipo,
-        raioAlcanceKm: anuncios.raioAlcanceKm,
-        lojaNome: lojas.nome,
-        lojaLatitude: sql<number>`ST_Y(${lojas.localizacao}::geometry)`,
-        lojaLongitude: sql<number>`ST_X(${lojas.localizacao}::geometry)`,
-        produtoNome: produtos.nome,
-        codigoBarras: produtos.codigoBarras,
-        precoMedio: produtos.precoMedio,
-        distancia: sql<number>`ST_Distance(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography) / 1000`,
-      })
-      .from(anuncios)
-      .innerJoin(lojas, eq(anuncios.lojaId, lojas.id))
-      .innerJoin(produtos, eq(anuncios.produtoId, produtos.id))
-      .where(
-        and(
-          eq(anuncios.status, 'ativo'),
-          tipo ? eq(anuncios.tipo, tipo as any) : sql`1=1`,
-          sql`ST_DWithin(${lojas.localizacao}, ST_SetSRID(ST_Point(${longitude}, ${latitude}), 4326)::geography, ${anuncios.raioAlcanceKm} * 1000)`,
-        ),
-      );
-
-    const formattedAds: NearbyAdResult[] = dbResults.map((ad) => ({
-      id: ad.id,
-      titulo: ad.titulo,
-      tipo: ad.tipo,
-      distancia: parseFloat(ad.distancia.toFixed(3)),
-      lojaNome: ad.lojaNome,
-      lojaLatitude: ad.lojaLatitude,
-      lojaLongitude: ad.lojaLongitude,
-      produtoNome: ad.produtoNome,
-      codigoBarras: ad.codigoBarras,
-      precoMedio: ad.precoMedio,
-    }));
+    const formattedAds = await this.anuncioRepo.findProximos(latitude, longitude, tipo);
 
     if (redisAvailable) {
       try {
@@ -132,18 +78,16 @@ export class GeocachingService {
           groupedByHash[hash] = [];
         }
 
-        for (let i = 0; i < dbResults.length; i++) {
-          const dbAd = dbResults[i];
+        for (const ad of formattedAds) {
           const storeHash = Geohash.encode(
-            dbAd.lojaLatitude,
-            dbAd.lojaLongitude,
+            ad.lojaLatitude,
+            ad.lojaLongitude,
             5,
           );
-          const adResult = formattedAds[i];
           if (!groupedByHash[storeHash]) {
             groupedByHash[storeHash] = [];
           }
-          groupedByHash[storeHash].push(adResult);
+          groupedByHash[storeHash].push(ad);
         }
 
         const pipeline = this.redis.pipeline();
@@ -164,38 +108,5 @@ export class GeocachingService {
     }
 
     return formattedAds.sort((a, b) => a.distancia - b.distancia);
-  }
-
-  private async fallbackAnuncios(): Promise<NearbyAdResult[]> {
-    const results = await this.db
-      .select({
-        id: anuncios.id,
-        titulo: anuncios.titulo,
-        tipo: anuncios.tipo,
-        lojaNome: lojas.nome,
-        lojaLatitude: sql<number>`ST_Y(${lojas.localizacao}::geometry)`,
-        lojaLongitude: sql<number>`ST_X(${lojas.localizacao}::geometry)`,
-        produtoNome: produtos.nome,
-        codigoBarras: produtos.codigoBarras,
-        precoMedio: produtos.precoMedio,
-      })
-      .from(anuncios)
-      .innerJoin(lojas, eq(anuncios.lojaId, lojas.id))
-      .innerJoin(produtos, eq(anuncios.produtoId, produtos.id))
-      .where(eq(anuncios.status, 'ativo'))
-      .limit(20);
-
-    return results.map((r) => ({
-      id: r.id,
-      titulo: r.titulo,
-      tipo: r.tipo,
-      distancia: 999,
-      lojaNome: r.lojaNome,
-      lojaLatitude: r.lojaLatitude,
-      lojaLongitude: r.lojaLongitude,
-      produtoNome: r.produtoNome,
-      codigoBarras: r.codigoBarras,
-      precoMedio: r.precoMedio,
-    }));
   }
 }

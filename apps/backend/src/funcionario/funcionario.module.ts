@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { FuncionarioController } from './funcionario.controller';
-import { FuncionarioService } from './funcionario.service';
 import { FuncionarioGuard } from './funcionario.guard';
-import { AuthModule } from '../auth/auth.module';
+import { RepositoriesModule } from '../infrastructure/repositories/repositories.module';
+import { ApplicationModule } from '../application/application.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [RepositoriesModule, ApplicationModule],
   controllers: [FuncionarioController],
-  providers: [FuncionarioService, FuncionarioGuard],
+  providers: [FuncionarioGuard],
 })
 export class FuncionarioModule {}

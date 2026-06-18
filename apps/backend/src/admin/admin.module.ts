@@ -1,21 +1,15 @@
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AdminController } from './admin.controller';
-import { AdminService } from './admin.service';
 import { AdminGuard } from './admin.guard';
-import { AuthModule } from '../auth/auth.module';
-import { ErrorCaptureInterceptor } from '../common/interceptors/error-capture.interceptor';
+import { DatabaseModule } from '../db/database.module';
+import { RedisModule } from '../redis/redis.module';
+import { HealthModule } from '../health/health.module';
+import { TestRunnerModule } from '../test-runner/test-runner.module';
+import { ApplicationModule } from '../application/application.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [DatabaseModule, RedisModule, HealthModule, TestRunnerModule, ApplicationModule],
   controllers: [AdminController],
-  providers: [
-    AdminService,
-    AdminGuard,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ErrorCaptureInterceptor,
-    },
-  ],
+  providers: [AdminGuard],
 })
 export class AdminModule {}

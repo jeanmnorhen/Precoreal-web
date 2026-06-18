@@ -1,12 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StripeService } from './stripe.service';
-import { DatabaseService } from '../db/database.service';
+import { USUARIO_REPOSITORY } from '@precoreal/domain';
+import type { IUsuarioRepository } from '@precoreal/domain';
 
-const mockDb = {
-  update: jest.fn().mockReturnThis(),
-  set: jest.fn().mockReturnThis(),
-  where: jest.fn().mockResolvedValue(undefined),
-};
+const mockUsuarioRepository = (): jest.Mocked<IUsuarioRepository> => ({
+  findById: jest.fn(),
+  findByEmail: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  debitarCreditos: jest.fn(),
+  creditarCreditos: jest.fn(),
+  countByDateRange: jest.fn(),
+  getRegistrationsByDay: jest.fn(),
+});
 
 function createMockStripe(reject = false) {
   return {
@@ -29,15 +35,17 @@ function createMockStripe(reject = false) {
 
 describe('StripeService', () => {
   let service: StripeService;
+  let usuarioRepo: jest.Mocked<IUsuarioRepository>;
 
   beforeEach(async () => {
     process.env.STRIPE_RESTRICTED_KEY = 'sk_test_mock';
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_mock';
+    usuarioRepo = mockUsuarioRepository();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         StripeService,
-        { provide: DatabaseService, useValue: { get database() { return mockDb; } } },
+        { provide: USUARIO_REPOSITORY, useValue: usuarioRepo },
       ],
     }).compile();
 
@@ -53,7 +61,8 @@ describe('StripeService', () => {
 
   it('deve lançar erro se STRIPE_RESTRICTED_KEY não estiver configurada', () => {
     delete process.env.STRIPE_RESTRICTED_KEY;
-    expect(() => new StripeService({} as any).onModuleInit()).toThrow();
+    const emptyRepo = mockUsuarioRepository();
+    expect(() => new StripeService(emptyRepo).onModuleInit()).toThrow();
   });
 
   describe('createPaymentIntent', () => {

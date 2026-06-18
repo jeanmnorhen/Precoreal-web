@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './db/database.module';
 import { RedisModule } from './redis/redis.module';
@@ -18,8 +19,9 @@ import { LojistaModule } from './lojista/lojista.module';
 import { AdminModule } from './admin/admin.module';
 import { FuncionarioModule } from './funcionario/funcionario.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { ApplicationModule } from './application/application.module';
+import { ApplicationExceptionFilter } from './application/filters/application-exception.filter';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -42,8 +44,11 @@ import { AppService } from './app.service';
     AdminModule,
     FuncionarioModule,
     MetricsModule,
+    ApplicationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    { provide: APP_FILTER, useClass: ApplicationExceptionFilter },
+  ],
 })
 export class AppModule {}

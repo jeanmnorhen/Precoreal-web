@@ -22,3 +22,28 @@ export function validarSaldoSuficiente(saldo: number, custo: number): Validation
   }
   return null;
 }
+
+export class Usuario {
+  constructor(public readonly data: UsuarioData) {}
+
+  get id() { return this.data.id; }
+  get nome() { return this.data.nome; }
+  get email() { return this.data.email; }
+  get senhaHash() { return this.data.senhaHash; }
+  get tipo() { return this.data.tipo; }
+  get saldoCreditos() { return this.data.saldoCreditos; }
+  get quantidadeDiamantes() { return this.data.quantidadeDiamantes; }
+  get criadoEm() { return this.data.criadoEm; }
+
+  validarSaldoSuficiente(custo: number): ValidationError | null {
+    return validarSaldoSuficiente(this.saldoCreditos, custo);
+  }
+
+  debitar(valor: number): UsuarioData {
+    return { ...this.data, saldoCreditos: this.saldoCreditos - valor };
+  }
+
+  creditar(valor: number): UsuarioData {
+    return { ...this.data, saldoCreditos: this.saldoCreditos + valor };
+  }
+}

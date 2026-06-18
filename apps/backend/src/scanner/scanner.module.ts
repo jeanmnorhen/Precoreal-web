@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ScannerController } from './scanner.controller';
-import { ScannerService } from './scanner.service';
-import { ProdutosModule } from '../produtos/produtos.module';
-import { GeoModule } from '../geo/geo.module';
+import { ApplicationModule } from '../application/application.module';
 
 @Module({
-  imports: [ProdutosModule, GeoModule],
+  imports: [ApplicationModule],
   controllers: [ScannerController],
-  providers: [ScannerService],
 })
 export class ScannerModule {}

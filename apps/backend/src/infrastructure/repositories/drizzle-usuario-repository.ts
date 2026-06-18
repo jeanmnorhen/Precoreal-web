@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../db/database.service';
 import { usuarios } from '@precoreal/shared';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, gte } from 'drizzle-orm';
 import type { IUsuarioRepository } from '@precoreal/domain';
 import type { UsuarioData } from '@precoreal/domain';
 
@@ -37,6 +37,36 @@ export class DrizzleUsuarioRepository implements IUsuarioRepository {
     const [row] = await this.db
       .update(usuarios)
       .set({ saldoCreditos: sql`${usuarios.saldoCreditos} - ${valor}` })
+      .where(eq(usuarios.id, id))
+      .returning({ saldoCreditos: usuarios.saldoCreditos });
+    return row?.saldoCreditos || 0;
+  }
+
+  async countByDateRange(desde: Date): Promise<number> {
+    const [row] = await this.db
+      .select({ total: sql<number>`count(*)` })
+      .from(usuarios)
+      .where(gte(usuarios.criadoEm, desde));
+    return Number(row?.total || 0);
+  }
+
+  async getRegistrationsByDay(desde: Date): Promise<{ data: string; total: number }[]> {
+    const rows = await this.db
+      .select({
+        data: sql<string>`DATE(${usuarios.criadoEm})`,
+        total: sql<number>`count(*)`,
+      })
+      .from(usuarios)
+      .where(gte(usuarios.criadoEm, desde))
+      .groupBy(sql`DATE(${usuarios.criadoEm})`)
+      .orderBy(sql`DATE(${usuarios.criadoEm})`);
+    return rows.map((r) => ({ data: r.data, total: Number(r.total) }));
+  }
+
+  async creditarCreditos(id: string, valor: number): Promise<number> {
+    const [row] = await this.db
+      .update(usuarios)
+      .set({ saldoCreditos: sql`${usuarios.saldoCreditos} + ${valor}` })
       .where(eq(usuarios.id, id))
       .returning({ saldoCreditos: usuarios.saldoCreditos });
     return row?.saldoCreditos || 0;

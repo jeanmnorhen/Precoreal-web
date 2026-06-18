@@ -1,15 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ANUNCIO_REPOSITORY } from '@precoreal/domain';
+import type { IAnuncioRepository } from '@precoreal/domain';
 import { GeocachingService } from './geocaching.service';
-import { DatabaseService } from '../db/database.service';
 import { RedisService } from '../redis/redis.service';
-
-const mockDb = {
-  select: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  innerJoin: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  limit: jest.fn().mockResolvedValue([]),
-};
 
 const mockRedis = {
   mget: jest.fn().mockResolvedValue([]),
@@ -19,14 +12,30 @@ const mockRedis = {
   }),
 };
 
+const mockAnuncioRepo = (): jest.Mocked<IAnuncioRepository> => ({
+  findById: jest.fn(),
+  findAll: jest.fn(),
+  countByLojaIds: jest.fn(),
+  countAll: jest.fn(),
+  findProximos: jest.fn(),
+  findAtivosComDetalhes: jest.fn(),
+  getTopProdutos: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+});
+
 describe('GeocachingService', () => {
   let service: GeocachingService;
+  let anuncioRepo: jest.Mocked<IAnuncioRepository>;
 
   beforeEach(async () => {
+    anuncioRepo = mockAnuncioRepo();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GeocachingService,
-        { provide: DatabaseService, useValue: { get database() { return mockDb; } } },
+        { provide: ANUNCIO_REPOSITORY, useValue: anuncioRepo },
         { provide: RedisService, useValue: { get redis() { return mockRedis; } } },
       ],
     }).compile();
@@ -40,16 +49,18 @@ describe('GeocachingService', () => {
 
   it('deve chamar fallback quando Redis falha', async () => {
     mockRedis.mget.mockRejectedValue(new Error('Redis down'));
-    mockDb.limit.mockResolvedValue([
+    anuncioRepo.findProximos.mockResolvedValue([
       {
         id: '1',
         titulo: 'Oferta Teste',
+        tipo: 'produto',
         lojaNome: 'Loja X',
         lojaLatitude: -23.5,
         lojaLongitude: -46.6,
         produtoNome: 'Produto Y',
         codigoBarras: '789',
         precoMedio: 1990,
+        distancia: 999,
       },
     ]);
 
@@ -62,7 +73,7 @@ describe('GeocachingService', () => {
 
   it('deve retornar dados do cache Redis quando disponível', async () => {
     const cachedAds = JSON.stringify([
-      { id: '1', titulo: 'Cache', distancia: 1.5, lojaNome: 'Loja', lojaLatitude: -23.5, lojaLongitude: -46.6, produtoNome: 'Prod', codigoBarras: '789', precoMedio: 1500 },
+      { id: '1', titulo: 'Cache', tipo: 'produto', distancia: 1.5, lojaNome: 'Loja', lojaLatitude: -23.5, lojaLongitude: -46.6, produtoNome: 'Prod', codigoBarras: '789', precoMedio: 1500 },
     ]);
     mockRedis.mget.mockResolvedValue([cachedAds]);
 
@@ -78,7 +89,7 @@ describe('GeocachingService', () => {
     const dbRow = {
       id: '1',
       titulo: 'DB Ad',
-      raioAlcanceKm: 10,
+      tipo: 'produto',
       lojaNome: 'Loja DB',
       lojaLatitude: -23.5,
       lojaLongitude: -46.6,
@@ -88,14 +99,7 @@ describe('GeocachingService', () => {
       distancia: 2.345,
     };
 
-    const chainable = {
-      select: jest.fn().mockReturnThis(),
-      from: jest.fn().mockReturnThis(),
-      innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockResolvedValue([dbRow]),
-    };
-
-    mockDb.select.mockImplementation(() => chainable);
+    anuncioRepo.findProximos.mockResolvedValue([dbRow]);
 
     const result = await service.getNearbyAnuncios(-23.5, -46.6);
 

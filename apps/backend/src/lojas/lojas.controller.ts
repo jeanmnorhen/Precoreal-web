@@ -8,7 +8,12 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { LojasService } from './lojas.service';
+import { CriarLojaUseCase } from '../application/use-cases/criar-loja.use-case';
+import { ObterPerfilPublicoLojaUseCase } from '../application/use-cases/obter-perfil-publico-loja.use-case';
+import { ListarLojasProprietarioUseCase } from '../application/use-cases/listar-lojas-proprietario.use-case';
+import { BuscarLojaPorIdUseCase } from '../application/use-cases/buscar-loja-por-id.use-case';
+import { AtualizarLojaUseCase } from '../application/use-cases/atualizar-loja.use-case';
+import { DeletarLojaUseCase } from '../application/use-cases/deletar-loja.use-case';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,29 +22,49 @@ import { JwtPayload } from '../auth/guards/jwt-auth.guard';
 
 @Controller('lojas')
 export class LojasController {
-  constructor(private readonly lojasService: LojasService) {}
+  constructor(
+    private readonly criarLojaUseCase: CriarLojaUseCase,
+    private readonly obterPerfilPublicoLojaUseCase: ObterPerfilPublicoLojaUseCase,
+    private readonly listarLojasProprietarioUseCase: ListarLojasProprietarioUseCase,
+    private readonly buscarLojaPorIdUseCase: BuscarLojaPorIdUseCase,
+    private readonly atualizarLojaUseCase: AtualizarLojaUseCase,
+    private readonly deletarLojaUseCase: DeletarLojaUseCase,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@CurrentUser() user: JwtPayload, @Body() dto: CreateLojaDto) {
-    return this.lojasService.create(user.userId, dto);
+    return this.criarLojaUseCase.execute({
+      usuarioId: user.userId,
+      nome: dto.nome,
+      descricao: dto.descricao,
+      enderecoRua: dto.enderecoRua,
+      enderecoNumero: dto.enderecoNumero,
+      enderecoBairro: dto.enderecoBairro,
+      enderecoCidade: dto.enderecoCidade,
+      enderecoEstado: dto.enderecoEstado,
+      enderecoCep: dto.enderecoCep,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      logoUrl: dto.logoUrl,
+    });
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   listarMinhas(@CurrentUser() user: JwtPayload) {
-    return this.lojasService.findByProprietario(user.userId);
+    return this.listarLojasProprietarioUseCase.execute({ usuarioId: user.userId });
   }
 
   @Get('public/:id')
   findPublic(@Param('id') id: string) {
-    return this.lojasService.findPublicProfile(id);
+    return this.obterPerfilPublicoLojaUseCase.execute({ lojaId: id });
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
-    return this.lojasService.findById(id);
+    return this.buscarLojaPorIdUseCase.execute({ id });
   }
 
   @Patch(':id')
@@ -49,12 +74,12 @@ export class LojasController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateLojaDto,
   ) {
-    return this.lojasService.update(id, user.userId, dto);
+    return this.atualizarLojaUseCase.execute({ id, usuarioId: user.userId, ...dto });
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.lojasService.delete(id, user.userId);
+    return this.deletarLojaUseCase.execute({ id, usuarioId: user.userId });
   }
 }

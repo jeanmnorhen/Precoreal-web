@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminController } from './admin.controller';
-import { AdminService } from './admin.service';
+import { HealthService } from '../health/health.service';
+import { TestRunnerService } from '../test-runner/test-runner.service';
+import { ObterDashboardAdminUseCase } from '../application/use-cases/obter-dashboard-admin.use-case';
+import { MonitorarPrecosUseCase } from '../application/use-cases/monitorar-precos.use-case';
+import { MonitorarUsoUseCase } from '../application/use-cases/monitorar-uso.use-case';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from './admin.guard';
 
@@ -8,87 +12,82 @@ const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
 describe('AdminController', () => {
   let controller: AdminController;
-  let service: AdminService;
 
-  const mockService = {
-    dashboard: jest.fn(),
-    monitoramentoPrecos: jest.fn(),
-    monitoramentoUso: jest.fn(),
-    executarTestes: jest.fn(),
-    observabilidade: jest.fn(),
-  };
+  const mockHealthService = { observabilidade: jest.fn() };
+  const mockTestRunnerService = { executarTestes: jest.fn() };
+  const mockDashboardUseCase = { execute: jest.fn() };
+  const mockPrecosUseCase = { execute: jest.fn() };
+  const mockUsoUseCase = { execute: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AdminController],
-      providers: [{ provide: AdminService, useValue: mockService }],
+      providers: [
+        { provide: HealthService, useValue: mockHealthService },
+        { provide: TestRunnerService, useValue: mockTestRunnerService },
+        { provide: ObterDashboardAdminUseCase, useValue: mockDashboardUseCase },
+        { provide: MonitorarPrecosUseCase, useValue: mockPrecosUseCase },
+        { provide: MonitorarUsoUseCase, useValue: mockUsoUseCase },
+      ],
     })
       .overrideGuard(JwtAuthGuard).useValue(mockGuard)
       .overrideGuard(AdminGuard).useValue(mockGuard)
       .compile();
 
     controller = module.get<AdminController>(AdminController);
-    service = module.get<AdminService>(AdminService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('deve chamar dashboard()', async () => {
-    mockService.dashboard.mockResolvedValue({ totalOfertas: 10 });
-    const user = { userId: '1', email: 'admin@test.com', tipo: 'admin' as const };
-    const result = await controller.dashboard(user);
+  it('deve chamar dashboard() via use case', async () => {
+    mockDashboardUseCase.execute.mockResolvedValue({ totalOfertas: 10 });
+    const result = await controller.dashboard();
     expect(result).toEqual({ totalOfertas: 10 });
-    expect(mockService.dashboard).toHaveBeenCalled();
+    expect(mockDashboardUseCase.execute).toHaveBeenCalled();
   });
 
   it('deve chamar monitoramentoPrecos() sem filtros', async () => {
-    mockService.monitoramentoPrecos.mockResolvedValue({ pontos: [] });
+    mockPrecosUseCase.execute.mockResolvedValue({ pontos: [] });
     const result = await controller.monitoramentoPrecos();
     expect(result).toEqual({ pontos: [] });
-    expect(mockService.monitoramentoPrecos).toHaveBeenCalledWith(undefined, undefined, undefined);
+    expect(mockPrecosUseCase.execute).toHaveBeenCalledWith({ produtoId: undefined, regiao: undefined });
   });
 
   it('deve chamar monitoramentoPrecos() com filtros', async () => {
-    mockService.monitoramentoPrecos.mockResolvedValue({ pontos: [{ data: '2026-06-01', precoMedio: 1500, regiao: 'SP' }] });
+    mockPrecosUseCase.execute.mockResolvedValue({ pontos: [{ data: '2026-06-01', precoMedio: 1500, regiao: 'SP' }] });
     const result = await controller.monitoramentoPrecos('prod-1', 'SP', '7d');
     expect(result.pontos).toHaveLength(1);
-    expect(mockService.monitoramentoPrecos).toHaveBeenCalledWith('prod-1', 'SP', '7d');
+    expect(mockPrecosUseCase.execute).toHaveBeenCalledWith({ produtoId: 'prod-1', regiao: 'SP' });
   });
 
-  it('deve chamar monitoramentoUso()', async () => {
-    mockService.monitoramentoUso.mockResolvedValue({ volumeBuscas: [], produtosMaisBuscados: [] });
+  it('deve chamar monitoramentoUso() via use case', async () => {
+    mockUsoUseCase.execute.mockResolvedValue({ volumeBuscas: [], produtosMaisBuscados: [] });
     const result = await controller.monitoramentoUso();
     expect(result).toBeDefined();
-    expect(mockService.monitoramentoUso).toHaveBeenCalledWith(undefined);
+    expect(mockUsoUseCase.execute).toHaveBeenCalled();
   });
 
-  it('deve chamar monitoramentoUso() com período', async () => {
-    mockService.monitoramentoUso.mockResolvedValue({ volumeBuscas: [], produtosMaisBuscados: [] });
-    const result = await controller.monitoramentoUso('30d');
-    expect(mockService.monitoramentoUso).toHaveBeenCalledWith('30d');
-  });
-
-  it('deve chamar observabilidade()', async () => {
+  it('deve chamar observabilidade() via HealthService', async () => {
     const mockResult = {
       health: { status: 'healthy', uptime: 3600, timestamp: new Date().toISOString(), servicos: {} },
       filas: [],
       erros: { erros: [], total: 0 },
     };
-    mockService.observabilidade.mockResolvedValue(mockResult);
+    mockHealthService.observabilidade.mockResolvedValue(mockResult);
     const result = await controller.observabilidade();
     expect(result.health.status).toBe('healthy');
-    expect(mockService.observabilidade).toHaveBeenCalled();
+    expect(mockHealthService.observabilidade).toHaveBeenCalled();
   });
 
-  it('deve chamar executarTestes()', async () => {
+  it('deve chamar executarTestes() via TestRunnerService', async () => {
     const mockResult = {
       unit: { numPassedSuites: 16, numFailedSuites: 0, numPassedTests: 109, numFailedTests: 0, suites: [], duration: 14000 },
       e2e: { numPassedSuites: 1, numFailedSuites: 0, numPassedTests: 18, numFailedTests: 0, suites: [], duration: 9000 },
       coverage: { lines: 85, statements: 82, functions: 78, branches: 70 },
     };
-    mockService.executarTestes.mockResolvedValue(mockResult);
+    mockTestRunnerService.executarTestes.mockResolvedValue(mockResult);
 
     const result = await controller.executarTestes();
 

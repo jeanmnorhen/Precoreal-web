@@ -1,5 +1,10 @@
 import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
-import { LojistaService } from './lojista.service';
+import { ComprarCreditosUseCase } from '../application/use-cases/comprar-creditos.use-case';
+import { ObterDashboardLojistaUseCase } from '../application/use-cases/obter-dashboard-lojista.use-case';
+import { AdicionarFuncionarioUseCase } from '../application/use-cases/adicionar-funcionario.use-case';
+import { RemoverFuncionarioUseCase } from '../application/use-cases/remover-funcionario.use-case';
+import { ListarFuncionariosLojaUseCase } from '../application/use-cases/listar-funcionarios-loja.use-case';
+import { AtualizarTurnosFuncionarioUseCase } from '../application/use-cases/atualizar-turnos-funcionario.use-case';
 import { LojistaGuard } from './lojista.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -11,11 +16,18 @@ import { UpdateTurnosDto } from './dto/update-turnos.dto';
 @Controller('lojista')
 @UseGuards(JwtAuthGuard, LojistaGuard)
 export class LojistaController {
-  constructor(private readonly lojistaService: LojistaService) {}
+  constructor(
+    private readonly obterDashboardLojistaUseCase: ObterDashboardLojistaUseCase,
+    private readonly comprarCreditosUseCase: ComprarCreditosUseCase,
+    private readonly adicionarFuncionarioUseCase: AdicionarFuncionarioUseCase,
+    private readonly removerFuncionarioUseCase: RemoverFuncionarioUseCase,
+    private readonly listarFuncionariosLojaUseCase: ListarFuncionariosLojaUseCase,
+    private readonly atualizarTurnosFuncionarioUseCase: AtualizarTurnosFuncionarioUseCase,
+  ) {}
 
   @Get('dashboard')
   async dashboard(@CurrentUser() user: JwtPayload) {
-    return this.lojistaService.dashboard(user.userId);
+    return this.obterDashboardLojistaUseCase.execute({ usuarioId: user.userId });
   }
 
   @Post('creditos/comprar')
@@ -23,16 +35,16 @@ export class LojistaController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: ComprarCreditosDto,
   ) {
-    return this.lojistaService.comprarCreditos(
-      user.userId,
-      user.email,
-      dto.valorCentavos,
-    );
+    return this.comprarCreditosUseCase.execute({
+      usuarioId: user.userId,
+      email: user.email,
+      valorCentavos: dto.valorCentavos,
+    });
   }
 
   @Get('funcionarios')
   async listarFuncionarios(@Query('lojaId') lojaId: string) {
-    return this.lojistaService.listarFuncionarios(lojaId);
+    return this.listarFuncionariosLojaUseCase.execute({ lojaId });
   }
 
   @Post('funcionarios')
@@ -40,12 +52,12 @@ export class LojistaController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: AddFuncionarioDto,
   ) {
-    return this.lojistaService.adicionarFuncionario(
-      user.userId,
-      dto.email,
-      dto.lojaId,
-      dto.turnos,
-    );
+    return this.adicionarFuncionarioUseCase.execute({
+      proprietarioId: user.userId,
+      email: dto.email,
+      lojaId: dto.lojaId,
+      turnos: dto.turnos,
+    });
   }
 
   @Patch('funcionarios/:id/turnos')
@@ -53,11 +65,11 @@ export class LojistaController {
     @Param('id') id: string,
     @Body() dto: UpdateTurnosDto,
   ) {
-    return this.lojistaService.atualizarTurnos(id, dto.turnos);
+    return this.atualizarTurnosFuncionarioUseCase.execute({ id, turnos: dto.turnos });
   }
 
   @Delete('funcionarios/:id')
   async removerFuncionario(@Param('id') id: string) {
-    return this.lojistaService.removerFuncionario(id);
+    return this.removerFuncionarioUseCase.execute({ id });
   }
 }

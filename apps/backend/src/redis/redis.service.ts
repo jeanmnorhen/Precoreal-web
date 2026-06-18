@@ -3,10 +3,10 @@ import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-  private client!: Redis;
+  private _client!: Redis;
 
   onModuleInit() {
-    this.client = new Redis({
+    this._client = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT
         ? parseInt(process.env.REDIS_PORT, 10)
@@ -16,12 +16,16 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
-    if (this.client) {
-      this.client.disconnect();
+    if (this._client) {
+      this._client.disconnect();
     }
   }
 
   get redis() {
-    return this.client;
+    return this._client;
+  }
+
+  get client(): Redis {
+    return this._client;
   }
 }

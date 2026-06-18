@@ -9,4 +9,6 @@ export interface ILojaRepository {
   create(data: Omit<LojaData, 'id' | 'criadoEm'>): Promise<LojaData>;
   update(id: string, proprietarioId: string, data: Partial<Omit<LojaData, 'id' | 'criadoEm'>>): Promise<LojaData | null>;
   delete(id: string, proprietarioId: string): Promise<LojaData | null>;
+  checkGeofence(lojaId: string, latitude: number, longitude: number): Promise<boolean>;
+  countByDateRange(desde: Date): Promise<number>;
 }

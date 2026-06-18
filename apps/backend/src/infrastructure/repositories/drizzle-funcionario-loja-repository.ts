@@ -23,6 +23,11 @@ export class DrizzleFuncionarioLojaRepository implements IFuncionarioLojaReposit
     return rows as FuncionarioLojaData[];
   }
 
+  async findByUsuarioId(usuarioId: string): Promise<FuncionarioLojaData[]> {
+    const rows = await this.db.select().from(funcionariosLojas).where(eq(funcionariosLojas.usuarioId, usuarioId));
+    return rows as FuncionarioLojaData[];
+  }
+
   async findVinculo(usuarioId: string, lojaId: string): Promise<FuncionarioLojaData | null> {
     const [row] = await this.db
       .select()
