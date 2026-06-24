@@ -14,12 +14,12 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
 
 function StatusBadge({ status }: { status: string }) {
   const color =
-    status === 'ok' ? 'var(--color-verde-600)' :
-    status === 'healthy' ? 'var(--color-verde-600)' :
-    status === 'degraded' ? 'var(--color-terracota-600)' : 'var(--color-red-600)';
+    status === 'ok' ? 'var(--color-success)' :
+    status === 'healthy' ? 'var(--color-success)' :
+    status === 'degraded' ? 'var(--color-warning)' : 'var(--color-destructive)';
   const bg =
-    status === 'ok' || status === 'healthy' ? '#d4edda' :
-    status === 'degraded' ? '#fff3cd' : '#f8d7da';
+    status === 'ok' || status === 'healthy' ? 'color-mix(in srgb, var(--color-success) 15%, transparent)' :
+    status === 'degraded' ? 'color-mix(in srgb, var(--color-warning) 15%, transparent)' : 'color-mix(in srgb, var(--color-destructive) 15%, transparent)';
   return (
     <span className="text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
       style={{ color, background: bg }}>
@@ -34,14 +34,14 @@ function FilaRow({ fila }: { fila: FilaStatus }) {
       style={{ borderColor: 'var(--color-border)', background: 'var(--color-card)' }}>
       <div className="font-bold col-span-1">{fila.nome}</div>
       <div className="text-center">{fila.depth}</div>
-      <div className="text-center text-yellow-600">{fila.ativos}</div>
+      <div className="text-center" style={{ color: 'var(--color-warning)' }}>{fila.ativos}</div>
       <div className="text-center">{fila.aguardando}</div>
-      <div className="text-center text-green-600">{fila.processados}</div>
-      <div className="text-center text-red-600">{fila.falhos}</div>
+      <div className="text-center" style={{ color: 'var(--color-success)' }}>{fila.processados}</div>
+      <div className="text-center" style={{ color: 'var(--color-destructive)' }}>{fila.falhos}</div>
       <div className="text-center text-xs">
-        <span className="text-green-500">+{fila.processadosHoje}</span>
+        <span style={{ color: 'var(--color-success)' }}>+{fila.processadosHoje}</span>
         {' / '}
-        <span className="text-red-500">-{fila.falhosHoje}</span>
+        <span style={{ color: 'var(--color-destructive)' }}>-{fila.falhosHoje}</span>
       </div>
     </div>
   );
@@ -57,11 +57,11 @@ function ErrorRow({ erro }: { erro: ErroRecente }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[11px] px-1.5 py-0.5 rounded font-bold"
-            style={{ background: '#f0f0f0', color: '#666' }}>
+            style={{ background: 'var(--color-muted)', color: 'var(--color-foreground-muted)' }}>
             {erro.metodo}
           </span>
           <span className="font-mono text-[11px] font-bold"
-            style={{ color: erro.statusCode >= 500 ? 'var(--color-red-600)' : 'var(--color-terracota-600)' }}>
+            style={{ color: erro.statusCode >= 500 ? 'var(--color-destructive)' : 'var(--color-warning)' }}>
             {erro.statusCode}
           </span>
           <StatusBadge status={erro.statusCode >= 500 ? 'erro' : 'degraded'} />
@@ -115,7 +115,7 @@ export default function ObservabilidadePage() {
 
       {error && (
         <div className="p-4 mb-6 rounded-lg text-sm font-medium"
-          style={{ background: '#f8d7da', color: '#721c24' }}>
+          style={{ background: 'color-mix(in srgb, var(--color-destructive) 10%, transparent)', color: 'var(--color-destructive)' }}>
           {error}
         </div>
       )}
@@ -170,7 +170,7 @@ export default function ObservabilidadePage() {
                     Latência: {sp(data.health.servicos.bancoDeDados.latencyMs)}
                   </p>
                   {data.health.servicos.bancoDeDados.error && (
-                    <p className="text-xs mt-1 text-red-600">{data.health.servicos.bancoDeDados.error}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--color-destructive)' }}>{data.health.servicos.bancoDeDados.error}</p>
                   )}
                 </div>
 
@@ -183,7 +183,7 @@ export default function ObservabilidadePage() {
                     Latência: {sp(data.health.servicos.redis.latencyMs)}
                   </p>
                   {data.health.servicos.redis.error && (
-                    <p className="text-xs mt-1 text-red-600">{data.health.servicos.redis.error}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--color-destructive)' }}>{data.health.servicos.redis.error}</p>
                   )}
                 </div>
 
@@ -198,7 +198,7 @@ export default function ObservabilidadePage() {
                     </p>
                   )}
                   {data.health.servicos.stripe.error && (
-                    <p className="text-xs mt-1 text-red-600">{data.health.servicos.stripe.error}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--color-destructive)' }}>{data.health.servicos.stripe.error}</p>
                   )}
                 </div>
 

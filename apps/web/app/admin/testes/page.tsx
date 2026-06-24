@@ -44,7 +44,7 @@ export default function AdminTestes() {
             <button
               onClick={() => setExpandir(expandir === s.name ? null : s.name)}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-all hover:opacity-80"
-              style={{ background: 'var(--color-background-subtle)' }}
+              style={{ background: 'var(--color-card)' }}
             >
               <span>{s.status === 'passed' ? '🟢' : '🔴'}</span>
               <span className="flex-1 truncate font-medium" style={{ color: 'var(--color-foreground)' }}>
@@ -56,7 +56,7 @@ export default function AdminTestes() {
             </button>
             {expandir === s.name && s.failureMessage && (
               <pre className="mt-1 px-4 py-3 rounded-lg text-xs overflow-x-auto"
-                   style={{ background: 'hsla(0,60%,50%,0.06)', color: 'var(--color-destructive)', border: '1px solid hsla(0,60%,50%,0.15)' }}>
+                   style={{ background: 'color-mix(in srgb, var(--color-destructive) 6%, transparent)', color: 'var(--color-destructive)', border: '1px solid color-mix(in srgb, var(--color-destructive) 15%, transparent)' }}>
                 {s.failureMessage}
               </pre>
             )}
@@ -97,7 +97,7 @@ export default function AdminTestes() {
 
       {erro && (
         <div className="p-4 rounded-xl mb-6 text-sm"
-             style={{ background: 'hsla(0,60%,50%,0.08)', color: 'var(--color-destructive)', border: '1px solid hsla(0,60%,50%,0.2)' }}>
+             style={{ background: 'color-mix(in srgb, var(--color-destructive) 8%, transparent)', color: 'var(--color-destructive)', border: '1px solid color-mix(in srgb, var(--color-destructive) 20%, transparent)' }}>
           {erro}
         </div>
       )}
@@ -106,7 +106,7 @@ export default function AdminTestes() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 rounded-xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
-              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-verde-600)' }}>
+              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-success)' }}>
                 {resultado.unit.numPassedSuites + resultado.e2e.numPassedSuites}/{totalSuites(resultado.unit) + totalSuites(resultado.e2e)}
               </p>
               <p className="text-xs mt-1 uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>
@@ -114,7 +114,7 @@ export default function AdminTestes() {
               </p>
             </div>
             <div className="p-5 rounded-xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
-              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-verde-600)' }}>
+              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-success)' }}>
                 {resultado.unit.numPassedTests + resultado.e2e.numPassedTests}/{totalTests(resultado.unit) + totalTests(resultado.e2e)}
               </p>
               <p className="text-xs mt-1 uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>
@@ -122,7 +122,7 @@ export default function AdminTestes() {
               </p>
             </div>
             <div className="p-5 rounded-xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
-              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-navy-600)' }}>
+              <p className="text-3xl font-extrabold" style={{ color: 'var(--color-primary)' }}>
                 {((resultado.unit.duration + resultado.e2e.duration) / 1000).toFixed(1)}s
               </p>
               <p className="text-xs mt-1 uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>
@@ -145,7 +145,7 @@ export default function AdminTestes() {
                 ].map((c) => (
                   <div key={c.label}>
                     <p className="text-xl font-extrabold" style={{
-                      color: c.value >= 80 ? 'var(--color-verde-600)' : c.value >= 50 ? 'var(--color-terracota-600)' : 'var(--color-destructive)'
+                      color: c.value >= 80 ? 'var(--color-success)' : c.value >= 50 ? 'var(--color-warning)' : 'var(--color-destructive)'
                     }}>
                       {c.value}%
                     </p>
@@ -158,12 +158,12 @@ export default function AdminTestes() {
 
           {statusGeral(resultado.unit) && statusGeral(resultado.e2e) ? (
             <div className="px-4 py-3 rounded-xl text-sm font-semibold"
-                 style={{ background: 'hsla(140,30%,42%,0.08)', color: 'var(--color-verde-600)' }}>
+                 style={{ background: 'color-mix(in srgb, var(--color-success) 8%, transparent)', color: 'var(--color-success)' }}>
               ✅ Todos os testes passaram!
             </div>
           ) : (
             <div className="px-4 py-3 rounded-xl text-sm font-semibold"
-                 style={{ background: 'hsla(0,60%,50%,0.08)', color: 'var(--color-destructive)' }}>
+                 style={{ background: 'color-mix(in srgb, var(--color-destructive) 8%, transparent)', color: 'var(--color-destructive)' }}>
               ❌ {resultado.unit.numFailedSuites + resultado.e2e.numFailedSuites} suíte(s) com falha
             </div>
           )}

@@ -40,8 +40,8 @@ export function CategoryFilters({ onSelect }: CategoryFiltersProps) {
               onClick={() => handleClick(cat)}
               className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all"
               style={{
-                background: isActive ? 'var(--color-primary)' : 'var(--color-card)',
-                color: isActive ? 'var(--color-primary-foreground)' : 'var(--color-foreground)',
+                background: isActive ? 'var(--color-primary)' : 'var(--color-input)',
+                color: isActive ? 'var(--color-primary-foreground)' : 'var(--color-foreground-muted)',
                 border: isActive ? 'none' : '1.5px solid var(--color-border)',
               }}
             >

@@ -90,7 +90,7 @@ export default function ScannerPage() {
           <div className="glass-card p-6 animate-scale-in space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                   style={{ background: 'hsla(140,30%,42%,0.1)' }}>
+                   style={{ background: 'color-mix(in srgb, var(--color-success) 15%, transparent)' }}>
                 ✅
               </div>
               <div>
@@ -107,7 +107,7 @@ export default function ScannerPage() {
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-sm font-medium" style={{ color: 'var(--color-foreground-muted)' }}>Preço médio</span>
-              <span className="font-bold text-lg" style={{ color: 'var(--color-navy-600)' }}>
+              <span className="font-bold text-lg" style={{ color: 'var(--color-success)' }}>
                 R$ {(produto.precoMedio / 100).toFixed(2)}
               </span>
             </div>
@@ -134,7 +134,7 @@ export default function ScannerPage() {
         {/* Produto não identificado */}
         {erro && !loading && (
           <div className="p-6 rounded-xl text-center animate-fade-in"
-               style={{ background: 'hsla(0,50%,95%,1)', border: '1px solid hsla(0,50%,85%,1)' }}>
+               style={{ background: 'color-mix(in srgb, var(--color-destructive) 10%, var(--color-card))', border: '1px solid color-mix(in srgb, var(--color-destructive) 30%, var(--color-card))' }}>
             <p className="text-3xl mb-2">🔍</p>
             <p className="font-bold" style={{ color: 'var(--color-destructive)' }}>Produto não identificado</p>
             <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>

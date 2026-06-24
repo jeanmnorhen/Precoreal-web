@@ -104,7 +104,7 @@ function LojaForm({ onSuccess }: { onSuccess: () => void }) {
   const [form, setForm] = useState({
     nome: '', descricao: '', enderecoRua: '', enderecoNumero: '',
     enderecoBairro: '', enderecoCidade: '', enderecoEstado: '',
-    enderecoCep: '', latitude: '', longitude: '',
+    enderecoCep: '', latitude: '', longitude: '', cnpj: '',
   });
   const [salvando, setSalvando] = useState(false);
 

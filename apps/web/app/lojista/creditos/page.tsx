@@ -39,7 +39,7 @@ export default function LojistaCreditos() {
 
       <div className="p-6 rounded-xl mb-8" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
         <p className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>Saldo Atual</p>
-        <p className="text-4xl font-bold mt-1" style={{ color: 'var(--color-navy-600)' }}>
+        <p className="text-4xl font-bold mt-1" style={{ color: 'var(--color-primary)' }}>
           {(user?.saldoCreditos || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
         </p>
         <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
@@ -54,8 +54,8 @@ export default function LojistaCreditos() {
           {VALORES.map((v) => (
             <button key={v.centavos} onClick={() => comprar(v.centavos)} disabled={carregando}
               className="p-6 rounded-xl text-center transition-all hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50"
-              style={{ border: '1.5px solid var(--color-navy-200)', background: 'var(--color-card)' }}>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-navy-700)' }}>{v.label}</p>
+              style={{ border: '1.5px solid var(--color-border)', background: 'var(--color-card)' }}>
+               <p className="text-2xl font-bold" style={{ color: 'var(--color-foreground)' }}>{v.label}</p>
               <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>{v.creditos} créditos</p>
             </button>
           ))}

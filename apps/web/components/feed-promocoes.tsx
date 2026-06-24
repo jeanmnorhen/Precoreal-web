@@ -65,10 +65,10 @@ export function FeedPromocoes({ searchTerm, categoria, coordenadas }: FeedPromoc
         {[1, 2, 3].map((i) => (
           <div key={i} className="w-44 rounded-xl flex-shrink-0 animate-pulse"
                style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
-            <div className="h-24" style={{ background: 'var(--color-greige-200)' }} />
+            <div className="h-24" style={{ background: 'var(--color-muted)' }} />
             <div className="p-2.5 space-y-2">
-              <div className="h-3 rounded w-3/4" style={{ background: 'var(--color-greige-200)' }} />
-              <div className="h-2 rounded w-1/2" style={{ background: 'var(--color-greige-200)' }} />
+              <div className="h-3 rounded w-3/4" style={{ background: 'var(--color-muted)' }} />
+              <div className="h-2 rounded w-1/2" style={{ background: 'var(--color-muted)' }} />
             </div>
           </div>
         ))}
@@ -81,11 +81,11 @@ export function FeedPromocoes({ searchTerm, categoria, coordenadas }: FeedPromoc
   return (
     <div>
       <div className="flex items-center gap-2 px-4 mb-2">
-        <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-foreground-muted)' }}>
+        <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-foreground)' }}>
           Promoções
         </h2>
         <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-              style={{ background: 'hsla(32,80%,50%,0.12)', color: 'var(--color-terracota-600)' }}>
+              style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
           {ofertas.length}
         </span>
       </div>

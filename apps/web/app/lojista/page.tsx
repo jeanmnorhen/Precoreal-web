@@ -40,15 +40,15 @@ export default function LojistaDashboard() {
         </div>
         <div className="text-right">
           <p className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--color-foreground-muted)' }}>Saldo</p>
-          <p className="text-2xl font-bold" style={{ color: 'var(--color-navy-600)' }}>
-            {((user?.saldoCreditos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+           <p className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>
+             {((user?.saldoCreditos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </p>
         </div>
       </div>
 
       {stats?.creditosGratis && (
         <div className="p-4 rounded-xl mb-6 text-sm"
-             style={{ background: stats.creditosGratis.recebidosEsteMes ? 'hsla(140,30%,42%,0.08)' : 'hsla(32,80%,50%,0.08)' }}>
+             style={{ background: stats.creditosGratis.recebidosEsteMes ? 'color-mix(in srgb, var(--color-success) 15%, transparent)' : 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>
           <p className="font-semibold">
             {stats.creditosGratis.recebidosEsteMes
               ? '🎉 30 créditos grátis recebidos este mês!'
@@ -75,7 +75,7 @@ export default function LojistaDashboard() {
               {item.label}
             </p>
             <p className="text-3xl font-bold mt-1.5"
-               style={{ color: item.highlight ? 'var(--color-navy-600)' : 'var(--color-foreground)' }}>
+               style={{ color: item.highlight ? 'var(--color-primary)' : 'var(--color-foreground)' }}>
               {item.value}
             </p>
           </div>

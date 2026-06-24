@@ -131,10 +131,10 @@ export default function FuncionarioLayout({ children }: { children: ReactNode })
         {/* Banner de verificação */}
         {verificando && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6 animate-fade-in"
-               style={{ background: 'var(--color-navy-50)', border: '1px solid var(--color-navy-100)' }}>
-            <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
-                 style={{ borderColor: 'var(--color-navy-600)' }} />
-            <p className="text-sm font-medium" style={{ color: 'var(--color-navy-700)' }}>
+                style={{ background: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
+             <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                  style={{ borderColor: 'var(--color-primary)' }} />
+             <p className="text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>
               Verificando localização e horário...
             </p>
           </div>
@@ -142,7 +142,7 @@ export default function FuncionarioLayout({ children }: { children: ReactNode })
 
         {!verificando && verificacao && !verificacao.acessoPermitido && (
           <div className="p-5 rounded-xl mb-6 animate-fade-in"
-               style={{ background: 'hsla(0,50%,95%,1)', border: '1px solid hsla(0,50%,85%,1)' }}>
+               style={{ background: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">🔒</span>
               <div>
@@ -153,10 +153,10 @@ export default function FuncionarioLayout({ children }: { children: ReactNode })
               </div>
             </div>
             <div className="flex gap-4 mt-3 text-xs">
-              <span style={{ color: verificacao.dentoPerimetro ? 'var(--color-verde-600)' : 'var(--color-destructive)' }}>
+              <span style={{ color: verificacao.dentoPerimetro ? 'var(--color-success)' : 'var(--color-destructive)' }}>
                 {verificacao.dentoPerimetro ? '✅ Dentro do perímetro' : '❌ Fora do perímetro'}
               </span>
-              <span style={{ color: verificacao.horarioValido ? 'var(--color-verde-600)' : 'var(--color-destructive)' }}>
+              <span style={{ color: verificacao.horarioValido ? 'var(--color-success)' : 'var(--color-destructive)' }}>
                 {verificacao.horarioValido ? '✅ Horário válido' : '❌ Fora do horário'}
               </span>
             </div>
@@ -165,9 +165,9 @@ export default function FuncionarioLayout({ children }: { children: ReactNode })
 
         {!verificando && verificacao && verificacao.acessoPermitido && (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl mb-6 animate-fade-in"
-               style={{ background: 'hsla(140,30%,42%,0.08)', border: '1px solid hsla(140,30%,42%,0.15)' }}>
+               style={{ background: 'var(--color-muted)', border: '1px solid var(--color-border)' }}>
             <span>✅</span>
-            <p className="text-sm font-medium" style={{ color: 'var(--color-verde-600)' }}>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-success)' }}>
               Acesso permitido — {verificacao.lojaNome}
             </p>
           </div>

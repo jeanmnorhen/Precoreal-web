@@ -17,9 +17,9 @@ interface OfferCardProps {
 }
 
 const BADGE_TIPO: Record<string, { label: string; bg: string; color: string }> = {
-  oferta:            { label: '📢 Oferta',       bg: 'hsla(140,30%,42%,0.1)', color: 'var(--color-verde-600)' },
-  promocao:          { label: '🔥 Promoção',      bg: 'hsla(32,80%,50%,0.12)', color: 'var(--color-terracota-600)' },
-  promocao_relampago: { label: '⚡ Relâmpago', bg: 'hsla(0,60%,50%,0.1)',   color: 'var(--color-destructive)' },
+  oferta:            { label: '📢 Oferta',       bg: 'var(--color-success)', color: 'var(--color-success-foreground)' },
+  promocao:          { label: '🔥 Promoção',      bg: 'var(--color-warning)', color: 'var(--color-warning-foreground)' },
+  promocao_relampago: { label: '⚡ Relâmpago', bg: 'var(--color-destructive)', color: 'var(--color-destructive-foreground)' },
 };
 
 export function OfferCard({
@@ -40,8 +40,8 @@ export function OfferCard({
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
           <Link href={`/loja/${lojaId}`} className="no-underline">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                 style={{ background: 'var(--color-navy-50)', color: 'var(--color-navy-700)' }}>
+             <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
               {lojaNome.charAt(0)}
             </div>
           </Link>
@@ -65,11 +65,11 @@ export function OfferCard({
 
       <Link href={`/loja/${lojaId}?anuncio=${id}`}>
         <div className="h-44 sm:h-48 w-full flex items-center justify-center relative overflow-hidden"
-             style={{ background: 'var(--color-greige-100)' }}>
+             style={{ background: 'var(--color-input)' }}>
           <span className="text-5xl opacity-30">🛒</span>
           {distancia < 2 && (
             <span className="absolute top-3 left-3 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide"
-                  style={{ background: 'var(--color-verde-500)', color: '#fff' }}>
+                  style={{ background: 'var(--color-success)', color: 'var(--color-success-foreground)' }}>
               Perto de você
             </span>
           )}
@@ -77,7 +77,7 @@ export function OfferCard({
       </Link>
 
       <div className="px-4 pt-3 pb-4">
-        <p className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--color-verde-600)' }}>
+        <p className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--color-success)' }}>
           R$ {(precoMedio / 100).toFixed(2)}
         </p>
         <Link href={`/loja/${lojaId}?anuncio=${id}`} className="no-underline">

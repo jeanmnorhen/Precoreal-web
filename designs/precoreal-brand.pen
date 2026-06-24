@@ -1,0 +1,43 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "brand-tokens",
+      "x": 0,
+      "y": 0,
+      "name": "PrecoReal: Brand Tokens",
+      "clip": true,
+      "width": 800,
+      "height": 600,
+      "fill": "$--background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": [32, 32],
+      "children": [
+        {
+          "type": "text",
+          "id": "title",
+          "name": "Title",
+          "fill": "$--foreground",
+          "content": "Preço Real — Brand Variables",
+          "lineHeight": 1.2,
+          "fontFamily": "$--font-primary",
+          "fontSize": 24,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "name": "Subtitle",
+          "fill": "$--muted-foreground",
+          "content": "Lunaris Dark + PrecoReal Identity",
+          "lineHeight": 1.4,
+          "fontFamily": "$--font-secondary",
+          "fontSize": 14,
+          "fontWeight": "400"
+        }
+      ]
+    }
+  ]
+}

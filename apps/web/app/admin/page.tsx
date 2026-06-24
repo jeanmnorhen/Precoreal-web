@@ -29,9 +29,9 @@ export default function AdminDashboard() {
   }
 
   const widgets = [
-    { label: 'Usuários ativos (30d)', value: data?.usuariosAtivos || 0, icon: '👥', color: 'var(--color-navy-600)' },
-    { label: 'Ofertas criadas', value: data?.totalOfertas || 0, icon: '📢', color: 'var(--color-terracota-600)' },
-    { label: 'Novas lojas (30d)', value: data?.novasLojas || 0, icon: '🏪', color: 'var(--color-verde-600)' },
+    { label: 'Usuários ativos (30d)', value: data?.usuariosAtivos || 0, icon: '👥', color: 'var(--color-primary)' },
+    { label: 'Ofertas criadas', value: data?.totalOfertas || 0, icon: '📢', color: 'var(--color-warning)' },
+    { label: 'Novas lojas (30d)', value: data?.novasLojas || 0, icon: '🏪', color: 'var(--color-success)' },
 
   ];
 

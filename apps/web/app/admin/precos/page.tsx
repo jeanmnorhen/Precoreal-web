@@ -25,28 +25,28 @@ export default function AdminPrecos() {
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#78716c',
+        textColor: 'var(--color-foreground-muted)',
         fontFamily: 'Outfit, system-ui, sans-serif',
       },
       grid: {
-        vertLines: { color: '#e7e5e4' },
-        horzLines: { color: '#e7e5e4' },
+        vertLines: { color: 'var(--color-border)' },
+        horzLines: { color: 'var(--color-border)' },
       },
       width: chartContainerRef.current.clientWidth,
       height: 350,
       rightPriceScale: {
-        borderColor: '#d6d3d1',
+        borderColor: 'var(--color-border)',
       },
       timeScale: {
-        borderColor: '#d6d3d1',
+        borderColor: 'var(--color-border)',
         timeVisible: false,
       },
       crosshair: {
         vertLine: {
-          labelBackgroundColor: '#1e293b',
+          labelBackgroundColor: 'var(--color-primary)',
         },
         horzLine: {
-          labelBackgroundColor: '#1e293b',
+          labelBackgroundColor: 'var(--color-primary)',
         },
       },
     });
@@ -54,7 +54,7 @@ export default function AdminPrecos() {
     chartRef.current = chart;
 
     const lineSeries = chart.addLineSeries({
-      color: '#1e293b',
+      color: 'var(--color-primary)',
       lineWidth: 2,
       crosshairMarkerVisible: true,
       crosshairMarkerRadius: 4,

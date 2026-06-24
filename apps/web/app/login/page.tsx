@@ -55,7 +55,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {erro && (
             <div className="p-4 rounded-xl text-sm font-medium"
-                 style={{ background: 'hsl(0,50%,95%)', color: 'var(--color-destructive)' }}>
+                 style={{ background: 'color-mix(in srgb, var(--color-destructive) 10%, var(--color-card))', color: 'var(--color-destructive)' }}>
               {erro}
             </div>
           )}

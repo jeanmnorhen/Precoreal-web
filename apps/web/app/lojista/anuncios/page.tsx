@@ -96,8 +96,8 @@ export default function LojistaAnuncios() {
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{
-                    background: ativo ? 'hsla(140,30%,42%,0.1)' : 'hsla(0,50%,50%,0.1)',
-                    color: ativo ? 'var(--color-verde-600)' : 'var(--color-destructive)',
+                    background: ativo ? 'color-mix(in srgb, var(--color-success) 15%, transparent)' : 'color-mix(in srgb, var(--color-destructive) 15%, transparent)',
+                    color: ativo ? 'var(--color-success)' : 'var(--color-destructive)',
                   }}>
                   {ativo ? 'Ativo' : 'Pausado'}
                 </span>
@@ -106,8 +106,8 @@ export default function LojistaAnuncios() {
                 <button onClick={() => toggleStatus(a.id, a.status)}
                   className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-80"
                   style={{
-                    background: ativo ? 'hsla(0,50%,50%,0.08)' : 'hsla(140,30%,42%,0.08)',
-                    color: ativo ? 'var(--color-destructive)' : 'var(--color-verde-600)',
+                    background: ativo ? 'color-mix(in srgb, var(--color-destructive) 12%, transparent)' : 'color-mix(in srgb, var(--color-success) 12%, transparent)',
+                    color: ativo ? 'var(--color-destructive)' : 'var(--color-success)',
                   }}>
                   {ativo ? 'Pausar' : 'Ativar'}
                 </button>
@@ -115,8 +115,8 @@ export default function LojistaAnuncios() {
                   <button onClick={() => renovar(a)}
                     className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-80"
                     style={{
-                      background: 'hsla(210,60%,50%,0.08)',
-                      color: 'var(--color-navy-600)',
+                      background: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
+                      color: 'var(--color-primary)',
                     }}>
                     🔄 Renovar
                   </button>

@@ -63,13 +63,13 @@ export function FeedOfertas({ searchTerm, categoria, coordenadas }: FeedOfertasP
           <div key={i} className="rounded-xl overflow-hidden animate-pulse"
                style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className="w-8 h-8 rounded-full" style={{ background: 'var(--color-greige-200)' }} />
-              <div className="h-3 rounded w-32" style={{ background: 'var(--color-greige-200)' }} />
+              <div className="w-8 h-8 rounded-full" style={{ background: 'var(--color-muted)' }} />
+              <div className="h-3 rounded w-32" style={{ background: 'var(--color-muted)' }} />
             </div>
-            <div className="h-44 w-full" style={{ background: 'var(--color-greige-200)' }} />
+            <div className="h-44 w-full" style={{ background: 'var(--color-muted)' }} />
             <div className="p-4 space-y-2">
-              <div className="h-4 rounded w-3/4" style={{ background: 'var(--color-greige-200)' }} />
-              <div className="h-3 rounded w-1/2" style={{ background: 'var(--color-greige-200)' }} />
+              <div className="h-4 rounded w-3/4" style={{ background: 'var(--color-muted)' }} />
+              <div className="h-3 rounded w-1/2" style={{ background: 'var(--color-muted)' }} />
             </div>
           </div>
         ))}
@@ -92,11 +92,11 @@ export function FeedOfertas({ searchTerm, categoria, coordenadas }: FeedOfertasP
   return (
     <div>
       <div className="flex items-center gap-2 px-4 mb-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-foreground-muted)' }}>
+        <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-foreground)' }}>
           Ofertas
         </h2>
         <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-              style={{ background: 'hsla(222,47%,95%,1)', color: 'var(--color-navy-600)' }}>
+              style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
           {ofertas.length}
         </span>
       </div>

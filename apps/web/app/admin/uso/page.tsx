@@ -31,20 +31,20 @@ export default function AdminUso() {
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#78716c',
+        textColor: 'var(--color-foreground-muted)',
         fontFamily: 'Outfit, system-ui, sans-serif',
       },
       grid: {
-        vertLines: { color: '#e7e5e4' },
-        horzLines: { color: '#e7e5e4' },
+        vertLines: { color: 'var(--color-border)' },
+        horzLines: { color: 'var(--color-border)' },
       },
       width: chartContainerRef.current.clientWidth,
       height: 300,
       rightPriceScale: {
-        borderColor: '#d6d3d1',
+        borderColor: 'var(--color-border)',
       },
       timeScale: {
-        borderColor: '#d6d3d1',
+        borderColor: 'var(--color-border)',
         timeVisible: false,
       },
     });
@@ -52,7 +52,7 @@ export default function AdminUso() {
     chartRef.current = chart;
 
     const histogramSeries = chart.addHistogramSeries({
-      color: '#1e293b',
+      color: 'var(--color-primary)',
       priceFormat: { type: 'volume' },
       priceScaleId: 'right',
     });
@@ -60,7 +60,7 @@ export default function AdminUso() {
     const chartData = dados.volumeBuscas.map((p) => ({
       time: p.data,
       value: p.total,
-      color: '#1e293b',
+      color: 'var(--color-primary)',
     }));
 
     histogramSeries.setData(chartData as any);
@@ -142,7 +142,7 @@ export default function AdminUso() {
                   <span className="text-xs font-bold w-5 text-center" style={{ color: 'var(--color-foreground-muted)' }}>#{i + 1}</span>
                   <span className="font-medium text-sm">{p.nome}</span>
                 </div>
-                <span className="text-sm font-bold" style={{ color: 'var(--color-navy-600)' }}>{p.totalBuscas}</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>{p.totalBuscas}</span>
               </div>
             ))}
           </div>

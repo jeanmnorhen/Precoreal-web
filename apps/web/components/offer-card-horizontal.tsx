@@ -15,9 +15,9 @@ interface OfferCardHorizontalProps {
 }
 
 const BADGE_TIPO: Record<string, { label: string; bg: string; color: string }> = {
-  oferta:            { label: '📢 Oferta',       bg: 'hsla(140,30%,42%,0.1)', color: 'var(--color-verde-600)' },
-  promocao:          { label: '🔥 Promoção',      bg: 'hsla(32,80%,50%,0.12)', color: 'var(--color-terracota-600)' },
-  promocao_relampago: { label: '⚡ Relâmpago', bg: 'hsla(0,60%,50%,0.1)',   color: 'var(--color-destructive)' },
+  oferta:            { label: '📢 Oferta',       bg: 'var(--color-success)', color: 'var(--color-success-foreground)' },
+  promocao:          { label: '🔥 Promoção',      bg: 'var(--color-warning)', color: 'var(--color-warning-foreground)' },
+  promocao_relampago: { label: '⚡ Relâmpago', bg: 'var(--color-destructive)', color: 'var(--color-destructive-foreground)' },
 };
 
 export function OfferCardHorizontal({
@@ -35,7 +35,7 @@ export function OfferCardHorizontal({
         }}
       >
         <div className="h-24 w-full flex items-center justify-center relative"
-             style={{ background: 'var(--color-greige-100)' }}>
+             style={{ background: 'var(--color-input)' }}>
           <span className="text-3xl opacity-30">🛒</span>
           <span className="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded"
                 style={{ background: badge.bg, color: badge.color }}>
@@ -48,7 +48,7 @@ export function OfferCardHorizontal({
             {titulo}
           </p>
           <div className="flex items-center justify-between mt-1.5">
-            <p className="text-sm font-extrabold" style={{ color: 'var(--color-verde-600)' }}>
+            <p className="text-sm font-extrabold" style={{ color: 'var(--color-success)' }}>
               R$ {(precoMedio / 100).toFixed(2)}
             </p>
             <p className="text-[10px]" style={{ color: 'var(--color-foreground-muted)' }}>

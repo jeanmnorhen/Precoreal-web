@@ -77,7 +77,7 @@ export default function LojistaFuncionarios() {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                     style={{ background: 'var(--color-navy-50)', color: 'var(--color-navy-700)' }}>
+                     style={{ background: 'var(--color-muted)', color: 'var(--color-foreground)' }}>
                   {f.nome.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -100,9 +100,9 @@ export default function LojistaFuncionarios() {
                   }
                 }}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
-                  style={{ background: 'hsla(0,50%,50%,0.1)', color: 'var(--color-destructive)' }}>
-                  Remover
-                </button>
+                   style={{ background: 'color-mix(in srgb, var(--color-destructive) 15%, transparent)', color: 'var(--color-destructive)' }}>
+                   Remover
+                 </button>
               </div>
             </div>
 
@@ -188,7 +188,7 @@ function AddFuncionarioModal({ lojaId, onClose, onSuccess }: { lojaId: string; o
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {erro && (
-            <div className="p-3 rounded-lg text-sm font-medium" style={{ background: 'hsla(0,50%,50%,0.1)', color: 'var(--color-destructive)' }}>
+            <div className="p-3 rounded-lg text-sm font-medium" style={{ background: 'color-mix(in srgb, var(--color-destructive) 15%, transparent)', color: 'var(--color-destructive)' }}>
               {erro}
             </div>
           )}

@@ -50,15 +50,15 @@ export default function HomePage() {
       <div className="flex-1 max-w-3xl mx-auto w-full pt-4 pb-24 space-y-4">
         {/* Banner de localização */}
         {geoStatus === 'denied' && (
-          <div className="flex items-center gap-2 px-4 py-3 mx-4 rounded-xl"
-               style={{ background: 'var(--color-navy-50)', border: '1px solid var(--color-navy-100)' }}>
-            <span className="text-lg leading-none">📍</span>
-            <p className="text-xs flex-1 font-medium" style={{ color: 'var(--color-navy-700)' }}>
+           <div className="flex items-center gap-2 px-4 py-3 mx-4 rounded-xl"
+                style={{ background: 'var(--color-card)', border: '1px solid var(--color-border)' }}>
+             <span className="text-lg leading-none">📍</span>
+             <p className="text-xs flex-1 font-medium" style={{ color: 'var(--color-foreground)' }}>
               Ative a localização para ver ofertas perto de você
             </p>
             <button onClick={solicitarLocalizacao}
                     className="text-xs font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap"
-                    style={{ background: 'var(--color-navy-700)', color: '#fff' }}>
+                    style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
               Tentar novamente
             </button>
           </div>

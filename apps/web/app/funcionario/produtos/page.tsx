@@ -47,7 +47,7 @@ export default function FuncionarioProdutos() {
                   {p.marca} · {p.categoria} · <span className="font-mono">{p.codigoBarras}</span>
                 </p>
               </div>
-              <p className="font-bold" style={{ color: 'var(--color-navy-600)' }}>
+              <p className="font-bold" style={{ color: 'var(--color-primary)' }}>
                 R$ {(p.precoMedio / 100).toFixed(2)}
               </p>
             </div>

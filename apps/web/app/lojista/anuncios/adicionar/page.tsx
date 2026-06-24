@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 
 const REGRAS_TIPO = {
-  oferta:            { label: '📢 Oferta',       maxDias: 15, custoMin: 1,  raioMaxKm: 3,  cor: 'hsla(140,30%,42%,0.1)' },
-  promocao:          { label: '🔥 Promoção',      maxDias: 7,  custoMin: 3,  raioMaxKm: 5,  cor: 'hsla(32,80%,50%,0.12)' },
-  promocao_relampago: { label: '⚡ Relâmpago',   maxDias: 3,  custoMin: 5,  raioMaxKm: 10, cor: 'hsla(0,60%,50%,0.1)' },
+  oferta:            { label: '📢 Oferta',       maxDias: 15, custoMin: 1,  raioMaxKm: 3,  cor: 'color-mix(in srgb, var(--color-success) 15%, transparent)' },
+  promocao:          { label: '🔥 Promoção',      maxDias: 7,  custoMin: 3,  raioMaxKm: 5,  cor: 'color-mix(in srgb, var(--color-warning) 18%, transparent)' },
+  promocao_relampago: { label: '⚡ Relâmpago',   maxDias: 3,  custoMin: 5,  raioMaxKm: 10, cor: 'color-mix(in srgb, var(--color-destructive) 15%, transparent)' },
 };
 
 interface ProdutoItem {
@@ -111,6 +111,7 @@ export default function AdicionarAnuncio() {
         setResultadosCosmos(cosmos.produtos);
         setMostrarBuscaCosmos(true);
       } else if (isBarcode) {
+        const barcode = busca.replace(/\D/g, '');
         const cosmosGtin = await api.cosmos.buscarGtin(barcode).catch(() => null);
         if (cosmosGtin) {
           setResultadosCosmos([cosmosGtin]);
@@ -203,7 +204,7 @@ export default function AdicionarAnuncio() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {erro && (
-          <div className="p-4 rounded-xl text-sm font-medium" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--color-destructive)' }}>
+          <div className="p-4 rounded-xl text-sm font-medium" style={{ background: 'color-mix(in srgb, var(--color-destructive) 15%, transparent)', color: 'var(--color-destructive)' }}>
             {erro}
           </div>
         )}

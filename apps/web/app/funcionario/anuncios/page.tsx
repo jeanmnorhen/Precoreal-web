@@ -19,8 +19,8 @@ export default function FuncionarioAnuncios() {
   }, [lojaId]);
 
   const BADGE_TIPO: Record<string, { label: string; bg: string; color: string }> = {
-    oferta:            { label: '📢 Oferta',       bg: 'hsla(140,30%,42%,0.1)', color: 'var(--color-verde-600)' },
-    promocao:          { label: '🔥 Promoção',      bg: 'hsla(32,80%,50%,0.12)', color: 'var(--color-terracota-600)' },
+    oferta:            { label: '📢 Oferta',       bg: 'hsla(140,30%,42%,0.1)', color: 'var(--color-success)' },
+    promocao:          { label: '🔥 Promoção',      bg: 'hsla(32,80%,50%,0.12)', color: 'var(--color-warning)' },
     promocao_relampago: { label: '⚡ Relâmpago', bg: 'hsla(0,60%,50%,0.1)',   color: 'var(--color-destructive)' },
   };
 
@@ -60,7 +60,7 @@ export default function FuncionarioAnuncios() {
                 <span className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{
                     background: ativo ? 'hsla(140,30%,42%,0.1)' : 'hsla(0,50%,50%,0.1)',
-                    color: ativo ? 'var(--color-verde-600)' : 'var(--color-destructive)',
+                    color: ativo ? 'var(--color-success)' : 'var(--color-destructive)',
                   }}>
                   {ativo ? 'Ativo' : 'Pausado'}
                 </span>

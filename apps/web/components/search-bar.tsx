@@ -50,7 +50,7 @@ export function SearchBar({ onSearch, placeholder = 'Buscar ofertas...', autoFoc
           autoFocus={autoFocus}
           className="w-full pl-11 pr-4 py-3 rounded-xl text-base outline-none transition-all focus:ring-2"
           style={{
-            background: 'var(--color-card)',
+            background: 'var(--color-input)',
             color: 'var(--color-foreground)',
             border: '1.5px solid var(--color-border)',
           }}

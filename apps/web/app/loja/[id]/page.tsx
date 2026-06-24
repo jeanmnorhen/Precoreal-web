@@ -34,8 +34,8 @@ interface LojaPublic {
 }
 
 const BADGE_TIPO: Record<string, { label: string; color: string }> = {
-  oferta:            { label: 'Oferta',       color: 'var(--color-verde-600)' },
-  promocao:          { label: 'Promoção',      color: 'var(--color-terracota-600)' },
+  oferta:            { label: 'Oferta',       color: 'var(--color-success)' },
+  promocao:          { label: 'Promoção',      color: 'var(--color-warning)' },
   promocao_relampago: { label: 'Relâmpago', color: 'var(--color-destructive)' },
 };
 
@@ -105,7 +105,7 @@ export default function LojaPublicPage() {
         {/* Store header */}
         <div className="flex items-start gap-4 mb-8">
           <div className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold flex-shrink-0 overflow-hidden"
-               style={{ background: 'var(--color-navy-50)', color: 'var(--color-navy-700)' }}>
+               style={{ background: 'var(--color-card)', color: 'var(--color-foreground)' }}>
             {loja.logoUrl ? (
               <img src={loja.logoUrl} alt={loja.nome} className="w-full h-full object-cover" />
             ) : (
@@ -136,7 +136,7 @@ export default function LojaPublicPage() {
         <h2 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-foreground-muted)' }}>
           Ofertas da loja
           <span className="ml-2 text-xs px-2 py-0.5 rounded-full font-semibold"
-                style={{ background: 'hsla(140,30%,42%,0.1)', color: 'var(--color-verde-600)' }}>
+                style={{ background: 'color-mix(in srgb, var(--color-success) 15%, transparent)', color: 'var(--color-success)' }}>
             {loja.anuncios.length}
           </span>
         </h2>
@@ -178,7 +178,7 @@ export default function LojaPublicPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-lg font-extrabold" style={{ color: 'var(--color-verde-600)' }}>
+                    <p className="text-lg font-extrabold" style={{ color: 'var(--color-success)' }}>
                       R$ {((a as any).precoMedio || 0) / 100 > 0 ? ((a as any).precoMedio / 100).toFixed(2) : '—'}
                     </p>
                     <p className="text-[11px]" style={{ color: 'var(--color-foreground-muted)' }}>

@@ -112,7 +112,7 @@ export default function ProdutoPage() {
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-foreground-muted)' }}>Preço Médio</dt>
-            <dd className="font-bold text-2xl mt-1" style={{ color: 'var(--color-navy-600)' }}>
+            <dd className="font-bold text-2xl mt-1" style={{ color: 'var(--color-success)' }}>
               {produto.precoMedio > 0 ? `R$ ${(produto.precoMedio / 100).toFixed(2)}` : 'N/D'}
             </dd>
           </div>
@@ -129,7 +129,7 @@ export default function ProdutoPage() {
 
       {geoError && (
         <div className="p-4 rounded-xl text-sm mb-4"
-             style={{ background: 'hsla(0,50%,50%,0.08)', color: 'var(--color-destructive)' }}>
+             style={{ background: 'color-mix(in srgb, var(--color-destructive) 15%, transparent)', color: 'var(--color-destructive)' }}>
           Não foi possível obter sua localização. Ative a geolocalização para ver ofertas próximas.
         </div>
       )}
@@ -159,7 +159,7 @@ export default function ProdutoPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-bold" style={{ color: 'var(--color-navy-600)' }}>
+              <p className="text-lg font-bold" style={{ color: 'var(--color-success)' }}>
                 R$ {(o.precoMedio / 100).toFixed(2)}
               </p>
             </div>

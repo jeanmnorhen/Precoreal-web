@@ -39,7 +39,7 @@ export function MapaOfertas({ ofertas, className = '' }: MapaOfertasProps) {
     const bounds = L.latLngBounds([]);
 
     const icon = L.divIcon({
-      html: `<div style="background:#16a34a;color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;">R$$</div>`,
+      html: `<div style="background:var(--color-success);color:var(--color-success-foreground);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid var(--color-success-foreground);">R$$</div>`,
       iconSize: [32, 32],
       iconAnchor: [16, 16],
       className: '',
@@ -50,13 +50,13 @@ export function MapaOfertas({ ofertas, className = '' }: MapaOfertasProps) {
         .addTo(map);
 
       marker.bindPopup(
-        `<div style="font-family:system-ui;min-width:160px;">
-          <strong style="font-size:14px;">${o.titulo}</strong><br/>
-          <span style="font-size:12px;color:#666;">${o.lojaNome}</span><br/>
-          <span style="font-size:13px;font-weight:700;color:#16a34a;">
+        `<div style="font-family:system-ui;min-width:160px;background:var(--color-card);color:var(--color-foreground);">
+          <strong style="font-size:14px;color:var(--color-foreground);">${o.titulo}</strong><br/>
+          <span style="font-size:12px;color:var(--color-foreground-muted);">${o.lojaNome}</span><br/>
+          <span style="font-size:13px;font-weight:700;color:var(--color-success);">
             R$ ${(o.precoMedio / 100).toFixed(2)}
           </span>
-          ${o.distancia < 999 ? `<br/><span style="font-size:11px;color:#999;">${o.distancia < 1 ? `${(o.distancia * 1000).toFixed(0)}m` : `${o.distancia.toFixed(1)}km`}</span>` : ''}
+          ${o.distancia < 999 ? `<br/><span style="font-size:11px;color:var(--color-foreground-muted);">${o.distancia < 1 ? `${(o.distancia * 1000).toFixed(0)}m` : `${o.distancia.toFixed(1)}km`}</span>` : ''}
         </div>`,
       );
 

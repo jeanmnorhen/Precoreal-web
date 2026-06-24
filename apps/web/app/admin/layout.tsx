@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex">
       <aside className="w-64 flex-shrink-0 p-6 hidden md:flex flex-col"
-             style={{ borderRight: '1px solid var(--color-border)', background: 'var(--color-background-subtle)' }}>
+             style={{ borderRight: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
         <Link href="/admin" className="flex items-center gap-2.5 text-xl font-extrabold tracking-tight no-underline mb-10">
           <span className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold gradient-navy">R$</span>
           <span style={{ color: 'var(--color-foreground)' }}>

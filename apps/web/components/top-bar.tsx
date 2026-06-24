@@ -39,7 +39,7 @@ export function TopBar() {
             <>
               <Link href={perfilHref(user.tipo)}
                     className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors hover:opacity-80"
-                    style={{ background: 'var(--color-navy-50)', color: 'var(--color-navy-700)' }}>
+                    style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
                 {user.nome.charAt(0).toUpperCase()}
               </Link>
               <button onClick={logout}
