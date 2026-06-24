@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, pgEnum, index, uniqueIndex, customType } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, integer, timestamp, date, boolean, pgEnum, index, uniqueIndex, customType } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Tipo customizado para o PostGIS Point (SRID 4326 - WGS84)
@@ -50,6 +50,9 @@ export const lojas = pgTable('lojas', {
   perimetroRaioMetros: integer('perimetro_raio_metros').notNull().default(100),
   logoUrl: varchar('logo_url', { length: 512 }),
   tabloideUrl: varchar('tabloide_url', { length: 512 }),
+  cnpj: varchar('cnpj', { length: 14 }),
+  cnpjVerificado: boolean('cnpj_verificado').default(false).notNull(),
+  cnpjVerificadoEm: timestamp('cnpj_verificado_em'),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
 }, (table) => ({
   lojaOwnerIdx: index('lojas_owner_idx').on(table.usuarioProprietarioId),
@@ -77,6 +80,7 @@ export const produtos = pgTable('produtos', {
   descricao: text('descricao'),
   categoria: varchar('categoria', { length: 100 }).notNull(),
   marca: varchar('marca', { length: 100 }).notNull(),
+  ncm: varchar('ncm', { length: 8 }),
   precoMedio: integer('preco_medio').notNull().default(0),
   listaImagens: text('lista_imagens').array(),
   criadoEm: timestamp('criado_em').defaultNow().notNull()
@@ -105,10 +109,34 @@ export const anuncios = pgTable('anuncios', {
   anunciaTipoIdx: index('anuncios_tipo_idx').on(table.tipo)
 }));
 
+// Tabela de Créditos Gratuitos Mensais para Lojistas
+export const creditosGratuitos = pgTable('creditos_gratuitos', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  usuarioId: uuid('usuario_id').references(() => usuarios.id).notNull(),
+  quantidade: integer('quantidade').notNull().default(30),
+  concedidoEm: timestamp('concedido_em').defaultNow().notNull(),
+  expiraEm: timestamp('expira_em').notNull(),
+  expirado: boolean('expirado').notNull().default(false),
+}, (table) => ({
+  creditoUsuarioIdx: index('creditos_gratuitos_usuario_idx').on(table.usuarioId),
+  creditoExpiradoIdx: index('creditos_gratuitos_expirado_idx').on(table.expirado),
+}));
+
+// Tabela de Quota da API Cosmos (limite 25 consultas/dia)
+export const cosmosQuotas = pgTable('cosmos_quotas', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  data: date('data').notNull().defaultNow(),
+  consultasUtilizadas: integer('consultas_utilizadas').notNull().default(0),
+  limiteDiario: integer('limite_diario').notNull().default(25),
+}, (table) => ({
+  dataUidx: uniqueIndex('cosmos_quotas_data_uidx').on(table.data)
+}));
+
 // Definições de Relações
 export const usuariosRelations = relations(usuarios, ({ many }) => ({
   lojas: many(lojas),
-  vinculosFuncionario: many(funcionariosLojas)
+  vinculosFuncionario: many(funcionariosLojas),
+  creditosGratuitos: many(creditosGratuitos),
 }));
 
 export const lojasRelations = relations(lojas, ({ one, many }) => ({
@@ -132,6 +160,13 @@ export const anunciosRelations = relations(anuncios, ({ one }) => ({
   produto: one(produtos, {
     fields: [anuncios.produtoId],
     references: [produtos.id]
+  })
+}));
+
+export const creditosGratuitosRelations = relations(creditosGratuitos, ({ one }) => ({
+  usuario: one(usuarios, {
+    fields: [creditosGratuitos.usuarioId],
+    references: [usuarios.id]
   })
 }));
 

@@ -1,0 +1,726 @@
+{
+  "id": "26330169-e409-4eb0-af69-34ae248a1142",
+  "prevId": "4d9f725d-4791-403b-a384-1a4c35a48914",
+  "version": "6",
+  "dialect": "postgresql",
+  "tables": {
+    "public.anuncios": {
+      "name": "anuncios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "loja_id": {
+          "name": "loja_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "produto_id": {
+          "name": "produto_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_anuncio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'oferta'"
+        },
+        "raio_alcance_km": {
+          "name": "raio_alcance_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "custo_creditos": {
+          "name": "custo_creditos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "status_anuncio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ativo'"
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "anuncios_tenant_idx": {
+          "name": "anuncios_tenant_idx",
+          "columns": [
+            "loja_id"
+          ],
+          "isUnique": false
+        },
+        "anuncios_status_idx": {
+          "name": "anuncios_status_idx",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
+        },
+        "anuncios_tipo_idx": {
+          "name": "anuncios_tipo_idx",
+          "columns": [
+            "tipo"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "anuncios_loja_id_lojas_id_fk": {
+          "name": "anuncios_loja_id_lojas_id_fk",
+          "tableFrom": "anuncios",
+          "tableTo": "lojas",
+          "columnsFrom": [
+            "loja_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "anuncios_produto_id_produtos_id_fk": {
+          "name": "anuncios_produto_id_produtos_id_fk",
+          "tableFrom": "anuncios",
+          "tableTo": "produtos",
+          "columnsFrom": [
+            "produto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.cosmos_quotas": {
+      "name": "cosmos_quotas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "consultas_utilizadas": {
+          "name": "consultas_utilizadas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "limite_diario": {
+          "name": "limite_diario",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 25
+        }
+      },
+      "indexes": {
+        "cosmos_quotas_data_uidx": {
+          "name": "cosmos_quotas_data_uidx",
+          "columns": [
+            "data"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.creditos_gratuitos": {
+      "name": "creditos_gratuitos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantidade": {
+          "name": "quantidade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 30
+        },
+        "concedido_em": {
+          "name": "concedido_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expira_em": {
+          "name": "expira_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expirado": {
+          "name": "expirado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "creditos_gratuitos_usuario_idx": {
+          "name": "creditos_gratuitos_usuario_idx",
+          "columns": [
+            "usuario_id"
+          ],
+          "isUnique": false
+        },
+        "creditos_gratuitos_expirado_idx": {
+          "name": "creditos_gratuitos_expirado_idx",
+          "columns": [
+            "expirado"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "creditos_gratuitos_usuario_id_usuarios_id_fk": {
+          "name": "creditos_gratuitos_usuario_id_usuarios_id_fk",
+          "tableFrom": "creditos_gratuitos",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.funcionarios_lojas": {
+      "name": "funcionarios_lojas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loja_id": {
+          "name": "loja_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "turnos": {
+          "name": "turnos",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "funcionarios_loja_uidx": {
+          "name": "funcionarios_loja_uidx",
+          "columns": [
+            "usuario_id",
+            "loja_id"
+          ],
+          "isUnique": true
+        },
+        "funcionarios_usuario_idx": {
+          "name": "funcionarios_usuario_idx",
+          "columns": [
+            "usuario_id"
+          ],
+          "isUnique": false
+        },
+        "funcionarios_loja_idx": {
+          "name": "funcionarios_loja_idx",
+          "columns": [
+            "loja_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "funcionarios_lojas_usuario_id_usuarios_id_fk": {
+          "name": "funcionarios_lojas_usuario_id_usuarios_id_fk",
+          "tableFrom": "funcionarios_lojas",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "funcionarios_lojas_loja_id_lojas_id_fk": {
+          "name": "funcionarios_lojas_loja_id_lojas_id_fk",
+          "tableFrom": "funcionarios_lojas",
+          "tableTo": "lojas",
+          "columnsFrom": [
+            "loja_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.lojas": {
+      "name": "lojas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_proprietario_id": {
+          "name": "usuario_proprietario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endereco_rua": {
+          "name": "endereco_rua",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_numero": {
+          "name": "endereco_numero",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_bairro": {
+          "name": "endereco_bairro",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_cidade": {
+          "name": "endereco_cidade",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_estado": {
+          "name": "endereco_estado",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endereco_cep": {
+          "name": "endereco_cep",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localizacao": {
+          "name": "localizacao",
+          "type": "geometry(Point,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "perimetro": {
+          "name": "perimetro",
+          "type": "geometry(Point,4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "perimetro_raio_metros": {
+          "name": "perimetro_raio_metros",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 100
+        },
+        "logo_url": {
+          "name": "logo_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tabloide_url": {
+          "name": "tabloide_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cnpj": {
+          "name": "cnpj",
+          "type": "varchar(14)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cnpj_verificado": {
+          "name": "cnpj_verificado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "cnpj_verificado_em": {
+          "name": "cnpj_verificado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "lojas_owner_idx": {
+          "name": "lojas_owner_idx",
+          "columns": [
+            "usuario_proprietario_id"
+          ],
+          "isUnique": false
+        },
+        "lojas_localizacao_gist_idx": {
+          "name": "lojas_localizacao_gist_idx",
+          "columns": [
+            "localizacao"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "lojas_usuario_proprietario_id_usuarios_id_fk": {
+          "name": "lojas_usuario_proprietario_id_usuarios_id_fk",
+          "tableFrom": "lojas",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "usuario_proprietario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.produtos": {
+      "name": "produtos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "codigo_barras": {
+          "name": "codigo_barras",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "marca": {
+          "name": "marca",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ncm": {
+          "name": "ncm",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preco_medio": {
+          "name": "preco_medio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "lista_imagens": {
+          "name": "lista_imagens",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "produtos_codigo_barras_uidx": {
+          "name": "produtos_codigo_barras_uidx",
+          "columns": [
+            "codigo_barras"
+          ],
+          "isUnique": true
+        },
+        "produtos_nome_idx": {
+          "name": "produtos_nome_idx",
+          "columns": [
+            "nome"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.usuarios": {
+      "name": "usuarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "senha_hash": {
+          "name": "senha_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_usuario",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'consumidor'"
+        },
+        "saldo_creditos": {
+          "name": "saldo_creditos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "quantidade_diamantes": {
+          "name": "quantidade_diamantes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "usuarios_email_uidx": {
+          "name": "usuarios_email_uidx",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {
+    "public.status_anuncio": {
+      "name": "status_anuncio",
+      "schema": "public",
+      "values": [
+        "ativo",
+        "pausado",
+        "expirado"
+      ]
+    },
+    "public.status_pedido": {
+      "name": "status_pedido",
+      "schema": "public",
+      "values": [
+        "aguardando_pagamento",
+        "pago",
+        "enviado",
+        "entregue",
+        "cancelado"
+      ]
+    },
+    "public.tipo_anuncio": {
+      "name": "tipo_anuncio",
+      "schema": "public",
+      "values": [
+        "oferta",
+        "promocao",
+        "promocao_relampago"
+      ]
+    },
+    "public.tipo_usuario": {
+      "name": "tipo_usuario",
+      "schema": "public",
+      "values": [
+        "consumidor",
+        "lojista",
+        "funcionario",
+        "admin"
+      ]
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -25,7 +25,9 @@ import type {
   AddFuncionarioRequest,
   UpdateTurnosRequest,
   RenovarAnuncioResponse,
-  LojaPublicResponse
+  LojaPublicResponse,
+  CosmosProdutoSugerido,
+  CosmosQuotaResponse
 } from '@precoreal/api-contracts';
 
 const defaultApiBase = 'http://localhost:3001';
@@ -156,6 +158,17 @@ export function createApiClient(options: ApiClientOptions) {
         }),
     },
 
+    // Cosmos
+    cosmos: {
+      buscarGtin: (codigoBarras: string) =>
+        request<CosmosProdutoSugerido | null>(`/cosmos/gtins/${encodeURIComponent(codigoBarras)}`),
+      buscarPorNome: (termo: string) =>
+        request<{ produtos: CosmosProdutoSugerido[] }>('/cosmos/busca', {
+          method: 'POST',
+          body: JSON.stringify({ termo }),
+        }),
+    },
+
     // Admin
     admin: {
       dashboard: () => request<AdminDashboardResponse>('/admin/dashboard'),
@@ -172,6 +185,14 @@ export function createApiClient(options: ApiClientOptions) {
       testes: {
         executar: () =>
           request<TestExecutionResult>('/admin/testes/executar', { method: 'POST' }),
+      },
+      cosmos: {
+        quota: () => request<CosmosQuotaResponse>('/admin/cosmos/quota'),
+        ajustarLimite: (limiteDiario: number) =>
+          request<{ message: string }>('/admin/cosmos/quota/ajustar', {
+            method: 'POST',
+            body: JSON.stringify({ limiteDiario }),
+          }),
       },
     },
 

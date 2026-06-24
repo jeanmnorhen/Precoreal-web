@@ -13,6 +13,7 @@ export interface CreateLojaRequest {
   longitude: string;
   logoUrl?: string;
   tabloideUrl?: string;
+  cnpj: string;
 }
 
 export interface UpdateLojaRequest {
@@ -28,6 +29,7 @@ export interface UpdateLojaRequest {
   longitude?: string;
   logoUrl?: string;
   tabloideUrl?: string;
+  cnpj?: string;
 }
 
 export interface LojaResponse {
@@ -44,6 +46,9 @@ export interface LojaResponse {
   localizacao: string; // representacao no postgis ou geojson
   logoUrl?: string;
   tabloideUrl?: string;
+  cnpj: string | null;
+  cnpjVerificado: boolean;
+  cnpjVerificadoEm: string | null;
 }
 
 export interface LojaPublicResponse extends LojaResponse {

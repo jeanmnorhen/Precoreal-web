@@ -47,6 +47,7 @@ export class LojasController {
       latitude: dto.latitude,
       longitude: dto.longitude,
       logoUrl: dto.logoUrl,
+      cnpj: dto.cnpj,
     });
   }
 

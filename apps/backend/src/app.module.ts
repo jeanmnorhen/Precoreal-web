@@ -20,6 +20,9 @@ import { AdminModule } from './admin/admin.module';
 import { FuncionarioModule } from './funcionario/funcionario.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ApplicationModule } from './application/application.module';
+import { CnpjModule } from './cnpj/cnpj.module';
+import { CosmosModule } from './cosmos/cosmos.module';
+import { CreditosGratisModule } from './creditos/creditos-gratis.module';
 import { ApplicationExceptionFilter } from './application/filters/application-exception.filter';
 import { AppController } from './app.controller';
 
@@ -45,6 +48,9 @@ import { AppController } from './app.controller';
     FuncionarioModule,
     MetricsModule,
     ApplicationModule,
+    CnpjModule,
+    CosmosModule,
+    CreditosGratisModule,
   ],
   controllers: [AppController],
   providers: [

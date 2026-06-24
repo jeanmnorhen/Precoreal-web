@@ -78,6 +78,13 @@ export class DrizzleLojaRepository implements ILojaRepository {
     return (row as LojaData) || null;
   }
 
+  async updateCnpjVerificacao(id: string, verificado: boolean, verificadoEm: Date): Promise<void> {
+    await this.db
+      .update(lojas)
+      .set({ cnpjVerificado: verificado, cnpjVerificadoEm: verificadoEm } as any)
+      .where(eq(lojas.id, id));
+  }
+
   async delete(id: string, proprietarioId: string): Promise<LojaData | null> {
     const [row] = await this.db
       .delete(lojas)

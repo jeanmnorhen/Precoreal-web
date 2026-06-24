@@ -3,6 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { RepositoriesModule } from '../infrastructure/repositories/repositories.module';
 import { GeoModule } from '../geo/geo.module';
 import { StripeModule } from '../stripe/stripe.module';
+import { CnpjModule } from '../cnpj/cnpj.module';
+import { CreditosGratisModule } from '../creditos/creditos-gratis.module';
 import { RenovarAnuncioUseCase } from './use-cases/renovar-anuncio.use-case';
 import { RegistrarUsuarioUseCase } from './use-cases/registrar-usuario.use-case';
 import { AutenticarUsuarioUseCase } from './use-cases/autenticar-usuario.use-case';
@@ -46,6 +48,8 @@ import { AtualizarUsuarioUseCase } from './use-cases/atualizar-usuario.use-case'
     RepositoriesModule,
     GeoModule,
     StripeModule,
+    CnpjModule,
+    CreditosGratisModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'precoreal-secret-dev',
       signOptions: { expiresIn: '7d' },

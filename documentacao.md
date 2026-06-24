@@ -21,10 +21,13 @@
 ```
 precoreal/
 ├── apps/
-│   ├── backend/          # API NestJS (Fastify, porta 3001)
+│   ├── backend/          # API NestJS (Fastify, porta 3000)
 │   └── web/              # Frontend Next.js (porta 3000)
 ├── packages/
-│   └── shared/           # Schema Drizzle, parser GS1, tipos
+│   ├── shared/           # Schema Drizzle, parser GS1, tipos
+│   ├── api-client/       # Cliente HTTP frontend
+│   ├── api-contracts/    # Contratos de API
+│   └── domain/           # Lógica de domínio
 ├── docker-compose.yml    # PostGIS + Redis + Backend
 ├── vercel.json           # Config deploy frontend
 └── documentacao.md
@@ -62,7 +65,7 @@ precoreal/
 - Pino logger com request IDs
 
 ### Iteração 6 — Roles & Permissions (Admin + Funcionário)
-- Schema: enum `tipoUsuario` com 4 valores, `funcionariosLojas` table, `perimetro`/`perimetroRaioMetros`, `tipo` em anuncios, `statusRevisao` em produtos
+- Schema: enum `tipoUsuario` com 4 valores, `funcionariosLojas` table, `perimetro`/`perimetroRaioMetros`, `tipo` em anuncios
 - AdminModule: Guard, Controller (`GET /dashboard`, `GET /precos`, `GET /uso`), Service (agregações + revisão)
 - FuncionarioModule: Guard (permite funcionario + lojista), Controller (`GET /lojas`, `POST verificar-acesso/:lojaId`, `GET :lojaId/produtos|anuncios`), Service (geofencing ST_DWithin + turnos)
 - LojistaModule extendido: CRUD funcionários (adicionar por email, turnos, remover)
@@ -79,11 +82,24 @@ precoreal/
 - Middleware de proteção de rotas (Next.js middleware.ts com cookie JWT)
 - Redirect por tipo no login/register (consumidor→/, lojista→/lojista, etc.)
 - Limpeza de componentes obsoletos (ofertas-feed, header antigo)
-- Seed expandido: admin, funcionário, tipos de anúncio, geofencing, revisão pendente
+- Seed expandido: admin, funcionário, tipos de anúncio, geofencing
+
+### Iteração 9 — Validação CNPJ, Cosmos Bluesoft & Créditos Grátis
+- Validação de CNPJ ao criar loja: algoritmo checksum local + verificação assíncrona via BrasilAPI (BullMQ)
+- Worker `verificacao-cnpj` consulta `brasilapi.com.br/api/cnpj/v1/{cnpj}`, compara razão social com nome da loja, marca `cnpjVerificado`
+- Circuit breaker no CnpjService (3 falhas → 20s timeout)
+- Integração Cosmos Bluesoft: busca de produto por GTIN ou nome via `api.cosmos.bluesoft.com.br`
+- Tabela `cosmos_quotas` com limite de 25 consultas/dia (configurável pelo admin)
+- Criação automática de produto a partir de dados da Cosmos ao criar anúncio
+- Seletor de produto na criação de anúncio com busca local + fallback Cosmos
+- Dashboard admin com gerenciamento de quota Cosmos
+- Créditos grátis mensais: 30 créditos para lojistas no 1º dia de cada mês
+- Workers `credito-gratis-mensal` e `credito-expiracao` (expira em 30 dias)
+- Jobs agendados via cron: `0 0 1 * *` (concessão) e `0 1 * * *` (expiração)
 
 ## Rotas da Aplicação
 
-### Backend (porta 3001)
+### Backend (porta 3000)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -91,15 +107,30 @@ precoreal/
 | POST | /auth/register | Cadastro |
 | POST | /auth/login | Login |
 | GET | /auth/me | Dados do usuário logado |
-| GET/POST | /usuarios | CRUD |
-| GET/POST | /lojas | CRUD |
-| GET/POST | /produtos | CRUD |
-| GET | /produtos/codigo/:codigoBarras | Busca por barras |
-| GET/POST/PATCH/DELETE | /anuncios | CRUD scoped |
+| GET | /usuarios/perfil | Perfil do usuário |
+| PATCH | /usuarios/perfil | Atualizar perfil |
+| POST | /lojas | Criar loja |
+| GET | /lojas | Listar lojas |
+| GET | /lojas/public/:id | Detalhe público da loja |
+| GET | /lojas/:id | Detalhe da loja |
+| PATCH | /lojas/:id | Atualizar loja |
+| DELETE | /lojas/:id | Remover loja |
+| POST | /produtos | Criar produto |
+| GET | /produtos | Listar produtos (público, com `?busca=`) |
+| GET | /produtos/:id | Detalhe do produto (público) |
+| GET | /produtos/codigo/:codigoBarras | Busca por código de barras |
+| PATCH | /produtos/:id | Atualizar produto |
+| DELETE | /produtos/:id | Remover produto |
+| POST | /anuncios | Criar anúncio |
+| GET | /anuncios | Listar anúncios |
+| GET | /anuncios/:id | Detalhe do anúncio |
+| PATCH | /anuncios/:id | Atualizar anúncio |
+| DELETE | /anuncios/:id | Remover anúncio |
+| POST | /anuncios/:id/renovar | Renovar anúncio |
 | GET | /anuncios/proximos | Feed geo (filtro `?tipo=`) |
 | POST | /scanner/resultado | Parse GS1 |
 | POST | /stripe/webhook | Webhook pagamento |
-| POST | /stripe/create-payment-intent | Criar pagamento |
+| POST | /storage/upload-url | Upload de arquivos |
 | GET | /lojista/dashboard | Métricas lojista |
 | POST | /lojista/creditos/comprar | Comprar créditos |
 | GET | /lojista/funcionarios | Listar funcionários por loja |
@@ -111,8 +142,14 @@ precoreal/
 | GET | /funcionario/:lojaId/produtos | Produtos da loja |
 | GET | /funcionario/:lojaId/anuncios | Anúncios ativos da loja |
 | GET | /admin/dashboard | Métricas admin |
-| GET | /admin/precos | Preços (filtro ?produtoId, ?regiao, ?periodo) |
-| GET | /admin/uso | Uso (filtro ?periodo) |
+| GET | /admin/observabilidade | Observabilidade |
+| GET | /admin/precos | Preços (filtro `?produtoId`, `?regiao`, `?periodo`) |
+| GET | /admin/uso | Uso (filtro `?periodo`) |
+| POST | /admin/testes/executar | Executar testes |
+| GET | /cosmos/gtins/:codigoBarras | Buscar GTIN na Cosmos |
+| POST | /cosmos/busca | Pesquisar produtos por nome na Cosmos |
+| GET | /admin/cosmos/quota | Status da quota Cosmos |
+| POST | /admin/cosmos/quota/ajustar | Ajustar limite diário Cosmos |
 | GET | /metrics | Prometheus |
 
 ### Frontend
@@ -124,14 +161,17 @@ precoreal/
 | /register | público | Cadastro |
 | /busca | público | Busca produtos |
 | /produtos/[id] | público | Detalhe + mapa + ofertas |
+| /loja/[id] | público | Detalhe da loja |
 | /scanner | público | Scanner câmera |
 | /lojista | lojista | Dashboard |
 | /lojista/produtos | lojista | Gestão produtos |
+| /lojista/produtos/adicionar | lojista | Adicionar produto |
 | /lojista/anuncios | lojista | Gestão anúncios |
-| /lojista/selecionar | lojista | Seleção de loja |
 | /lojista/anuncios/adicionar | lojista | Novo anúncio (com tipo) |
+| /lojista/selecionar | lojista | Seleção de loja |
 | /lojista/funcionarios | lojista | Gerenciar funcionários |
 | /lojista/creditos | lojista | Carteira créditos |
+| /lojista/[id]/editar | lojista | Editar loja |
 | /funcionario | funcionario | Dashboard |
 | /funcionario/selecionar | funcionario | Seleção de loja |
 | /funcionario/produtos | funcionario | Produtos da loja |
@@ -139,6 +179,9 @@ precoreal/
 | /admin | admin | Dashboard com métricas |
 | /admin/precos | admin | Gráfico de preços |
 | /admin/uso | admin | Gráfico de uso |
+| /admin/testes | admin | Testes |
+| /admin/observabilidade | admin | Observabilidade |
+| /admin/cosmos | admin | Quota Cosmos |
 
 ## Arquitetura Multi-tenant
 
@@ -222,7 +265,7 @@ Config em `apps/backend/drizzle.config.ts`, schema em `packages/shared/src/db/sc
 ### Backend (Coolify / VPS)
 - Dockerfile: `apps/backend/Dockerfile` (multi-stage, alpine)
 - Orquestração: `docker-compose.yml` (PostGIS + Redis + Backend)
-- Porta: 3001 (pode ser exposta via reverse proxy)
+- Porta: 3000 (pode ser exposta via reverse proxy)
 
 ### Variáveis de Ambiente
 
@@ -234,6 +277,8 @@ JWT_SECRET=...
 STRIPE_RESTRICTED_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 SENTRY_DSN=https://...
+COSMOS_TOKEN=seu_token_aqui
+COSMOS_USER_AGENT=PrecoReal/1.0
 ```
 
 ## PWA
@@ -272,3 +317,7 @@ Os créditos são comprados pelo lojista via Stripe (`POST /lojista/creditos/com
 | PostGIS ST_DWithin + raio em metros | Geofencing funcionário sem necessidade de polígono complexo |
 | Turnos como JSON array em `funcionariosLojas` | Flexível (dias/horários variados), sem tabela separada |
 | 3 tipos de anúncio com regras fixas | Regras de negócio validadas no backend; frontend apenas reflete |
+| CNPJ com validação local + BrasilAPI | Algoritmo checksum síncrono + verificação assíncrona via BullMQ |
+| Cosmos Bluesoft com quota diária | API externa com limite de 25 consultas/dia, gerenciável pelo admin |
+| Créditos grátis mensais (30/mês, expiram 30 dias) | Concessão automática no 1º dia de cada mês via cron BullMQ |
+| Jobs agendados via `upsertJobScheduler` | Sem dependência de cron externo; BullMQ gerencia os schedules no Redis |

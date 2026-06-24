@@ -18,6 +18,14 @@ export class DrizzleUsuarioRepository implements IUsuarioRepository {
     return (row as UsuarioData) || null;
   }
 
+  async findAllByTipo(tipo: string): Promise<UsuarioData[]> {
+    const rows = await this.db
+      .select()
+      .from(usuarios)
+      .where(eq(usuarios.tipo, tipo as any));
+    return rows as UsuarioData[];
+  }
+
   async findByEmail(email: string): Promise<UsuarioData | null> {
     const [row] = await this.db.select().from(usuarios).where(eq(usuarios.email, email)).limit(1);
     return (row as UsuarioData) || null;

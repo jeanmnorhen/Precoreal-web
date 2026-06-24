@@ -45,4 +45,9 @@ export class CreateLojaDto implements CreateLojaRequest {
   @IsString()
   @IsOptional()
   tabloideUrl?: string;
+
+  @IsString()
+  @MinLength(14)
+  @MaxLength(18)
+  cnpj: string;
 }

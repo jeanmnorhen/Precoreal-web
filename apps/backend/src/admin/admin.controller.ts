@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { HealthService } from '../health/health.service';
 import { TestRunnerService } from '../test-runner/test-runner.service';
+import { CosmosService } from '../cosmos/cosmos.service';
 import { ObterDashboardAdminUseCase } from '../application/use-cases/obter-dashboard-admin.use-case';
 import { MonitorarPrecosUseCase } from '../application/use-cases/monitorar-precos.use-case';
 import { MonitorarUsoUseCase } from '../application/use-cases/monitorar-uso.use-case';
@@ -15,6 +16,7 @@ export class AdminController {
   constructor(
     private readonly healthService: HealthService,
     private readonly testRunnerService: TestRunnerService,
+    private readonly cosmosService: CosmosService,
     private readonly obterDashboardAdminUseCase: ObterDashboardAdminUseCase,
     private readonly monitorarPrecosUseCase: MonitorarPrecosUseCase,
     private readonly monitorarUsoUseCase: MonitorarUsoUseCase,
@@ -47,5 +49,16 @@ export class AdminController {
   @Post('testes/executar')
   async executarTestes() {
     return this.testRunnerService.executarTestes();
+  }
+
+  @Get('cosmos/quota')
+  async obterQuotaCosmos() {
+    return this.cosmosService.obterQuota();
+  }
+
+  @Post('cosmos/quota/ajustar')
+  async ajustarQuotaCosmos(@Body() body: { limiteDiario: number }) {
+    await this.cosmosService.ajustarLimite(body.limiteDiario);
+    return { message: 'Limite atualizado com sucesso.' };
   }
 }

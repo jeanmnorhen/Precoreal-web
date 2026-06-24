@@ -7,3 +7,4 @@ export * from './scanner';
 export * from './usuarios';
 export * from './admin';
 export * from './funcionario';
+export * from './cosmos';

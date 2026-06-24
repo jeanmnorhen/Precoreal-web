@@ -4,6 +4,7 @@ export interface CreateProdutoRequest {
   descricao?: string;
   categoria: string;
   marca: string;
+  ncm?: string;
   precoMedio?: number;
   listaImagens?: string[];
 }
@@ -14,6 +15,7 @@ export interface UpdateProdutoRequest {
   descricao?: string;
   categoria?: string;
   marca?: string;
+  ncm?: string;
   precoMedio?: number;
   listaImagens?: string[];
 }
@@ -25,6 +27,7 @@ export interface ProdutoResponse {
   descricao?: string;
   categoria: string;
   marca: string;
+  ncm?: string;
   precoMedio: number;
   listaImagens: string[];
 }

@@ -4,9 +4,14 @@ export interface ComprarCreditosRequest {
 }
 
 export interface DashboardResponse {
-  totalProdutos: number;
+  totalLojas: number;
+  totalAnuncios: number;
   totalAnunciosAtivos: number;
-  visitasRecebidas: number;
+  creditosGratis: {
+    recebidosEsteMes: boolean;
+    proximaConcessao: string;
+    expiraEm: string | null;
+  };
 }
 
 export interface Turno {

@@ -11,4 +11,5 @@ export interface ILojaRepository {
   delete(id: string, proprietarioId: string): Promise<LojaData | null>;
   checkGeofence(lojaId: string, latitude: number, longitude: number): Promise<boolean>;
   countByDateRange(desde: Date): Promise<number>;
+  updateCnpjVerificacao(id: string, verificado: boolean, verificadoEm: Date): Promise<void>;
 }

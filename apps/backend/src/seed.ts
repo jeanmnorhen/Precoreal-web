@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from '../../../packages/shared/src/db/schema';
+import * as schema from '@precoreal/shared';
 import bcrypt from 'bcrypt';
 
 const pool = new Pool({

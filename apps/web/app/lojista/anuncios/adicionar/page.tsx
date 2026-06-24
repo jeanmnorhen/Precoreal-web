@@ -10,9 +10,26 @@ const REGRAS_TIPO = {
   promocao_relampago: { label: '⚡ Relâmpago',   maxDias: 3,  custoMin: 5,  raioMaxKm: 10, cor: 'hsla(0,60%,50%,0.1)' },
 };
 
+interface ProdutoItem {
+  id: string;
+  nome: string;
+  codigoBarras: string;
+  marca: string;
+}
+
+interface CosmosItem {
+  codigoBarras: string;
+  nome: string;
+  marca: string;
+  categoria: string;
+  ncm?: string;
+  precoMedio?: number;
+  imagemUrl?: string;
+}
+
 export default function AdicionarAnuncio() {
   const router = useRouter();
-  const [produtos, setProdutos] = useState<any[]>([]);
+  const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
   const [tipo, setTipo] = useState<'oferta' | 'promocao' | 'promocao_relampago'>('oferta');
   const [form, setForm] = useState({
     produtoId: '', titulo: '', descricao: '', raioAlcanceKm: 3,
@@ -20,14 +37,18 @@ export default function AdicionarAnuncio() {
   });
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
+  const [busca, setBusca] = useState('');
+  const [buscando, setBuscando] = useState(false);
+  const [resultadosCosmos, setResultadosCosmos] = useState<CosmosItem[]>([]);
+  const [mostrarBuscaCosmos, setMostrarBuscaCosmos] = useState(false);
+
+  const regra = REGRAS_TIPO[tipo];
 
   useEffect(() => {
     api.produtos.buscar()
       .then(setProdutos)
       .catch(() => {});
   }, []);
-
-  const regra = REGRAS_TIPO[tipo];
 
   const handleTipoChange = (novoTipo: typeof tipo) => {
     setTipo(novoTipo);
@@ -46,6 +67,89 @@ export default function AdicionarAnuncio() {
     const d = new Date(dataInicio);
     d.setDate(d.getDate() + regra.maxDias);
     return d.toISOString().split('T')[0];
+  };
+
+  const handleBuscarProduto = async () => {
+    if (!busca.trim()) return;
+    setBuscando(true);
+    setErro('');
+    setResultadosCosmos([]);
+
+    const isBarcode = /^\d{8,14}$/.test(busca.replace(/\D/g, ''));
+
+    try {
+      if (isBarcode) {
+        const barcode = busca.replace(/\D/g, '');
+        const local = await api.produtos.porCodigo(barcode).catch(() => null);
+        if (local) {
+          setForm((prev) => ({ ...prev, produtoId: local.id }));
+          setMostrarBuscaCosmos(false);
+          setResultadosCosmos([]);
+          setBusca('');
+          return;
+        }
+      }
+
+      const produtosLocal = await api.produtos.buscar(busca);
+      if (produtosLocal.length > 0 && isBarcode) {
+        setForm((prev) => ({ ...prev, produtoId: produtosLocal[0].id }));
+        setMostrarBuscaCosmos(false);
+        setResultadosCosmos([]);
+        setBusca('');
+        return;
+      }
+
+      if (produtosLocal.length > 0) {
+        setMostrarBuscaCosmos(false);
+        setResultadosCosmos([]);
+        setErro('Produto encontrado no sistema. Selecione na lista abaixo.');
+        return;
+      }
+
+      const cosmos = await api.cosmos.buscarPorNome(busca).catch(() => null);
+      if (cosmos?.produtos?.length) {
+        setResultadosCosmos(cosmos.produtos);
+        setMostrarBuscaCosmos(true);
+      } else if (isBarcode) {
+        const cosmosGtin = await api.cosmos.buscarGtin(barcode).catch(() => null);
+        if (cosmosGtin) {
+          setResultadosCosmos([cosmosGtin]);
+          setMostrarBuscaCosmos(true);
+        } else {
+          setErro('Produto não encontrado no sistema nem na Cosmos.');
+        }
+      } else {
+        setErro('Nenhum produto encontrado. Tente outro termo.');
+      }
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao buscar produto.');
+    } finally {
+      setBuscando(false);
+    }
+  };
+
+  const handleImportarCosmos = async (item: CosmosItem) => {
+    setBuscando(true);
+    try {
+      const novo = await api.produtos.criar({
+        codigoBarras: item.codigoBarras,
+        nome: item.nome,
+        marca: item.marca,
+        categoria: item.categoria || 'Geral',
+        ncm: item.ncm,
+        precoMedio: item.precoMedio,
+        listaImagens: item.imagemUrl ? [item.imagemUrl] : [],
+      });
+      setForm((prev) => ({ ...prev, produtoId: novo.id }));
+      setMostrarBuscaCosmos(false);
+      setResultadosCosmos([]);
+      setBusca('');
+      setProdutos((prev) => [...prev, { id: novo.id, nome: novo.nome, codigoBarras: novo.codigoBarras, marca: novo.marca }]);
+    } catch (err: any) {
+      setErro(err.message);
+    } finally {
+      setBuscando(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,6 +208,57 @@ export default function AdicionarAnuncio() {
           </div>
         )}
 
+        {/* Busca de produto */}
+        <div>
+          <label className="block text-sm font-medium mb-1.5">Buscar Produto</label>
+          <div className="flex gap-2">
+            <input type="text" value={busca}
+              placeholder="Código de barras ou nome..."
+              onChange={(e) => setBusca(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleBuscarProduto())}
+              className="flex-1 px-4 py-3 rounded-xl text-sm outline-none focus:ring-2"
+              style={{ background: 'var(--color-input)', color: 'var(--color-foreground)', border: '1px solid var(--color-border)' } as React.CSSProperties} />
+            <button type="button" onClick={handleBuscarProduto} disabled={buscando}
+              className="px-4 py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
+              {buscando ? '...' : 'Buscar'}
+            </button>
+          </div>
+          <p className="text-[11px] mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
+            Digite um código de barras ou nome do produto. Se não encontrar, busca na Cosmos.
+          </p>
+        </div>
+
+        {/* Resultados da Cosmos */}
+        {mostrarBuscaCosmos && resultadosCosmos.length > 0 && (
+          <div className="p-4 rounded-xl" style={{ border: '1px solid var(--color-border)', background: 'var(--color-card)' }}>
+            <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: 'var(--color-foreground-muted)' }}>
+              Produtos encontrados na Cosmos
+            </p>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {resultadosCosmos.map((item, i) => (
+                <div key={i}
+                  className="flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all hover:opacity-90"
+                  style={{ background: 'var(--color-background)' }}
+                  onClick={() => handleImportarCosmos(item)}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{item.nome}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-foreground-muted)' }}>
+                      {item.marca} · {item.codigoBarras}
+                    </p>
+                  </div>
+                  <button type="button"
+                    className="ml-3 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap"
+                    style={{ background: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>
+                    Importar
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Seletor de produto local */}
         <div>
           <label className="block text-sm font-medium mb-1.5">Produto</label>
           <select

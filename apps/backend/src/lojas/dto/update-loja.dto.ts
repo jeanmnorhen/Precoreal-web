@@ -54,4 +54,10 @@ export class UpdateLojaDto implements UpdateLojaRequest {
   @IsString()
   @IsOptional()
   tabloideUrl?: string;
+
+  @IsString()
+  @MinLength(14)
+  @MaxLength(18)
+  @IsOptional()
+  cnpj?: string;
 }

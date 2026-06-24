@@ -17,6 +17,9 @@ export interface LojaData {
   perimetroRaioMetros: number;
   logoUrl: string | null;
   tabloideUrl: string | null;
+  cnpj: string | null;
+  cnpjVerificado: boolean;
+  cnpjVerificadoEm: Date | null;
   criadoEm: Date;
 }
 
@@ -48,5 +51,8 @@ export class Loja {
   get perimetroRaioMetros() { return this.data.perimetroRaioMetros; }
   get logoUrl() { return this.data.logoUrl; }
   get tabloideUrl() { return this.data.tabloideUrl; }
+  get cnpj() { return this.data.cnpj; }
+  get cnpjVerificado() { return this.data.cnpjVerificado; }
+  get cnpjVerificadoEm() { return this.data.cnpjVerificadoEm; }
   get criadoEm() { return this.data.criadoEm; }
 }

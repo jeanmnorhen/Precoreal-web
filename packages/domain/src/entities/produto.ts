@@ -5,6 +5,7 @@ export interface ProdutoData {
   descricao: string | null;
   categoria: string;
   marca: string;
+  ncm: string | null;
   precoMedio: number;
   listaImagens: string[];
   criadoEm: Date;

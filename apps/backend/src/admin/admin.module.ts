@@ -6,9 +6,10 @@ import { RedisModule } from '../redis/redis.module';
 import { HealthModule } from '../health/health.module';
 import { TestRunnerModule } from '../test-runner/test-runner.module';
 import { ApplicationModule } from '../application/application.module';
+import { CosmosModule } from '../cosmos/cosmos.module';
 
 @Module({
-  imports: [DatabaseModule, RedisModule, HealthModule, TestRunnerModule, ApplicationModule],
+  imports: [DatabaseModule, RedisModule, HealthModule, TestRunnerModule, ApplicationModule, CosmosModule],
   controllers: [AdminController],
   providers: [AdminGuard],
 })

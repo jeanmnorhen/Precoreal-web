@@ -46,6 +46,22 @@ export default function LojistaDashboard() {
         </div>
       </div>
 
+      {stats?.creditosGratis && (
+        <div className="p-4 rounded-xl mb-6 text-sm"
+             style={{ background: stats.creditosGratis.recebidosEsteMes ? 'hsla(140,30%,42%,0.08)' : 'hsla(32,80%,50%,0.08)' }}>
+          <p className="font-semibold">
+            {stats.creditosGratis.recebidosEsteMes
+              ? '🎉 30 créditos grátis recebidos este mês!'
+              : '📅 Créditos grátis disponíveis no 1º dia do mês'}
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-foreground-muted)' }}>
+            {stats.creditosGratis.recebidosEsteMes
+              ? `Expira em ${new Date(stats.creditosGratis.expiraEm).toLocaleDateString('pt-BR')}`
+              : `Próxima concessão: ${new Date(stats.creditosGratis.proximaConcessao).toLocaleDateString('pt-BR')}`}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         {[
           { label: 'Lojas', value: stats?.totalLojas || 0 },
@@ -127,7 +143,7 @@ function LojaForm({ onSuccess }: { onSuccess: () => void }) {
   const [form, setForm] = useState({
     nome: '', descricao: '', enderecoRua: '', enderecoNumero: '',
     enderecoBairro: '', enderecoCidade: '', enderecoEstado: '',
-    enderecoCep: '', latitude: '', longitude: '',
+    enderecoCep: '', latitude: '', longitude: '', cnpj: '',
   });
   const [salvando, setSalvando] = useState(false);
 
@@ -144,8 +160,18 @@ function LojaForm({ onSuccess }: { onSuccess: () => void }) {
     }
   };
 
+  const formatCnpj = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+  };
+
   const fields = [
     { key: 'nome', label: 'Nome da loja', required: true },
+    { key: 'cnpj', label: 'CNPJ', required: true, maxLength: 18, mask: formatCnpj },
     { key: 'descricao', label: 'Descrição' },
     { key: 'enderecoRua', label: 'Rua', required: true },
     { key: 'enderecoNumero', label: 'Número', required: true },
@@ -164,7 +190,7 @@ function LojaForm({ onSuccess }: { onSuccess: () => void }) {
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-foreground)' }}>{f.label}</label>
           <input type="text" required={f.required} maxLength={f.maxLength}
             value={(form as any)[f.key]}
-            onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+            onChange={(e) => setForm({ ...form, [f.key]: f.mask ? f.mask(e.target.value) : e.target.value })}
             className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all focus:ring-2"
             style={{ background: 'var(--color-background)', color: 'var(--color-foreground)', border: '1.5px solid var(--color-border)' } as React.CSSProperties} />
         </div>

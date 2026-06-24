@@ -10,7 +10,6 @@ export declare const tipoUsuarioEnum: import("drizzle-orm/pg-core").PgEnum<["con
 export declare const tipoAnuncioEnum: import("drizzle-orm/pg-core").PgEnum<["oferta", "promocao", "promocao_relampago"]>;
 export declare const statusAnuncioEnum: import("drizzle-orm/pg-core").PgEnum<["ativo", "pausado", "expirado"]>;
 export declare const statusPedidoEnum: import("drizzle-orm/pg-core").PgEnum<["aguardando_pagamento", "pago", "enviado", "entregue", "cancelado"]>;
-export declare const statusRevisaoEnum: import("drizzle-orm/pg-core").PgEnum<["pendente", "aprovado", "rejeitado"]>;
 export declare const usuarios: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "usuarios";
     schema: undefined;
@@ -274,6 +273,18 @@ export declare const lojas: import("drizzle-orm/pg-core").PgTableWithColumns<{
             enumValues: undefined;
             baseColumn: never;
         }, {}, {}>;
+        logoUrl: import("drizzle-orm/pg-core").PgColumn<{
+            name: "logo_url";
+            tableName: "lojas";
+            dataType: "string";
+            columnType: "PgVarchar";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
         tabloideUrl: import("drizzle-orm/pg-core").PgColumn<{
             name: "tabloide_url";
             tableName: "lojas";
@@ -489,30 +500,6 @@ export declare const produtos: import("drizzle-orm/pg-core").PgTableWithColumns<
                 enumValues: [string, ...string[]];
                 baseColumn: never;
             }, object, object>;
-        }, {}, {}>;
-        statusRevisao: import("drizzle-orm/pg-core").PgColumn<{
-            name: "status_revisao";
-            tableName: "produtos";
-            dataType: "string";
-            columnType: "PgEnumColumn";
-            data: "pendente" | "aprovado" | "rejeitado";
-            driverParam: string;
-            notNull: true;
-            hasDefault: true;
-            enumValues: ["pendente", "aprovado", "rejeitado"];
-            baseColumn: never;
-        }, {}, {}>;
-        revisadoPor: import("drizzle-orm/pg-core").PgColumn<{
-            name: "revisado_por";
-            tableName: "produtos";
-            dataType: "string";
-            columnType: "PgUUID";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
         }, {}, {}>;
         criadoEm: import("drizzle-orm/pg-core").PgColumn<{
             name: "criado_em";

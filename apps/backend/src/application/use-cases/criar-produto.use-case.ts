@@ -15,6 +15,7 @@ export class CriarProdutoUseCase {
     descricao?: string;
     categoria: string;
     marca: string;
+    ncm?: string;
     precoMedio?: number;
     listaImagens?: string[];
   }) {
